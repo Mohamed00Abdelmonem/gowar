@@ -48,6 +48,9 @@ docker compose -f "${COMPOSE_FILE}" run --rm --no-deps backend python manage.py 
 echo "Running safe Django database migrations (no destructive reset)..."
 docker compose -f "${COMPOSE_FILE}" run --rm --no-deps backend python manage.py migrate --noinput
 
+echo "Ensuring non-root permissions (1000:1000) on persistent media and static volumes..."
+docker compose -f "${COMPOSE_FILE}" run --rm --no-deps --user 0 --entrypoint sh backend -c "chown -R 1000:1000 /app/media /app/staticfiles"
+
 echo "Collecting Django static files..."
 docker compose -f "${COMPOSE_FILE}" run --rm --no-deps backend python manage.py collectstatic --noinput
 
