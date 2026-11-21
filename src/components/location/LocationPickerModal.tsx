@@ -218,6 +218,16 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
       return;
     }
 
+    if (typeof window !== 'undefined' && !window.isSecureContext) {
+      setGpsError(
+        t(
+          'تحديد الموقع التلقائي (GPS) يتطلب اتصال HTTPS آمن. يمكنك تحديد موقعك يدوياً بالنقر على الخريطة أو البحث بالعنوان.',
+          'Automatic browser GPS requires HTTPS. Please tap/drag your spot manually on the map or search by address.'
+        )
+      );
+      return;
+    }
+
     setGpsLoading(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {

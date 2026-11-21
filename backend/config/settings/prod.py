@@ -64,10 +64,14 @@ SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "True").lower() == "
 # Exempt internal Docker healthcheck endpoint from HTTP->HTTPS redirect
 SECURE_REDIRECT_EXEMPT = [r"^health/$"]
 
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = (
+    os.environ.get("SESSION_COOKIE_SECURE", "True").lower() == "true"
+)
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = (
+    os.environ.get("CSRF_COOKIE_SECURE", "True").lower() == "true"
+)
 CSRF_COOKIE_SAMESITE = "Lax"
 
 SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "31536000"))
