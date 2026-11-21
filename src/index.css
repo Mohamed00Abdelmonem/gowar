@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #D6450D;
+  --color-primary-dark: #B33808;
+  --color-primary-light: #FFF2EB;
+  --color-secondary: #F47B20;
+  --color-bg: #FAF9F7;
+  --color-surface: #FFFFFF;
+  --color-ink: #1C1917;
+  --color-muted: #6E6A66;
+  --color-border: #EAE6E1;
+}
+
+@layer base {
+  html {
+    font-family: 'Cairo', 'IBM Plex Sans Arabic', 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #FAF9F7;
+    color: #1C1917;
+    scroll-behavior: smooth;
+    overflow-x: clip;
+  }
+
+  html[dir="ltr"] {
+    font-family: 'Inter', 'Cairo', 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #FAF9F7;
+    color: #1C1917;
+    overflow-x: clip;
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F2EE;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D5CEC6;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B8AEA3;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.leaflet-container {
+  font-family: 'Cairo', 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
+  z-index: 1;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(28, 25, 23, 0.12);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+}

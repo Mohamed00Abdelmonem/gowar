@@ -1,0 +1,98 @@
+# Production Docker Compose for Gowar on Contabo VPS (4 vCPU, 7.8 GB RAM)
+#
+# Architecture:
+#   Internet -> Host Nginx (TLS/443) -> 127.0.0.1:8080 (gowar-frontend)
+#                                            |-- React SPA + /static/ + /media/
+#                                            |-- /api/ & /django-admin/ -> gowar-backend:8000
+#   gowar-backend -> gowar-db (existing PostgreSQL/PostGIS on external gowar_db_net)
+#
+# CRITICAL:
+#   - Does NOT create or modify PostgreSQL (uses existing gowar-db & gowar_pgdata).
+#   - Backend joins both gowar_db_net (internal DB) and gowar_app_net (app + outbound).
+#   - Frontend joins ONLY gowar_app_net (no direct database network access).
+#   - Neither PostgreSQL nor Gunicorn exposes a public port.
+
+services:
+  backend:
+    image: ${GOWAR_BACKEND_IMAGE:-gowar-backend:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: gowar-backend
+    restart: unless-stopped
+    env_file:
+      - ${GOWAR_ENV_FILE:-/opt/gowar/.env}
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      POSTGRES_HOST: ${POSTGRES_HOST:-gowar-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    expose:
+      - "8000"
+    volumes:
+      - gowar_static:/app/staticfiles
+      - gowar_media:/app/media
+    networks:
+      - gowar_db_net
+      - gowar_app_net
+    mem_limit: 2g
+    cpus: 2.0
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+
+  frontend:
+    image: ${GOWAR_FRONTEND_IMAGE:-gowar-frontend:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: /api/v1
+        VITE_USE_BACKEND_API: "true"
+        VITE_GEOCODING_URL: ${VITE_GEOCODING_URL:-https://nominatim.openstreetmap.org}
+    container_name: gowar-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${APP_BIND_PORT:-8080}:80"
+    volumes:
+      - gowar_static:/srv/gowar/static:ro
+      - gowar_media:/srv/gowar/media:ro
+    networks:
+      - gowar_app_net
+    mem_limit: 512m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/nginx-health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  gowar_static:
+    name: gowar_static
+  gowar_media:
+    name: gowar_media
+
+networks:
+  gowar_db_net:
+    external: true
+    name: gowar_db_net
+  gowar_app_net:
+    driver: bridge
+    name: gowar_app_net

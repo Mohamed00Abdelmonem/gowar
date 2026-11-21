@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!assets/|gowar-icon\\.png|gowar-logo\\.png|favicon\\.svg).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

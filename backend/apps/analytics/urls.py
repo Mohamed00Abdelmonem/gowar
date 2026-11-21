@@ -1,0 +1,50 @@
+from django.urls import path
+from .views import (
+    AdminAreaDetailView,
+    AdminAreaListCreateView,
+    AdminCategoryDetailView,
+    AdminCategoryListCreateView,
+    AdminCommissionListView,
+    AdminCommissionSettleView,
+    AdminCustomerDetailView,
+    AdminCustomerListView,
+    AdminFinancialReportView,
+    AdminMerchantDetailView,
+    AdminMerchantListView,
+    AdminMerchantStatusActionView,
+    AdminOrderListView,
+    AdminOrderRefundView,
+    AdminOverviewView,
+    AdminPlatformSettingsView,
+    AdminStoreCommissionUpdateView,
+    MerchantAnalyticsView,
+    MerchantCustomersView,
+    MerchantOverviewView,
+)
+
+merchant_urlpatterns = [
+    path("overview/", MerchantOverviewView.as_view(), name="merchant-overview"),
+    path("analytics/", MerchantAnalyticsView.as_view(), name="merchant-analytics"),
+    path("customers/", MerchantCustomersView.as_view(), name="merchant-customers"),
+]
+
+admin_urlpatterns = [
+    path("overview/", AdminOverviewView.as_view(), name="admin-overview"),
+    path("analytics/", AdminOverviewView.as_view(), name="admin-analytics"),
+    path("financial-report/", AdminFinancialReportView.as_view(), name="admin-financial-report"),
+    path("merchants/", AdminMerchantListView.as_view(), name="admin-merchants"),
+    path("merchants/<uuid:pk>/", AdminMerchantDetailView.as_view(), name="admin-merchant-detail"),
+    path("merchants/<uuid:pk>/status/", AdminMerchantStatusActionView.as_view(), name="admin-merchant-status"),
+    path("stores/<uuid:pk>/commission/", AdminStoreCommissionUpdateView.as_view(), name="admin-store-commission"),
+    path("orders/", AdminOrderListView.as_view(), name="admin-orders"),
+    path("orders/<uuid:pk>/refund/", AdminOrderRefundView.as_view(), name="admin-order-refund"),
+    path("customers/", AdminCustomerListView.as_view(), name="admin-customers"),
+    path("customers/<uuid:pk>/", AdminCustomerDetailView.as_view(), name="admin-customer-detail"),
+    path("categories/", AdminCategoryListCreateView.as_view(), name="admin-categories"),
+    path("categories/<uuid:pk>/", AdminCategoryDetailView.as_view(), name="admin-category-detail"),
+    path("areas/", AdminAreaListCreateView.as_view(), name="admin-areas"),
+    path("areas/<uuid:pk>/", AdminAreaDetailView.as_view(), name="admin-area-detail"),
+    path("commissions/", AdminCommissionListView.as_view(), name="admin-commissions"),
+    path("commissions/<uuid:pk>/settle/", AdminCommissionSettleView.as_view(), name="admin-commission-settle"),
+    path("settings/", AdminPlatformSettingsView.as_view(), name="admin-settings"),
+]
