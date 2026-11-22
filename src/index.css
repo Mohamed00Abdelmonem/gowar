@@ -79,3 +79,68 @@
 .leaflet-popup-content {
   margin: 12px 14px;
 }
+
+@keyframes pwa-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pwa-modal-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes pwa-icon-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+@keyframes pwa-cta-attention {
+  0%, 100% {
+    box-shadow: 0 10px 24px -6px rgba(214, 69, 13, 0.45), 0 0 0 0 rgba(214, 69, 13, 0.35);
+  }
+  50% {
+    box-shadow: 0 14px 28px -6px rgba(214, 69, 13, 0.55), 0 0 0 7px rgba(214, 69, 13, 0);
+  }
+}
+
+.pwa-overlay-animate {
+  animation: pwa-overlay-in 240ms ease-out both;
+}
+
+.pwa-modal-animate {
+  animation: pwa-modal-in 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.pwa-icon-float {
+  animation: pwa-icon-float 3.4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.pwa-cta-attention {
+  animation: pwa-cta-attention 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pwa-overlay-animate,
+  .pwa-modal-animate,
+  .pwa-icon-float,
+  .pwa-cta-attention {
+    animation: none !important;
+  }
+}

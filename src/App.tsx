@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import { AppProvider } from './context/AppContext';
 import { ToastContainer } from './components/common/ToastContainer';
 import { CartConflictModal } from './components/common/CartConflictModal';
+import { PwaInstallModal } from './components/pwa/PwaInstallModal';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 // Layouts
@@ -137,6 +138,7 @@ export function App() {
         </Routes>
 
         <CartConflictModal />
+        <PwaInstallModal />
         <ToastContainer />
       </BrowserRouter>
     </AppProvider>
