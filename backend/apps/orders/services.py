@@ -11,7 +11,7 @@ from apps.locations.models import CustomerAddress
 from apps.merchants.models import ApprovalStatus
 from apps.notifications.services import create_and_dispatch_notification
 from apps.payments.services import get_payment_provider
-from apps.stores.services import evaluate_delivery_coverage
+from apps.stores.services import calculate_dynamic_delivery_quote
 from .models import Order, OrderItem, OrderStatusChoices, OrderStatusHistory
 from .transitions import validate_order_transition
 
@@ -96,17 +96,6 @@ def create_order_from_cart(
     else:
         raise ValidationError("A confirmed delivery address or coordinates must be provided.")
 
-    # Strictly validate independent merchant delivery coverage using PostGIS distance
-    coverage = evaluate_delivery_coverage(store, lat, lng)
-    if not coverage["delivery_available"]:
-        if coverage["reason"] == "pickup_only":
-            raise ValidationError(
-                "This store does not offer delivery; only in-store pickup is available."
-            )
-        raise ValidationError(
-            f"Delivery address ({coverage['distance_km']} km) is outside {store.name}'s delivery coverage ({store.delivery_radius_km} km)."
-        )
-
     # Calculate totals exclusively from live DB prices (never trust frontend numbers)
     subtotal = Decimal("0.00")
     items_qty_map: dict = {}
@@ -134,11 +123,18 @@ def create_order_from_cart(
             f"Minimum order for {store.name} is {store.minimum_order_amount} EGP."
         )
 
-    qualifies_free = (
-        store.free_delivery_threshold is not None
-        and subtotal >= store.free_delivery_threshold
-    )
-    delivery_fee = Decimal("0.00") if qualifies_free else store.delivery_fee
+    # Strictly validate independent merchant delivery coverage & dynamic fee using PostGIS
+    delivery_quote = calculate_dynamic_delivery_quote(store, lat, lng, subtotal=subtotal)
+    if not delivery_quote["delivery_available"]:
+        if delivery_quote["reason"] == "pickup_only":
+            raise ValidationError(
+                "This store does not offer delivery; only in-store pickup is available."
+            )
+        raise ValidationError(
+            f"Delivery address ({delivery_quote['distance_km']} km) is outside {store.name}'s delivery coverage ({store.delivery_radius_km} km)."
+        )
+
+    delivery_fee = delivery_quote["delivery_fee"]
 
     financials = calculate_order_financials(
         subtotal=subtotal,
@@ -157,6 +153,9 @@ def create_order_from_cart(
         delivery_address_snapshot=address_snapshot,
         subtotal=financials.subtotal,
         delivery_fee=financials.delivery_fee,
+        delivery_distance_km=delivery_quote["actual_distance_km"],
+        billable_distance_km=delivery_quote["billable_km"],
+        delivery_price_per_km_snapshot=delivery_quote["price_per_km"],
         discount_amount=financials.discount_amount,
         total_amount=financials.total_amount,
         commission_rate_snapshot=financials.commission_rate,

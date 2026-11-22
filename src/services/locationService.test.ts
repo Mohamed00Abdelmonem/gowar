@@ -271,3 +271,26 @@ test('filterNearbyStores boosts previously ordered open stores while preserving 
     ['store-prev-2km', 'store-new-500m']
   );
 });
+
+import { calculateBillableKm, calculateDynamicDeliveryFee } from './locationService.ts';
+
+test('calculateBillableKm enforces 1.5 km band pricing boundaries', () => {
+  const cases: Array<[number, number]> = [
+    [0.5, 1],
+    [1.0, 1],
+    [1.25, 1],
+    [1.5, 1],
+    [1.51, 2],
+    [2.0, 2],
+    [2.5, 2],
+    [2.51, 3],
+    [3.5, 3],
+    [3.51, 4],
+  ];
+  for (const [dist, expected] of cases) {
+    assert.equal(calculateBillableKm(dist), expected, `Failed for ${dist} km`);
+  }
+  const feeRes = calculateDynamicDeliveryFee(1.8, 10);
+  assert.equal(feeRes.billableKm, 2);
+  assert.equal(feeRes.deliveryFee, 20);
+});

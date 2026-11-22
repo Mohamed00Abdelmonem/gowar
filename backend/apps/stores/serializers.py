@@ -39,6 +39,7 @@ class StorePublicSerializer(serializers.ModelSerializer):
             "is_open",
             "delivery_enabled",
             "delivery_fee",
+            "delivery_price_per_km",
             "delivery_radius_km",
             "minimum_order_amount",
             "free_delivery_threshold",
@@ -122,11 +123,17 @@ class MerchantStoreSettingsSerializer(serializers.ModelSerializer):
             "delivery_enabled",
             "delivery_radius_km",
             "delivery_fee",
+            "delivery_price_per_km",
             "minimum_order_amount",
             "free_delivery_threshold",
             "estimated_delivery_minutes",
         ]
         read_only_fields = ["id", "approval_status", "commission_rate"]
+
+    def validate_delivery_price_per_km(self, value):
+        if value is None or value < 0:
+            raise serializers.ValidationError("Delivery price per km cannot be negative.")
+        return value
 
     def validate_area(self, value):
         if value is not None and not value.is_active:

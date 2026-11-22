@@ -5,12 +5,14 @@ from .views import (
     NearbyStoresListView,
     PublicStoreDetailView,
     PublicStoreListView,
+    StoreDeliveryQuoteView,
 )
 
 public_urlpatterns = [
     path("", PublicStoreListView.as_view(), name="stores-list"),
     path("nearby/", NearbyStoresListView.as_view(), name="stores-nearby"),
     path("<uuid:pk>/", PublicStoreDetailView.as_view(), name="store-detail"),
+    path("<uuid:pk>/delivery-quote/", StoreDeliveryQuoteView.as_view(), name="store-delivery-quote"),
 ]
 
 merchant_urlpatterns = [

@@ -13,7 +13,7 @@ from apps.locations.validators import (
 from apps.merchants.models import ApprovalStatus
 from .models import Store
 from .serializers import MerchantStoreSettingsSerializer, StorePublicSerializer
-from .services import get_nearby_stores_queryset
+from .services import calculate_dynamic_delivery_quote, get_nearby_stores_queryset
 
 
 class NearbyStoresListView(generics.ListAPIView):
@@ -95,6 +95,60 @@ class PublicStoreDetailView(generics.RetrieveAPIView):
             except ValueError:
                 pass
         return qs
+
+
+class StoreDeliveryQuoteView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk):
+        from decimal import Decimal, InvalidOperation
+        from django.core.exceptions import ValidationError as DjangoValidationError
+
+        store = Store.objects.filter(
+            pk=pk, is_active=True, approval_status=ApprovalStatus.APPROVED
+        ).first()
+        if not store:
+            return Response({"detail": "Store not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        lat_raw = request.query_params.get("latitude")
+        lng_raw = request.query_params.get("longitude")
+        if lat_raw is None or lng_raw is None:
+            return Response(
+                {"detail": "Query parameters 'latitude' and 'longitude' are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        subtotal_dec = None
+        sub_raw = request.query_params.get("subtotal")
+        if sub_raw is not None:
+            try:
+                subtotal_dec = Decimal(str(sub_raw))
+            except InvalidOperation:
+                return Response(
+                    {"detail": "Invalid subtotal value."}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+        try:
+            lat, lng = validate_coordinates(float(lat_raw), float(lng_raw))
+            quote = calculate_dynamic_delivery_quote(store, lat, lng, subtotal=subtotal_dec)
+        except (ValueError, DjangoValidationError) as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            {
+                "store_id": str(store.id),
+                "store_name": store.name,
+                "store_name_en": store.name_en,
+                "delivery_enabled": store.delivery_enabled,
+                "delivery_available": quote["delivery_available"],
+                "reason": quote["reason"],
+                "actual_distance_km": str(quote["actual_distance_km"]),
+                "billable_km": quote["billable_km"],
+                "price_per_km": str(quote["price_per_km"]),
+                "delivery_fee": str(quote["delivery_fee"]),
+                "free_delivery_applied": quote["free_delivery_applied"],
+            }
+        )
 
 
 class MerchantStoreSettingsView(APIView):

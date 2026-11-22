@@ -1,6 +1,8 @@
 from datetime import timedelta
+from decimal import Decimal, ROUND_CEILING, ROUND_HALF_UP
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
@@ -221,6 +223,74 @@ def get_nearby_stores_queryset(
     if sort == "fastest":
         return qs.order_by("estimated_delivery_minutes", "distance")
     return qs.order_by("-ranking_score", "distance")
+
+
+def calculate_billable_km(distance_km: Decimal | float | str) -> int:
+    """
+    Applies Gowar's 1.5 km band pricing rule:
+      billable_km = max(1, ceil(distance_km - 0.5))
+    Uses Decimal arithmetic to avoid IEEE-754 floating-point boundary drift.
+    """
+    dist = Decimal(str(distance_km))
+    if dist < Decimal("0"):
+        raise ValidationError("Delivery distance cannot be negative.")
+    shifted = dist - Decimal("0.5")
+    ceiled = int(shifted.to_integral_value(rounding=ROUND_CEILING))
+    return max(1, ceiled)
+
+
+def calculate_dynamic_delivery_quote(
+    store: Store,
+    latitude: float,
+    longitude: float,
+    subtotal: Decimal | None = None,
+) -> dict:
+    """
+    Authoritative server-side PostGIS distance & dynamic delivery fee calculation.
+    """
+    if store.latitude is None or store.longitude is None or store.location is None:
+        raise ValidationError("Merchant store coordinates are missing or invalid.")
+
+    price_per_km = store.delivery_price_per_km
+    if price_per_km is None or price_per_km < Decimal("0.00"):
+        raise ValidationError("Merchant delivery price per kilometer is missing or invalid.")
+
+    coverage = evaluate_delivery_coverage(store, latitude, longitude)
+    distance_km = Decimal(str(coverage["distance_km"])).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    )
+
+    if not store.delivery_enabled:
+        return {
+            **coverage,
+            "actual_distance_km": distance_km,
+            "billable_km": 0,
+            "price_per_km": price_per_km.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
+            "delivery_fee": Decimal("0.00"),
+            "free_delivery_applied": False,
+        }
+
+    billable_km = calculate_billable_km(distance_km)
+    qualifies_free = (
+        subtotal is not None
+        and store.free_delivery_threshold is not None
+        and subtotal >= store.free_delivery_threshold
+    )
+    if qualifies_free:
+        delivery_fee = Decimal("0.00")
+    else:
+        delivery_fee = (Decimal(billable_km) * price_per_km).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+
+    return {
+        **coverage,
+        "actual_distance_km": distance_km,
+        "billable_km": billable_km,
+        "price_per_km": price_per_km.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
+        "delivery_fee": delivery_fee,
+        "free_delivery_applied": qualifies_free,
+    }
 
 
 def evaluate_delivery_coverage(store: Store, latitude: float, longitude: float) -> dict:

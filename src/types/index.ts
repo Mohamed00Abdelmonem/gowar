@@ -39,6 +39,7 @@ export interface Category {
 export interface MerchantDeliverySettings {
   deliveryEnabled: boolean;
   deliveryFee: number;
+  deliveryPricePerKm?: number;
   minOrder: number;
   maxDistanceKm: number;
   supportedAreaIds: string[];
@@ -143,6 +144,9 @@ export interface Order {
   items: OrderItem[];
   subtotal: number;
   deliveryFee: number;
+  deliveryDistanceKm?: number;
+  billableDistanceKm?: number;
+  deliveryPricePerKmSnapshot?: number;
   discount: number;
   total: number;
   commissionRate: number;

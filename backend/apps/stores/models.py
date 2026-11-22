@@ -75,6 +75,12 @@ class Store(UUIDTimeStampedModel):
         default=Decimal("15.00"),
         validators=[MinValueValidator(Decimal("0.00"))],
     )
+    delivery_price_per_km = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=Decimal("10.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
+    )
     minimum_order_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,

@@ -63,6 +63,8 @@ import {
 } from '../utils/notificationSound';
 import {
   DEFAULT_SEARCH_RADIUS_KM,
+  calculateDynamicDeliveryFee,
+  calculateHaversineDistanceKm,
   clampSearchRadiusKm,
   inferNearestArea,
 } from '../services/locationService';
@@ -1344,10 +1346,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const subtotal = orderItems.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
     const qualifiesFreeDelivery =
       merchant.delivery.freeDeliveryThreshold && subtotal >= merchant.delivery.freeDeliveryThreshold;
+    const distKm = calculateHaversineDistanceKm(
+      { lat: state.customerLocation.lat, lng: state.customerLocation.lng },
+      merchant.coordinates
+    );
+    const ratePerKm = merchant.delivery.deliveryPricePerKm ?? merchant.delivery.deliveryFee;
+    const dyn = calculateDynamicDeliveryFee(distKm, ratePerKm);
     const deliveryFee =
-      !merchant.delivery.deliveryEnabled || qualifiesFreeDelivery
-        ? 0
-        : merchant.delivery.deliveryFee;
+      !merchant.delivery.deliveryEnabled || qualifiesFreeDelivery ? 0 : dyn.deliveryFee;
     const discount = input.discount ?? 0;
     const total = Math.max(0, subtotal + deliveryFee - discount);
     const commissionRate = merchant.commissionRate ?? state.settings.defaultCommissionRate;
@@ -1829,6 +1835,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           updatedStore = await marketplaceApi.updateMerchantDelivery({
             delivery_enabled: updates.delivery.deliveryEnabled,
             delivery_fee: updates.delivery.deliveryFee.toFixed(2),
+            delivery_price_per_km: (
+              updates.delivery.deliveryPricePerKm ?? updates.delivery.deliveryFee
+            ).toFixed(2),
             minimum_order_amount: updates.delivery.minOrder.toFixed(2),
             delivery_radius_km: updates.delivery.maxDistanceKm.toFixed(2),
             estimated_delivery_minutes: updates.delivery.deliveryTimeMin,

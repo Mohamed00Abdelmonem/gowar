@@ -7,7 +7,9 @@ const DeliverySettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) =>
   const { language, t, areas, updateMerchant } = useApp();
 
   const [deliveryEnabled, setDeliveryEnabled] = useState(merchant.delivery.deliveryEnabled);
-  const [deliveryFee, setDeliveryFee] = useState(String(merchant.delivery.deliveryFee));
+  const [pricePerKm, setPricePerKm] = useState(
+    String(merchant.delivery.deliveryPricePerKm ?? merchant.delivery.deliveryFee ?? 10)
+  );
   const [minOrder, setMinOrder] = useState(String(merchant.delivery.minOrder));
   const [maxDistanceKm, setMaxDistanceKm] = useState(String(merchant.delivery.maxDistanceKm));
   const [prepTimeMin, setPrepTimeMin] = useState(String(merchant.delivery.prepTimeMin));
@@ -29,10 +31,12 @@ const DeliverySettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) =>
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    const rate = Math.max(0, Number(pricePerKm) || 0);
     updateMerchant(merchant.id, {
       delivery: {
         deliveryEnabled,
-        deliveryFee: Math.max(0, Number(deliveryFee) || 0),
+        deliveryFee: rate,
+        deliveryPricePerKm: rate,
         minOrder: Math.max(0, Number(minOrder) || 0),
         maxDistanceKm: Math.max(1, Number(maxDistanceKm) || 1),
         prepTimeMin: Math.max(1, Number(prepTimeMin) || 5),
@@ -71,18 +75,56 @@ const DeliverySettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) =>
         </button>
       </div>
 
+      <div className="rounded-2xl bg-[#FFF2EB]/60 border border-[#FBD8C5] p-4 space-y-2">
+        <div className="flex items-start gap-2.5">
+          <Info className="w-4 h-4 text-[#D6450D] shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs sm:text-sm font-extrabold text-[#1C1917]">
+              {t('تسعير التوصيل بالكيلومتر', 'Distance-Based Delivery Pricing')}
+            </p>
+            <p className="text-xs text-[#6E6A66] mt-0.5 leading-relaxed">
+              {t(
+                'حدد سعر الكيلومتر، وسيقوم Gowar بحساب تكلفة التوصيل تلقائيًا حسب المسافة بين المحل والعميل.',
+                'Set your price per kilometer and Gowar automatically calculates the delivery fee based on the distance to the customer.'
+              )}
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2 pt-1 text-center text-[11px]">
+          {[
+            { label: t('حتى 1.5 كم (1 كم)', 'Up to 1.5 km (1 km)'), km: 1 },
+            { label: t('1.6 – 2.5 كم (2 كم)', '1.6 – 2.5 km (2 km)'), km: 2 },
+            { label: t('2.6 – 3.5 كم (3 كم)', '2.6 – 3.5 km (3 km)'), km: 3 },
+          ].map((band) => (
+            <div key={band.km} className="rounded-xl bg-white border border-[#EAE6E1] px-2 py-1.5">
+              <div className="text-[#6E6A66] font-semibold">{band.label}</div>
+              <div className="text-[#D6450D] font-extrabold mt-0.5">
+                {((Math.max(0, Number(pricePerKm) || 0)) * band.km).toFixed(2)} {t('ج.م', 'EGP')}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
           <label className="block text-xs font-bold text-[#6E6A66] mb-1">
-            {t('رسوم التوصيل (ج.م)', 'Delivery Fee (EGP)')}
+            {t('سعر الكيلومتر الواحد', 'Price per Kilometer')}
           </label>
-          <input
-            type="number"
-            min="0"
-            value={deliveryFee}
-            onChange={(e) => setDeliveryFee(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm font-bold"
-          />
+          <div className="relative">
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              required
+              value={pricePerKm}
+              onChange={(e) => setPricePerKm(e.target.value)}
+              className="w-full px-3.5 py-2.5 pe-20 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm font-bold"
+            />
+            <span className="absolute end-3 top-1/2 -translate-y-1/2 text-[11px] font-bold text-[#6E6A66]">
+              {t('جنيه / كم', 'EGP / km')}
+            </span>
+          </div>
         </div>
 
         <div>

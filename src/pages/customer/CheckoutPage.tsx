@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -16,7 +16,10 @@ import { useApp } from '../../context/AppContext';
 import { EmptyState } from '../../components/common/EmptyState';
 import { Modal } from '../../components/common/Modal';
 import { LocationPickerModal } from '../../components/location/LocationPickerModal';
+import { IS_BACKEND_API_ENABLED } from '../../services/apiClient';
+import { marketplaceApi } from '../../services/gowarApi';
 import {
+  calculateDynamicDeliveryFee,
   evaluateStoreAvailability,
   formatDistanceShort,
 } from '../../services/locationService';
@@ -61,6 +64,30 @@ export const CheckoutPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [backendQuote, setBackendQuote] = useState<{
+    actualDistanceKm: number;
+    billableKm: number;
+    pricePerKm: number;
+    deliveryFee: number;
+    deliveryAvailable: boolean;
+    freeDeliveryApplied: boolean;
+  } | null>(null);
+
+  const chosenAddr =
+    selectedAddressId === 'custom' || selectedAddressId === 'confirmed_location'
+      ? undefined
+      : activeCustomer.addresses.find((a) => a.id === selectedAddressId);
+
+  const chosenArea = areas.find(
+    (a) => a.id === (chosenAddr?.areaId ?? (selectedAddressId === 'custom' ? customAreaId : customerLocation.areaId))
+  );
+
+  const activeCoords =
+    chosenAddr?.coordinates ??
+    (selectedAddressId === 'custom' ? chosenArea?.coordinates : undefined) ?? {
+      lat: customerLocation.lat,
+      lng: customerLocation.lng,
+    };
 
   const detailedItems = cart.items
     .map((ci) => {
@@ -68,6 +95,39 @@ export const CheckoutPage: React.FC = () => {
       return product ? { ...ci, product } : null;
     })
     .filter((x): x is NonNullable<typeof x> => Boolean(x));
+
+  const subtotalValue = detailedItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
+
+  useEffect(() => {
+    if (!IS_BACKEND_API_ENABLED || !store) return;
+    let cancelled = false;
+    marketplaceApi
+      .fetchDeliveryQuote(store.id, {
+        latitude: activeCoords.lat,
+        longitude: activeCoords.lng,
+        subtotal: subtotalValue,
+      })
+      .then((q) => {
+        if (cancelled) return;
+        setBackendQuote({
+          actualDistanceKm: Number(q.actual_distance_km),
+          billableKm: q.billable_km,
+          pricePerKm: Number(q.price_per_km),
+          deliveryFee: Number(q.delivery_fee),
+          deliveryAvailable: q.delivery_available,
+          freeDeliveryApplied: q.free_delivery_applied,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setBackendQuote(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [store, activeCoords.lat, activeCoords.lng, subtotalValue]);
 
   const BackArrow = language === 'ar' ? ArrowRight : ArrowLeft;
 
@@ -91,38 +151,25 @@ export const CheckoutPage: React.FC = () => {
     );
   }
 
-  const subtotal = detailedItems.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
-  const qualifiesFree = Boolean(
-    store.delivery.freeDeliveryThreshold && subtotal >= store.delivery.freeDeliveryThreshold
-  );
-  const deliveryFee =
-    !store.delivery.deliveryEnabled || qualifiesFree ? 0 : store.delivery.deliveryFee;
-  const total = Math.max(0, subtotal + deliveryFee - discount);
-
-  const chosenAddr =
-    selectedAddressId === 'custom' || selectedAddressId === 'confirmed_location'
-      ? undefined
-      : activeCustomer.addresses.find((a) => a.id === selectedAddressId);
-
-  const chosenArea = areas.find(
-    (a) => a.id === (chosenAddr?.areaId ?? (selectedAddressId === 'custom' ? customAreaId : customerLocation.areaId))
-  );
-
-  const activeCoords =
-    chosenAddr?.coordinates ??
-    (selectedAddressId === 'custom' ? chosenArea?.coordinates : undefined) ?? {
-      lat: customerLocation.lat,
-      lng: customerLocation.lng,
-    };
-
+  const subtotal = subtotalValue;
   const deliveryAvailability = evaluateStoreAvailability(
     store,
     activeCoords,
     customerLocation.searchRadiusKm
   );
+  const pricePerKm =
+    backendQuote?.pricePerKm ?? store.delivery.deliveryPricePerKm ?? store.delivery.deliveryFee;
+  const actualDistanceKm = backendQuote?.actualDistanceKm ?? deliveryAvailability.distanceKm;
+  const localDynamic = calculateDynamicDeliveryFee(actualDistanceKm, pricePerKm);
+  const billableKm = backendQuote?.billableKm ?? localDynamic.billableKm;
+  const qualifiesFree =
+    backendQuote?.freeDeliveryApplied ??
+    Boolean(store.delivery.freeDeliveryThreshold && subtotal >= store.delivery.freeDeliveryThreshold);
+  const deliveryFee =
+    !store.delivery.deliveryEnabled || qualifiesFree
+      ? 0
+      : (backendQuote?.deliveryFee ?? localDynamic.deliveryFee);
+  const total = Math.max(0, subtotal + deliveryFee - discount);
 
   const displayAddress = chosenAddr
     ? `${language === 'ar' ? chosenAddr.streetAr : chosenAddr.streetEn} — ${t('عمارة', 'Bldg')} ${chosenAddr.building}، ${t('دور', 'Fl')} ${chosenAddr.floor}، ${t('شقة', 'Apt')} ${chosenAddr.apartment}`
@@ -476,9 +523,40 @@ export const CheckoutPage: React.FC = () => {
                 <span>{t('سعر المنتجات', 'Products')}</span>
                 <span>{formatEGP(subtotal, language)}</span>
               </div>
+
+              {/* Transparent Dynamic Delivery Fee Breakdown */}
+              <div className="rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] p-2.5 space-y-1.5 text-xs">
+                <div className="flex justify-between text-[#6E6A66]">
+                  <span>{t('اسم المحل', 'Store')}</span>
+                  <span className="font-bold text-[#1C1917]">
+                    {language === 'ar' ? store.nameAr : store.nameEn}
+                  </span>
+                </div>
+                <div className="flex justify-between text-[#6E6A66]">
+                  <span>{t('المسافة الفعلية', 'Actual distance')}</span>
+                  <span className="font-semibold text-[#1C1917]">
+                    {actualDistanceKm.toFixed(2)} {t('كم', 'km')}
+                  </span>
+                </div>
+                <div className="flex justify-between text-[#6E6A66]">
+                  <span>{t('المسافة المحتسبة', 'Billable distance')}</span>
+                  <span className="font-semibold text-[#1C1917]">
+                    {billableKm} {t('كم', 'km')}
+                  </span>
+                </div>
+                <div className="flex justify-between text-[#6E6A66]">
+                  <span>{t('سعر الكيلومتر', 'Price per km')}</span>
+                  <span className="font-semibold text-[#1C1917]">
+                    {formatEGP(pricePerKm, language)} / {t('كم', 'km')}
+                  </span>
+                </div>
+              </div>
+
               <div className="flex justify-between text-[#6E6A66]">
                 <span>{t('رسوم التوصيل', 'Delivery Fee')}</span>
-                <span>{deliveryFee === 0 ? t('مجاني', 'Free') : formatEGP(deliveryFee, language)}</span>
+                <span className="font-bold text-[#1C1917]">
+                  {deliveryFee === 0 ? t('مجاني', 'Free') : formatEGP(deliveryFee, language)}
+                </span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-700 font-bold">

@@ -34,6 +34,13 @@ class Order(UUIDTimeStampedModel):
     delivery_address_snapshot = models.JSONField(default=dict)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    delivery_distance_km = models.DecimalField(
+        max_digits=7, decimal_places=2, null=True, blank=True
+    )
+    billable_distance_km = models.PositiveIntegerField(null=True, blank=True)
+    delivery_price_per_km_snapshot = models.DecimalField(
+        max_digits=8, decimal_places=2, null=True, blank=True
+    )
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     total_amount = models.DecimalField(max_digits=12, decimal_places=2)
     commission_rate_snapshot = models.DecimalField(max_digits=5, decimal_places=2)

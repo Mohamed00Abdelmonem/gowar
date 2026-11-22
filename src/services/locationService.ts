@@ -58,6 +58,22 @@ export function calculateHaversineDistanceKm(a: Coordinates, b: Coordinates): nu
   return Number((EARTH_RADIUS_KM * c).toFixed(2));
 }
 
+export function calculateBillableKm(distanceKm: number): number {
+  if (!Number.isFinite(distanceKm) || distanceKm <= 0) return 1;
+  const shifted = Number((distanceKm - 0.5).toFixed(4));
+  return Math.max(1, Math.ceil(shifted));
+}
+
+export function calculateDynamicDeliveryFee(
+  distanceKm: number,
+  pricePerKm: number
+): { billableKm: number; deliveryFee: number } {
+  const billableKm = calculateBillableKm(distanceKm);
+  const safeRate = Math.max(0, Number.isFinite(pricePerKm) ? pricePerKm : 0);
+  const deliveryFee = Number((billableKm * safeRate).toFixed(2));
+  return { billableKm, deliveryFee };
+}
+
 export function clampSearchRadiusKm(radiusKm: number): number {
   if (!Number.isFinite(radiusKm)) return DEFAULT_SEARCH_RADIUS_KM;
   return Math.min(MAX_SEARCH_RADIUS_KM, Math.max(MIN_SEARCH_RADIUS_KM, Math.round(radiusKm)));

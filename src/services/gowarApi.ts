@@ -180,6 +180,7 @@ export interface BackendStorePayload {
   commission_rate?: string | number;
   delivery_enabled: boolean;
   delivery_fee: string | number;
+  delivery_price_per_km?: string | number;
   delivery_radius_km: string | number;
   minimum_order_amount: string | number;
   free_delivery_threshold: string | number | null;
@@ -228,6 +229,7 @@ export function mapBackendStoreToMerchant(s: BackendStorePayload): Merchant {
     delivery: {
       deliveryEnabled: s.delivery_enabled,
       deliveryFee: Number(s.delivery_fee),
+      deliveryPricePerKm: Number(s.delivery_price_per_km ?? s.delivery_fee ?? 10),
       minOrder: Number(s.minimum_order_amount),
       maxDistanceKm: Number(s.delivery_radius_km),
       supportedAreaIds: s.area ? [s.area] : [],
@@ -304,6 +306,9 @@ export interface BackendOrderPayload {
   };
   subtotal: string;
   delivery_fee: string;
+  delivery_distance_km?: string | null;
+  billable_distance_km?: number | null;
+  delivery_price_per_km_snapshot?: string | null;
   discount_amount: string;
   total_amount: string;
   commission_rate_snapshot: string;
@@ -372,6 +377,12 @@ export function mapBackendOrder(o: BackendOrderPayload): Order {
     })),
     subtotal: Number(o.subtotal),
     deliveryFee: Number(o.delivery_fee),
+    deliveryDistanceKm: o.delivery_distance_km != null ? Number(o.delivery_distance_km) : undefined,
+    billableDistanceKm: o.billable_distance_km ?? undefined,
+    deliveryPricePerKmSnapshot:
+      o.delivery_price_per_km_snapshot != null
+        ? Number(o.delivery_price_per_km_snapshot)
+        : undefined,
     discount: Number(o.discount_amount || 0),
     total: Number(o.total_amount),
     commissionRate: Number(o.commission_rate_snapshot),
@@ -515,6 +526,32 @@ export const marketplaceApi = {
     return apiRequest<PaginatedResponse<BackendStorePayload>>(
       `/stores/nearby/?${qs.toString()}`
     );
+  },
+
+  fetchDeliveryQuote(
+    storeId: string,
+    params: { latitude: number; longitude: number; subtotal?: number }
+  ) {
+    const qs = new URLSearchParams({
+      latitude: String(params.latitude),
+      longitude: String(params.longitude),
+    });
+    if (params.subtotal !== undefined) {
+      qs.set('subtotal', String(params.subtotal));
+    }
+    return apiRequest<{
+      store_id: string;
+      store_name: string;
+      store_name_en: string;
+      delivery_enabled: boolean;
+      delivery_available: boolean;
+      reason: string;
+      actual_distance_km: string;
+      billable_km: number;
+      price_per_km: string;
+      delivery_fee: string;
+      free_delivery_applied: boolean;
+    }>(`/stores/${storeId}/delivery-quote/?${qs.toString()}`, { skipAuth: true });
   },
 
   fetchProducts(params?: { store?: string; category?: string; search?: string }) {
