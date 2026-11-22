@@ -62,6 +62,7 @@ def test_delivery_auth_and_role_isolation(
     assert api_client.get("/api/v1/delivery/summary/").status_code == 403
 
     # Delivery user cannot access merchant or customer order endpoints
+    api_client.force_authenticate(user=None)
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
     assert api_client.get("/api/v1/merchant/orders/").status_code == 403
     assert api_client.get("/api/v1/orders/").status_code == 403
@@ -80,7 +81,7 @@ def test_delivery_assignment_visibility_isolation_and_lifecycle_transitions(
     api_client.force_authenticate(user=customer_user)
     api_client.post(
         "/api/v1/cart/items/",
-        {"product_id": str(p1.id), "quantity": 1},
+        {"product_id": str(p1.id), "quantity": 2},
         format="json",
     )
     order_res = api_client.post(
