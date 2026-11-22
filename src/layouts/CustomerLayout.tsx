@@ -170,7 +170,7 @@ export const CustomerLayout: React.FC = () => {
 
       {/* Clean Minimal Footer */}
       <footer className="bg-white border-t border-[#EAE6E1] mt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2.5">
             <BrandLogo />
             <p className="text-xs sm:text-sm text-[#6E6A66] max-w-sm leading-relaxed">
@@ -179,28 +179,6 @@ export const CustomerLayout: React.FC = () => {
                 'Everything you need from neighborhood supermarkets, grocery stores, and kiosks around you.'
               )}
             </p>
-          </div>
-          <div>
-            <h4 className="text-sm font-bold text-[#1C1917] mb-2.5">
-              {t('روابط سريعة', 'Quick Links')}
-            </h4>
-            <ul className="space-y-2 text-xs text-[#6E6A66]">
-              <li>
-                <Link to="/stores" className="hover:text-[#1B8E53]">
-                  {t('كل المحلات القريبة', 'Nearby Stores')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/orders" className="hover:text-[#1B8E53]">
-                  {t('طلباتي', 'My Orders')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/addresses" className="hover:text-[#1B8E53]">
-                  {t('عناويني', 'My Addresses')}
-                </Link>
-              </li>
-            </ul>
           </div>
           <div>
             <h4 className="text-sm font-bold text-[#1C1917] mb-2.5">

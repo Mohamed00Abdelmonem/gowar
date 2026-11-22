@@ -365,22 +365,33 @@ export const MerchantOverviewPage: React.FC = () => {
             </p>
           </div>
           <div className="h-64 w-full" dir="ltr">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={weeklySeries}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#EAE6E1" />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#6E6A66' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#6E6A66' }} />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="sales"
-                  name={t('المبيعات المكتملة (جنيه)', 'Delivered Sales (EGP)')}
-                  stroke="#1B8E53"
-                  fill="#E6F5EC"
-                  strokeWidth={2.5}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {weeklySeries.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-xs text-[#6E6A66] rounded-xl bg-[#FAF9F7] border border-dashed border-[#EAE6E1]">
+                {t(
+                  'لا توجد مبيعات مكتملة خلال آخر 7 أيام',
+                  'No delivered sales recorded in the last 7 days'
+                )}
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={weeklySeries}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#EAE6E1" />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#6E6A66' }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#6E6A66' }} />
+                  <Tooltip />
+                  <Area
+                    type="monotone"
+                    dataKey="gmv"
+                    name={t('المبيعات المكتملة (جنيه)', 'Delivered Sales (EGP)')}
+                    stroke="#1B8E53"
+                    fill="#E6F5EC"
+                    strokeWidth={2.5}
+                    dot={{ r: 4, fill: '#1B8E53', strokeWidth: 2, stroke: '#fff' }}
+                    activeDot={{ r: 6 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 

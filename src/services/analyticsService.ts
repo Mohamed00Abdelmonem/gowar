@@ -136,6 +136,7 @@ export function buildTimeSeriesFromOrders(
     .map(({ label, gmv, commission, orders: count, deliveryFees }) => ({
       label,
       gmv: Math.round(gmv),
+      sales: Math.round(gmv),
       commission: Number(commission.toFixed(2)),
       orders: count,
       deliveryFees: Math.round(deliveryFees),
