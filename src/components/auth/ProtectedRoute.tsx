@@ -13,12 +13,22 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredRole, ch
   const location = useLocation();
 
   if (!authSession) {
-    const loginPath = requiredRole === 'merchant' ? '/merchant/login' : '/admin/login';
+    const loginPath =
+      requiredRole === 'merchant'
+        ? '/merchant/login'
+        : requiredRole === 'delivery'
+          ? '/delivery/login'
+          : '/admin/login';
     return <Navigate to={loginPath} state={{ from: location.pathname }} replace />;
   }
 
   if (authSession.role !== requiredRole) {
-    const fallbackPath = authSession.role === 'merchant' ? '/merchant' : '/admin';
+    const fallbackPath =
+      authSession.role === 'merchant'
+        ? '/merchant'
+        : authSession.role === 'delivery'
+          ? '/delivery'
+          : '/admin';
     return <Navigate to={fallbackPath} replace />;
   }
 

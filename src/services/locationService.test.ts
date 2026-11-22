@@ -294,3 +294,16 @@ test('calculateBillableKm enforces 1.5 km band pricing boundaries', () => {
   assert.equal(feeRes.billableKm, 2);
   assert.equal(feeRes.deliveryFee, 20);
 });
+
+import { buildGoogleMapsDirectionsUrl } from './locationService.ts';
+
+test('buildGoogleMapsDirectionsUrl validates coordinates and formats Google Maps directions URL', () => {
+  assert.equal(
+    buildGoogleMapsDirectionsUrl(31.0409, 31.3785),
+    'https://www.google.com/maps/dir/?api=1&destination=31.0409,31.3785'
+  );
+  assert.equal(buildGoogleMapsDirectionsUrl(null, 31.3785), null);
+  assert.equal(buildGoogleMapsDirectionsUrl(95, 31.3785), null);
+  assert.equal(buildGoogleMapsDirectionsUrl(31.04, 200), null);
+  assert.equal(buildGoogleMapsDirectionsUrl(0, 0), null);
+});

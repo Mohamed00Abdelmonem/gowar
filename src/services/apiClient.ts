@@ -30,7 +30,7 @@ export interface BackendUserSummary {
   first_name: string;
   last_name: string;
   full_name: string;
-  role: 'customer' | 'merchant' | 'admin';
+  role: 'customer' | 'merchant' | 'delivery' | 'admin';
   is_verified: boolean;
   search_radius_km?: number | null;
   merchant_approval_status?: string | null;

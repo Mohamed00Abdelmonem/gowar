@@ -25,6 +25,18 @@ class IsMerchant(BasePermission):
         )
 
 
+class IsDelivery(BasePermission):
+    message = "Delivery personnel account required."
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_active
+            and request.user.role == "delivery"
+        )
+
+
 class IsApprovedMerchant(IsMerchant):
     message = "Approved merchant profile required."
 

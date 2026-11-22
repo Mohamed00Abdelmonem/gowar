@@ -1,0 +1,26 @@
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ("accounts", "0001_initial"),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name="user",
+            name="role",
+            field=models.CharField(
+                choices=[
+                    ("customer", "Customer"),
+                    ("merchant", "Merchant"),
+                    ("delivery", "Delivery Personnel"),
+                    ("admin", "Platform Admin"),
+                ],
+                db_index=True,
+                default="customer",
+                max_length=20,
+            ),
+        ),
+    ]

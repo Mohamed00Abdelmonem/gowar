@@ -74,6 +74,38 @@ export function calculateDynamicDeliveryFee(
   return { billableKm, deliveryFee };
 }
 
+export function buildGoogleMapsDirectionsUrl(
+  lat: unknown,
+  lng: unknown
+): string | null {
+  if (
+    lat === null ||
+    lat === undefined ||
+    lat === '' ||
+    lng === null ||
+    lng === undefined ||
+    lng === '' ||
+    typeof lat === 'boolean' ||
+    typeof lng === 'boolean'
+  ) {
+    return null;
+  }
+  const numLat = typeof lat === 'number' ? lat : Number(lat);
+  const numLng = typeof lng === 'number' ? lng : Number(lng);
+  if (
+    !Number.isFinite(numLat) ||
+    !Number.isFinite(numLng) ||
+    numLat < -90 ||
+    numLat > 90 ||
+    numLng < -180 ||
+    numLng > 180 ||
+    (numLat === 0 && numLng === 0)
+  ) {
+    return null;
+  }
+  return `https://www.google.com/maps/dir/?api=1&destination=${numLat},${numLng}`;
+}
+
 export function clampSearchRadiusKm(radiusKm: number): number {
   if (!Number.isFinite(radiusKm)) return DEFAULT_SEARCH_RADIUS_KM;
   return Math.min(MAX_SEARCH_RADIUS_KM, Math.max(MIN_SEARCH_RADIUS_KM, Math.round(radiusKm)));

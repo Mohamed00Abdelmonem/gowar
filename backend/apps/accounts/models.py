@@ -9,6 +9,7 @@ from django.utils import timezone
 class UserRole(models.TextChoices):
     CUSTOMER = "customer", "Customer"
     MERCHANT = "merchant", "Merchant"
+    DELIVERY = "delivery", "Delivery Personnel"
     ADMIN = "admin", "Platform Admin"
 
 

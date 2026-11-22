@@ -19,6 +19,7 @@ from .serializers import (
     ChangePasswordSerializer,
     CustomerLoginSerializer,
     CustomerRegisterSerializer,
+    DeliveryLoginSerializer,
     MerchantLoginSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
@@ -160,6 +161,10 @@ class MerchantLoginView(BaseLoginView):
 
 class AdminLoginView(BaseLoginView):
     serializer_class = AdminLoginSerializer
+
+
+class DeliveryLoginView(BaseLoginView):
+    serializer_class = DeliveryLoginSerializer
 
 
 class ThrottledTokenRefreshView(TokenRefreshView):

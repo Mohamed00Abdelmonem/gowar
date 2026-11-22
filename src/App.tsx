@@ -11,6 +11,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { CustomerLayout } from './layouts/CustomerLayout';
 import { MerchantLayout } from './layouts/MerchantLayout';
 import { AdminLayout } from './layouts/AdminLayout';
+import { DeliveryLayout } from './layouts/DeliveryLayout';
 
 // Customer Pages
 import { CustomerHomePage } from './pages/customer/CustomerHomePage';
@@ -41,6 +42,12 @@ import { MerchantCustomersPage } from './pages/merchant/MerchantCustomersPage';
 
 // Admin Pages
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
+
+// Delivery Pages
+import { DeliveryLoginPage } from './pages/delivery/DeliveryLoginPage';
+import { DeliveryDashboardPage } from './pages/delivery/DeliveryDashboardPage';
+import { DeliveryOrderDetailPage } from './pages/delivery/DeliveryOrderDetailPage';
+import { DeliveryProfilePage } from './pages/delivery/DeliveryProfilePage';
 import { AdminOverviewPage } from './pages/admin/AdminOverviewPage';
 import { AdminMerchantsPage } from './pages/admin/AdminMerchantsPage';
 import { AdminMerchantDetailPage } from './pages/admin/AdminMerchantDetailPage';
@@ -61,12 +68,20 @@ const ScrollToTop: React.FC = () => {
   return null;
 };
 
+const isDeliverySubdomain =
+  typeof window !== 'undefined' &&
+  window.location.hostname.toLowerCase().startsWith('delivery.');
+
 export function App() {
   return (
     <AppProvider>
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
+          {isDeliverySubdomain && (
+            <Route path="/" element={<Navigate to="/delivery" replace />} />
+          )}
+
           {/* Customer Marketplace Routes */}
           <Route path="/" element={<CustomerLayout />}>
             <Route index element={<CustomerHomePage />} />
@@ -86,7 +101,25 @@ export function App() {
 
           {/* Portal Logins */}
           <Route path="/merchant/login" element={<MerchantLoginPage />} />
+          <Route path="/delivery/login" element={<DeliveryLoginPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
+
+          {/* Protected Delivery Dashboard Routes */}
+          <Route
+            path="/delivery"
+            element={
+              <ProtectedRoute requiredRole="delivery">
+                <DeliveryLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<DeliveryDashboardPage presetStatus="all" />} />
+            <Route path="orders" element={<DeliveryDashboardPage presetStatus="all" />} />
+            <Route path="orders/:orderId" element={<DeliveryOrderDetailPage />} />
+            <Route path="in-progress" element={<DeliveryDashboardPage presetStatus="in_progress" />} />
+            <Route path="delivered" element={<DeliveryDashboardPage presetStatus="delivered" />} />
+            <Route path="profile" element={<DeliveryProfilePage />} />
+          </Route>
 
           {/* Protected Merchant Dashboard Routes */}
           <Route

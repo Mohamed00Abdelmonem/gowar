@@ -16,6 +16,11 @@ ALLOWED_TRANSITIONS: dict[str, set[str]] = {
     ORDER_STATUS_CANCELLED: set(),
 }
 
+DELIVERY_ALLOWED_TRANSITIONS: dict[str, set[str]] = {
+    ORDER_STATUS_READY: {ORDER_STATUS_OUT},
+    ORDER_STATUS_OUT: {ORDER_STATUS_DELIVERED},
+}
+
 
 def validate_order_transition(current_status: str, target_status: str, actor_role: str) -> None:
     if target_status not in ALLOWED_TRANSITIONS.get(current_status, set()):
@@ -27,6 +32,11 @@ def validate_order_transition(current_status: str, target_status: str, actor_rol
         if not (current_status == ORDER_STATUS_PENDING and target_status == ORDER_STATUS_CANCELLED):
             raise PermissionError(
                 "Customers may only cancel orders while they are still pending store acceptance."
+            )
+    elif actor_role == "delivery":
+        if target_status not in DELIVERY_ALLOWED_TRANSITIONS.get(current_status, set()):
+            raise PermissionError(
+                "Delivery personnel may only transition assigned orders to out_for_delivery or delivered."
             )
     elif actor_role == "merchant":
         # Merchants can process the full fulfillment workflow up to delivery or cancel before dispatch

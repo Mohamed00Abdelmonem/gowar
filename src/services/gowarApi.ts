@@ -114,7 +114,7 @@ export const authApi = {
   },
 
   async loginRole(
-    role: 'customer' | 'merchant' | 'admin',
+    role: 'customer' | 'merchant' | 'delivery' | 'admin',
     email: string,
     password: string
   ): Promise<AuthTokenResponse> {
@@ -297,12 +297,20 @@ export interface BackendOrderPayload {
   store: string;
   store_name: string;
   store_name_en: string;
+  store_address?: string;
+  store_phone?: string;
   delivery_address_snapshot: {
     area_id?: string;
+    label?: string;
+    recipient_name?: string;
+    phone_number?: string;
     formatted_address?: string;
+    latitude?: number | string;
+    longitude?: number | string;
     building_number?: string;
     floor?: string;
     apartment?: string;
+    additional_instructions?: string;
   };
   subtotal: string;
   delivery_fee: string;
@@ -320,6 +328,11 @@ export interface BackendOrderPayload {
   customer_notes: string;
   reject_reason: string;
   estimated_delivery_minutes: number;
+  assigned_delivery_person?: string | null;
+  assigned_delivery_person_name?: string;
+  assigned_at?: string | null;
+  delivered_at?: string | null;
+  delivered_by?: string | null;
   items: Array<{
     id: string;
     product: string | null;
@@ -995,6 +1008,45 @@ export const marketplaceApi = {
           ? { notify_on_low_stock: updates.notifyOnLowStock }
           : {}),
       },
+    });
+  },
+};
+
+export interface DeliverySummaryPayload {
+  new_assigned: number;
+  ready_for_delivery: number;
+  out_for_delivery: number;
+  delivered: number;
+}
+
+export const deliveryApi = {
+  fetchSummary() {
+    return apiRequest<DeliverySummaryPayload>('/delivery/summary/');
+  },
+
+  fetchOrders(params?: { order_status?: string; date?: string; page?: number }) {
+    const qs = new URLSearchParams({ page_size: '50' });
+    if (params?.order_status) qs.set('order_status', params.order_status);
+    if (params?.date) qs.set('date', params.date);
+    if (params?.page) qs.set('page', String(params.page));
+    return apiRequest<PaginatedResponse<BackendOrderPayload>>(`/delivery/orders/?${qs.toString()}`);
+  },
+
+  fetchOrder(orderId: string) {
+    return apiRequest<BackendOrderPayload>(`/delivery/orders/${orderId}/`);
+  },
+
+  transitionOrder(
+    orderId: string,
+    payload: {
+      status: 'out_for_delivery' | 'delivered';
+      confirm_delivery?: boolean;
+      note?: string;
+    }
+  ) {
+    return apiRequest<BackendOrderPayload>(`/delivery/orders/${orderId}/transition/`, {
+      method: 'POST',
+      body: payload,
     });
   },
 };

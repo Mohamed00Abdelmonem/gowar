@@ -66,6 +66,22 @@ class Order(UUIDTimeStampedModel):
     customer_notes = models.TextField(blank=True)
     reject_reason = models.CharField(max_length=255, blank=True)
     estimated_delivery_minutes = models.PositiveSmallIntegerField(default=25)
+    assigned_delivery_person = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_deliveries",
+    )
+    assigned_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    delivered_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="completed_deliveries",
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -73,6 +89,7 @@ class Order(UUIDTimeStampedModel):
             models.Index(fields=["store", "order_status", "created_at"]),
             models.Index(fields=["customer", "created_at"]),
             models.Index(fields=["customer", "store", "order_status", "created_at"]),
+            models.Index(fields=["assigned_delivery_person", "order_status", "created_at"]),
             models.Index(fields=["order_status", "created_at"]),
         ]
 

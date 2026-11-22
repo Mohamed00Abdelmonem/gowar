@@ -3,6 +3,12 @@ from .views import (
     CustomerOrderCancelView,
     CustomerOrderDetailView,
     CustomerOrderListCreateView,
+    DeliveryOrderDetailView,
+    DeliveryOrderListView,
+    DeliveryOrderTransitionView,
+    DeliverySummaryView,
+    MerchantAssignDeliveryView,
+    MerchantDeliveryDriversListView,
     MerchantOrderDetailView,
     MerchantOrderListView,
     MerchantOrderTransitionView,
@@ -18,4 +24,13 @@ merchant_urlpatterns = [
     path("orders/", MerchantOrderListView.as_view(), name="merchant-orders"),
     path("orders/<uuid:pk>/", MerchantOrderDetailView.as_view(), name="merchant-order-detail"),
     path("orders/<uuid:pk>/transition/", MerchantOrderTransitionView.as_view(), name="merchant-order-transition"),
+    path("orders/<uuid:pk>/assign-delivery/", MerchantAssignDeliveryView.as_view(), name="merchant-order-assign-delivery"),
+    path("delivery-drivers/", MerchantDeliveryDriversListView.as_view(), name="merchant-delivery-drivers"),
+]
+
+delivery_urlpatterns = [
+    path("summary/", DeliverySummaryView.as_view(), name="delivery-summary"),
+    path("orders/", DeliveryOrderListView.as_view(), name="delivery-orders"),
+    path("orders/<uuid:pk>/", DeliveryOrderDetailView.as_view(), name="delivery-order-detail"),
+    path("orders/<uuid:pk>/transition/", DeliveryOrderTransitionView.as_view(), name="delivery-order-transition"),
 ]

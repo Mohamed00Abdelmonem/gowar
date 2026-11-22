@@ -26,8 +26,13 @@ class OrderStatusHistorySerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     store_name = serializers.CharField(source="store.name", read_only=True)
     store_name_en = serializers.CharField(source="store.name_en", read_only=True)
+    store_address = serializers.CharField(source="store.address", read_only=True)
+    store_phone = serializers.CharField(source="store.phone_number", read_only=True)
     customer_name = serializers.CharField(source="customer.full_name", read_only=True)
     customer_phone = serializers.CharField(source="customer.phone_number", read_only=True)
+    assigned_delivery_person_name = serializers.CharField(
+        source="assigned_delivery_person.full_name", read_only=True, default=""
+    )
     items = OrderItemSerializer(many=True, read_only=True)
     status_history = OrderStatusHistorySerializer(many=True, read_only=True)
 
@@ -42,6 +47,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "store",
             "store_name",
             "store_name_en",
+            "store_address",
+            "store_phone",
             "delivery_address_snapshot",
             "subtotal",
             "delivery_fee",
@@ -59,6 +66,11 @@ class OrderSerializer(serializers.ModelSerializer):
             "customer_notes",
             "reject_reason",
             "estimated_delivery_minutes",
+            "assigned_delivery_person",
+            "assigned_delivery_person_name",
+            "assigned_at",
+            "delivered_at",
+            "delivered_by",
             "items",
             "status_history",
             "created_at",
@@ -107,3 +119,20 @@ class OrderTransitionInputSerializer(serializers.Serializer):
     )
     note = serializers.CharField(max_length=255, required=False, allow_blank=True, default="")
     reject_reason = serializers.CharField(max_length=255, required=False, allow_blank=True, default="")
+
+
+class AssignDeliveryInputSerializer(serializers.Serializer):
+    delivery_user_id = serializers.UUIDField()
+
+
+class DeliveryTransitionInputSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=["out_for_delivery", "delivered"])
+    confirm_delivery = serializers.BooleanField(required=False, default=False)
+    note = serializers.CharField(required=False, allow_blank=True, default="")
+
+    def validate(self, attrs):
+        if attrs["status"] == "delivered" and not attrs.get("confirm_delivery"):
+            raise serializers.ValidationError(
+                {"confirm_delivery": "Explicit delivery confirmation is required to mark an order as delivered."}
+            )
+        return attrs

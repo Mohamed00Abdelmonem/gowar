@@ -101,7 +101,11 @@ function getInitialAuthSession(): AuthSession | null {
   }
   const token = getAccessToken();
   const apiUser = getStoredApiUser();
-  if (!token || !apiUser || (apiUser.role !== 'merchant' && apiUser.role !== 'admin')) {
+  if (
+    !token ||
+    !apiUser ||
+    (apiUser.role !== 'merchant' && apiUser.role !== 'admin' && apiUser.role !== 'delivery')
+  ) {
     return null;
   }
   return {

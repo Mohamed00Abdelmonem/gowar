@@ -2,6 +2,7 @@ import secrets
 from decimal import Decimal
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
+from django.utils import timezone
 
 from apps.cart.models import Cart
 from apps.commissions.calculator import calculate_order_financials
@@ -260,6 +261,9 @@ def transition_order_status(
         profile = getattr(actor, "merchant_profile", None)
         if not profile or order.store.merchant_id != profile.id:
             raise PermissionDenied("You cannot modify another merchant's order.")
+    elif actor.role == "delivery":
+        if order.assigned_delivery_person_id != actor.id:
+            raise PermissionDenied("You can only update orders assigned to you.")
     elif actor.role == "customer" and order.customer_id != actor.id:
         raise PermissionDenied("You cannot modify another customer's order.")
 
@@ -280,7 +284,9 @@ def transition_order_status(
         provider = get_payment_provider(order.payment_method)
         provider.mark_collected(order)
         order.payment_status = "paid"
-        update_fields.append("payment_status")
+        order.delivered_at = timezone.now()
+        order.delivered_by = actor
+        update_fields.extend(["payment_status", "delivered_at", "delivered_by"])
         CommissionRecord.objects.filter(order=order).update(status=CommissionStatus.EARNED)
 
     elif target_status == OrderStatusChoices.CANCELLED:
@@ -346,4 +352,50 @@ def transition_order_status(
             link=f"/merchant/orders/{order.id}",
             event_key=f"order-cancelled-merchant-{order.id}",
         )
+    return order
+
+
+@transaction.atomic
+def assign_order_to_delivery(*, order_id, delivery_user, actor) -> Order:
+    order = (
+        Order.objects.select_for_update(of=("self",))
+        .select_related("store", "store__merchant", "customer")
+        .get(pk=order_id)
+    )
+
+    if actor.role == "merchant":
+        profile = getattr(actor, "merchant_profile", None)
+        if not profile or order.store.merchant_id != profile.id:
+            raise PermissionDenied("You cannot assign another merchant's order.")
+    elif actor.role != "admin" and not getattr(actor, "is_superuser", False):
+        raise PermissionDenied("Only merchants or admins can assign delivery personnel.")
+
+    if order.order_status in (OrderStatusChoices.DELIVERED, OrderStatusChoices.CANCELLED):
+        raise ValidationError("Cannot assign delivery to a completed or cancelled order.")
+
+    if getattr(delivery_user, "role", None) != "delivery" or not delivery_user.is_active:
+        raise ValidationError("Selected user is not an active delivery person.")
+
+    order.assigned_delivery_person = delivery_user
+    order.assigned_at = timezone.now()
+    order.save(update_fields=["assigned_delivery_person", "assigned_at", "updated_at"])
+
+    OrderStatusHistory.objects.create(
+        order=order,
+        status=order.order_status,
+        actor=actor,
+        actor_name=actor.full_name,
+        note=f"Assigned to delivery personnel: {delivery_user.full_name}",
+    )
+
+    create_and_dispatch_notification(
+        recipient=delivery_user,
+        store=order.store,
+        title=f"طلب توصيل جديد #{order.order_number}",
+        body=f"تم إسناد الطلب #{order.order_number} من {order.store.name} للتوصيل",
+        title_en=f"New Assigned Delivery #{order.order_number}",
+        body_en=f"Order #{order.order_number} from {order.store.name_en or order.store.name} has been assigned to you.",
+        link=f"/delivery/orders/{order.id}",
+        event_key=f"order-assigned-delivery-{order.id}-{delivery_user.id}",
+    )
     return order

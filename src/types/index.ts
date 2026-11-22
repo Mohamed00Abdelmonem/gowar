@@ -237,7 +237,7 @@ export interface Review {
   createdAt: string;
 }
 
-export type DemoRole = 'merchant' | 'admin';
+export type DemoRole = 'merchant' | 'admin' | 'delivery';
 
 export interface AuthSession {
   role: DemoRole;

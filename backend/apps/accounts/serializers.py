@@ -162,6 +162,10 @@ class AdminLoginSerializer(RoleLoginSerializer):
     expected_role = UserRole.ADMIN
 
 
+class DeliveryLoginSerializer(RoleLoginSerializer):
+    expected_role = UserRole.DELIVERY
+
+
 class ChangePasswordSerializer(serializers.Serializer):
     current_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True, min_length=8)

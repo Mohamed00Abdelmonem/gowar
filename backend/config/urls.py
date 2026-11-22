@@ -75,6 +75,7 @@ api_v1_patterns = [
         ),
     ),
     path("admin/", include(analytics_urls.admin_urlpatterns)),
+    path("delivery/", include(orders_urls.delivery_urlpatterns)),
 ]
 
 urlpatterns = [
