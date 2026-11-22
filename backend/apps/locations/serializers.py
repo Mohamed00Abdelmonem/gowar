@@ -66,6 +66,13 @@ class CustomerAddressSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
+    def validate_area(self, value):
+        if value is not None and not value.is_active:
+            raise serializers.ValidationError(
+                "This service area is not currently supported."
+            )
+        return value
+
     def validate_latitude(self, value):
         if not (-90 <= float(value) <= 90):
             raise serializers.ValidationError("Latitude must be between -90 and 90.")

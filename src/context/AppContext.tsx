@@ -66,6 +66,7 @@ import {
   clampSearchRadiusKm,
   inferNearestArea,
 } from '../services/locationService';
+import { markLocationOnboardingCompleted } from '../services/locationOnboarding';
 
 const DEMO_STORAGE_KEY = 'gowar_demo_state_v3';
 const UI_PREF_LANG_KEY = 'gowar_ui_lang_v1';
@@ -787,6 +788,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updatedAt: new Date().toISOString(),
     };
 
+    markLocationOnboardingCompleted();
     setState((prev) => ({
       ...prev,
       selectedAreaId: resolvedAreaId,

@@ -99,7 +99,16 @@ class MerchantRegisterView(APIView):
             business_name=data["business_name"],
             approval_status="pending",
         )
-        area_obj = Area.objects.filter(pk=data["area"]).first() if data.get("area") else None
+        area_obj = (
+            Area.objects.filter(pk=data["area"], is_active=True).first()
+            if data.get("area")
+            else None
+        )
+        if data.get("area") and area_obj is None:
+            return Response(
+                {"area": ["Selected service area is not currently active."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         base_slug = slugify(data.get("store_name_en") or data["store_name"]) or "store"
         unique_slug = f"{base_slug}-{str(user.id)[:8]}"
         Store.objects.create(

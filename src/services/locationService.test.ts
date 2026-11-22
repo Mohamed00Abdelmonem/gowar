@@ -4,6 +4,7 @@ import {
   DEFAULT_SEARCH_RADIUS_KM,
   calculateHaversineDistanceKm,
   clampSearchRadiusKm,
+  evaluateCoverageSupport,
   evaluateStoreAvailability,
   filterNearbyStores,
   formatDistanceAway,
@@ -204,4 +205,47 @@ test('changing customer coordinates shifts discovered nearby stores and resolves
   ];
   assert.equal(inferNearestArea(maadi, sampleAreas)?.id, 'area-maadi');
   assert.equal(inferNearestArea(nasrCity, sampleAreas)?.id, 'area-nasr-city');
+});
+
+
+test('Mansoura is inferred as active area, inactive areas are skipped, and unsupported cities are flagged', () => {
+  const areaMansoura: Area = {
+    id: 'area-mansoura',
+    nameAr: 'المنصورة',
+    nameEn: 'Mansoura',
+    cityAr: 'الدقهلية',
+    cityEn: 'Dakahlia',
+    isActive: true,
+    deliveryHubNote: 'حي الجامعة',
+    coordinates: { lat: 31.0409, lng: 31.3785 },
+  };
+  const inactiveMaadi: Area = {
+    id: 'area-maadi',
+    nameAr: 'المعادي',
+    nameEn: 'Maadi',
+    cityAr: 'القاهرة',
+    cityEn: 'Cairo',
+    isActive: false,
+    deliveryHubNote: '',
+    coordinates: { lat: 29.9608, lng: 31.2582 },
+  };
+
+  const inferredNearMaadi = inferNearestArea(
+    { lat: 29.961, lng: 31.258 },
+    [areaMansoura, inactiveMaadi]
+  );
+  assert.equal(inferredNearMaadi?.id, 'area-mansoura');
+
+  const mansouraCoverage = evaluateCoverageSupport(
+    { lat: 31.042, lng: 31.379 },
+    [areaMansoura, inactiveMaadi]
+  );
+  assert.equal(mansouraCoverage.isSupported, true);
+  assert.equal(mansouraCoverage.nearestActiveArea?.id, 'area-mansoura');
+
+  const aswanCoverage = evaluateCoverageSupport(
+    { lat: 24.0889, lng: 32.8998 },
+    [areaMansoura, inactiveMaadi]
+  );
+  assert.equal(aswanCoverage.isSupported, false);
 });

@@ -64,13 +64,12 @@ class Command(BaseCommand):
             admin_user.set_password(admin_password)
             admin_user.save(update_fields=["password"])
 
-        # 2. Cairo & Giza Areas
+        # 2. Active Supported Areas (including Mansoura, Cairo & Giza)
         areas_spec = [
+            ("المنصورة", "Mansoura", "الدقهلية", "Dakahlia", 31.0409, 31.3785, "حي الجامعة، المشاية السفلية، توريل"),
             ("مدينة نصر", "Nasr City", "القاهرة", "Cairo", 30.0566, 31.3376, "شارع عباس العقاد، مكرم عبيد"),
             ("مصر الجديدة", "Heliopolis", "القاهرة", "Cairo", 30.0885, 31.3282, "الكوربة، الميرغني، روكسي"),
-            ("المعادي", "Maadi", "القاهرة", "Cairo", 29.9608, 31.2582, "شارع ٩، دجلة"),
             ("الدقي", "Dokki", "الجيزة", "Giza", 30.0385, 31.2122, "شارع التحرير، المساحة"),
-            ("التجمع الخامس", "New Cairo", "القاهرة", "Cairo", 30.0175, 31.4140, "شارع التسعين، الحي الأول"),
         ]
         areas_map = {}
         for name_ar, name_en, city_ar, city_en, lat, lng, note in areas_spec:

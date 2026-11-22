@@ -1,6 +1,5 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import gowarLogo from '../../assets/gowar-logo.png';
 import gowarIcon from '../../assets/gowar-icon.png';
 
 interface BrandLogoProps {
@@ -16,7 +15,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({ variant = 'dark', compact 
       <img
         src={gowarIcon}
         alt="Gowar"
-        className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-contain select-none shrink-0"
+        className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-contain select-none shrink-0"
       />
     );
   }
@@ -24,11 +23,13 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({ variant = 'dark', compact 
   if (variant === 'light') {
     return (
       <div className="inline-flex items-center gap-2.5 select-none">
-        <img
-          src={gowarIcon}
-          alt="Gowar"
-          className="w-10 h-10 rounded-full object-contain shrink-0"
-        />
+        <div className="w-10 h-10 rounded-xl bg-white/95 p-1 shadow-xs flex items-center justify-center shrink-0">
+          <img
+            src={gowarIcon}
+            alt="Gowar"
+            className="w-full h-full object-contain"
+          />
+        </div>
         <div className="leading-tight">
           <div className="text-lg font-extrabold tracking-tight text-white">
             {t('جوار', 'Gowar')}
@@ -42,12 +43,17 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({ variant = 'dark', compact 
   }
 
   return (
-    <div className="inline-flex items-center select-none">
+    <div className="inline-flex items-center gap-2.5 select-none">
       <img
-        src={gowarLogo}
+        src={gowarIcon}
         alt="Gowar"
-        className="h-9 sm:h-11 w-auto object-contain shrink-0"
+        className="w-9 h-9 sm:w-10 sm:h-10 object-contain shrink-0"
       />
+      <div className="leading-none">
+        <span className="text-lg sm:text-xl font-extrabold tracking-tight text-[#1C1917]">
+          {t('جوار', 'Gowar')}
+        </span>
+      </div>
     </div>
   );
 };

@@ -18,6 +18,16 @@ import {
 
 export const SEED_AREAS: Area[] = [
   {
+    id: 'area-mansoura',
+    nameAr: 'المنصورة',
+    nameEn: 'Mansoura',
+    cityAr: 'الدقهلية',
+    cityEn: 'Dakahlia',
+    isActive: true,
+    deliveryHubNote: 'حي الجامعة، المشاية السفلية، توريل، شارع الجمهورية',
+    coordinates: { lat: 31.0409, lng: 31.3785 },
+  },
+  {
     id: 'area-nasr-city',
     nameAr: 'مدينة نصر',
     nameEn: 'Nasr City',
@@ -43,7 +53,7 @@ export const SEED_AREAS: Area[] = [
     nameEn: 'New Cairo',
     cityAr: 'القاهرة',
     cityEn: 'Cairo',
-    isActive: true,
+    isActive: false,
     deliveryHubNote: 'شارع التسعين، الحي الأول، الرحاب',
     coordinates: { lat: 30.0175, lng: 31.414 },
   },
@@ -53,7 +63,7 @@ export const SEED_AREAS: Area[] = [
     nameEn: 'Maadi',
     cityAr: 'القاهرة',
     cityEn: 'Cairo',
-    isActive: true,
+    isActive: false,
     deliveryHubNote: 'دجلة، شارع 9، زهراء المعادي',
     coordinates: { lat: 29.9608, lng: 31.2582 },
   },

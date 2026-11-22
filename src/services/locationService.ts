@@ -148,12 +148,16 @@ export function filterNearbyStores(
 }
 
 export function inferNearestArea(coords: Coordinates, areas: Area[]): Area | undefined {
-  const withCoords = areas.filter((a) => Boolean(a.coordinates));
-  if (withCoords.length === 0) return areas[0];
+  const activeWithCoords = areas.filter((a) => a.isActive && Boolean(a.coordinates));
+  const pool =
+    activeWithCoords.length > 0
+      ? activeWithCoords
+      : areas.filter((a) => Boolean(a.coordinates));
+  if (pool.length === 0) return areas.find((a) => a.isActive) ?? areas[0];
 
-  let closest = withCoords[0];
+  let closest = pool[0];
   let bestDist = Infinity;
-  for (const area of withCoords) {
+  for (const area of pool) {
     if (!area.coordinates) continue;
     const dist = calculateHaversineDistanceKm(coords, area.coordinates);
     if (dist < bestDist) {
@@ -162,6 +166,43 @@ export function inferNearestArea(coords: Coordinates, areas: Area[]): Area | und
     }
   }
   return closest;
+}
+
+export interface CoverageSupportResult {
+  isSupported: boolean;
+  nearestActiveArea?: Area;
+  distanceKm: number | null;
+}
+
+/**
+ * Checks whether coordinates fall within Gowar's active supported city coverage.
+ */
+export function evaluateCoverageSupport(
+  coords: Coordinates,
+  areas: Area[],
+  maxAreaDistanceKm = 25
+): CoverageSupportResult {
+  const activeWithCoords = areas.filter((a) => a.isActive && Boolean(a.coordinates));
+  if (activeWithCoords.length === 0) {
+    return { isSupported: true, distanceKm: null };
+  }
+
+  let closest = activeWithCoords[0];
+  let bestDist = Infinity;
+  for (const area of activeWithCoords) {
+    if (!area.coordinates) continue;
+    const dist = calculateHaversineDistanceKm(coords, area.coordinates);
+    if (dist < bestDist) {
+      bestDist = dist;
+      closest = area;
+    }
+  }
+
+  return {
+    isSupported: bestDist <= maxAreaDistanceKm,
+    nearestActiveArea: closest,
+    distanceKm: Number.isFinite(bestDist) ? bestDist : null,
+  };
 }
 
 function getGeocodingBaseUrl(): string {

@@ -117,3 +117,10 @@ class MerchantStoreSettingsSerializer(serializers.ModelSerializer):
             "estimated_delivery_minutes",
         ]
         read_only_fields = ["id", "approval_status", "commission_rate"]
+
+    def validate_area(self, value):
+        if value is not None and not value.is_active:
+            raise serializers.ValidationError(
+                "Selected service area is not currently active."
+            )
+        return value

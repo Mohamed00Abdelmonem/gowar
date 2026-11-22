@@ -13,6 +13,7 @@ import {
 import { useApp } from '../context/AppContext';
 import { BrandLogo } from '../components/common/BrandLogo';
 import { NotificationBell } from '../components/common/NotificationBell';
+import { LocationOnboardingModal } from '../components/location/LocationOnboardingModal';
 import { LocationPickerModal } from '../components/location/LocationPickerModal';
 import { formatEGP } from '../utils/i18n';
 
@@ -291,6 +292,11 @@ export const CustomerLayout: React.FC = () => {
           );
         })}
       </nav>
+
+      {/* First-time Customer Location Introduction Modal */}
+      <LocationOnboardingModal
+        onOpenManualPicker={() => setLocationModalOpen(true)}
+      />
 
       {/* Interactive Map Location Picker Modal */}
       <LocationPickerModal

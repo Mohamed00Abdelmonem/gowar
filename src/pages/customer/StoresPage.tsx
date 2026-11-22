@@ -19,6 +19,7 @@ import { LocationPickerModal } from '../../components/location/LocationPickerMod
 import { RadiusControl } from '../../components/location/RadiusControl';
 import { NearbyStoresMap } from '../../components/location/NearbyStoresMap';
 import {
+  evaluateCoverageSupport,
   filterNearbyStores,
   formatDistanceShort,
   type NearbySortMode,
@@ -40,12 +41,22 @@ export const StoresPage: React.FC = () => {
   const {
     language,
     t,
+    areas,
     merchants,
     products,
     categories,
     customerLocation,
     setSearchRadiusKm,
   } = useApp();
+
+  const coverage = useMemo(
+    () =>
+      evaluateCoverageSupport(
+        { lat: customerLocation.lat, lng: customerLocation.lng },
+        areas
+      ),
+    [customerLocation.lat, customerLocation.lng, areas]
+  );
   const [searchParams, setSearchParams] = useSearchParams();
 
   const initialQuery = searchParams.get('q') ?? '';
@@ -383,14 +394,28 @@ export const StoresPage: React.FC = () => {
         {filteredStores.length === 0 ? (
           <EmptyState
             icon={StoreIcon}
-            title={t(
-              `مفيش محلات ضمن نطاق ${customerLocation.searchRadiusKm} كم`,
-              `No stores found within ${customerLocation.searchRadiusKm} KM`
-            )}
-            description={t(
-              'زود نطاق البحث لتشوف محلات أكتر حول موقعك، أو امسح التصفية الحالية.',
-              'Increase your search radius to discover nearby stores, or reset active filters.'
-            )}
+            title={
+              !coverage.isSupported
+                ? t(
+                    'هذه المنطقة خارج نطاق تغطية جوار حالياً',
+                    'This location is outside Gowar’s supported coverage'
+                  )
+                : t(
+                    `مفيش محلات ضمن نطاق ${customerLocation.searchRadiusKm} كم`,
+                    `No stores found within ${customerLocation.searchRadiusKm} KM`
+                  )
+            }
+            description={
+              !coverage.isSupported
+                ? t(
+                    'نعمل حالياً في المنصورة والمناطق المتاحة. يمكنك تغيير موقعك لاختيار المنصورة أو أي منطقة مدعومة.',
+                    'Gowar currently serves Mansoura and active supported neighborhoods. Change your location to browse supported stores.'
+                  )
+                : t(
+                    'زود نطاق البحث لتشوف محلات أكتر حول موقعك، أو امسح التصفية الحالية.',
+                    'Increase your search radius to discover nearby stores, or reset active filters.'
+                  )
+            }
             action={
               <div className="flex flex-wrap justify-center gap-2">
                 {customerLocation.searchRadiusKm < 20 && (

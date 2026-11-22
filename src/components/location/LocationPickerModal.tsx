@@ -12,6 +12,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { Modal } from '../common/Modal';
 import {
+  evaluateCoverageSupport,
   inferNearestArea,
   reverseGeocodeCoordinates,
   searchEgyptAddresses,
@@ -523,6 +524,17 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         </div>
 
         {/* Selected Address Preview & Confirm CTA */}
+        {!evaluateCoverageSupport(draftCoords, areas).isSupported && (
+          <div className="rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-2.5 flex items-start gap-2 text-xs text-amber-900">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <span>
+              {t(
+                'هذا الموقع خارج نطاق المناطق المدعومة حالياً في جوار. يمكنك الاستمرار أو اختيار المنصورة أو إحدى المناطق المتاحة أعلاه.',
+                'This location is currently outside Gowar’s active service coverage. You can still browse or pick Mansoura / an active city above.'
+              )}
+            </span>
+          </div>
+        )}
         <div className="rounded-2xl bg-[#FAF9F7] border border-[#EAE6E1] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-start gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
