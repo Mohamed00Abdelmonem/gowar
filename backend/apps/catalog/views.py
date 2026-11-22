@@ -1,9 +1,28 @@
-from django.db.models import Q
-from rest_framework import generics, permissions, serializers as drf_serializers
+from uuid import uuid4
+from django.conf import settings
+from django.core.cache import cache
+from django.core.files.storage import default_storage
+from django.db.models import Count, Q
+from rest_framework import generics, permissions, serializers as drf_serializers, status
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from apps.common.permissions import IsMerchant, IsStoreOwner
 from apps.merchants.models import ApprovalStatus
-from .models import Category, Product
-from .serializers import CategorySerializer, ProductSerializer
+from .external_providers import (
+    lookup_open_food_facts_barcode,
+    search_external_product_images,
+    search_open_food_facts_products,
+)
+from .models import CatalogLibraryCategory, CatalogLibraryItem, Category, Product
+from .serializers import (
+    CatalogLibraryCategorySerializer,
+    CatalogLibraryItemSerializer,
+    CategorySerializer,
+    ProductSerializer,
+    validate_uploaded_product_image,
+)
 
 
 class PublicCategoryListView(generics.ListAPIView):
@@ -121,3 +140,153 @@ class MerchantCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
         if not profile:
             return Category.objects.none()
         return Category.objects.filter(is_global=False, store__merchant=profile)
+
+
+class CatalogLibraryPagination(PageNumberPagination):
+    page_size = 12
+    page_size_query_param = "page_size"
+    max_page_size = 48
+
+
+class MerchantCatalogLibraryCategoryListView(APIView):
+    permission_classes = [IsMerchant]
+
+    def get(self, request):
+        cache_key = "catalog_library:categories:v1"
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return Response(cached)
+
+        qs = (
+            CatalogLibraryCategory.objects.filter(is_active=True)
+            .annotate(items_count=Count("items", filter=Q(items__is_active=True)))
+            .order_by("sort_order", "name_en")
+        )
+        data = CatalogLibraryCategorySerializer(qs, many=True).data
+        cache.set(cache_key, data, timeout=600)
+        return Response(data)
+
+
+class MerchantCatalogLibraryItemListView(generics.ListAPIView):
+    permission_classes = [IsMerchant]
+    serializer_class = CatalogLibraryItemSerializer
+    pagination_class = CatalogLibraryPagination
+
+    def get_queryset(self):
+        qs = CatalogLibraryItem.objects.select_related("library_category").filter(
+            is_active=True, library_category__is_active=True
+        )
+        category = (self.request.query_params.get("category") or "").strip()
+        if category and category != "all":
+            qs = qs.filter(
+                Q(library_category__slug=category) | Q(library_category_id__iexact=category)
+            )
+        q = (self.request.query_params.get("q") or "").strip()
+        if q:
+            qs = qs.filter(
+                Q(name__icontains=q)
+                | Q(name_en__icontains=q)
+                | Q(brand__icontains=q)
+                | Q(barcode__icontains=q)
+            )
+        return qs.order_by("sort_order", "name_en")
+
+
+class MerchantProductImageUploadView(APIView):
+    permission_classes = [IsMerchant]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        uploaded = request.FILES.get("image")
+        if not uploaded:
+            return Response(
+                {"detail": "Image file is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        validate_uploaded_product_image(uploaded)
+
+        orig_name = getattr(uploaded, "name", "upload.webp")
+        ext = "." + orig_name.rsplit(".", 1)[-1].lower() if "." in orig_name else ".png"
+        if ext not in {".jpg", ".jpeg", ".png", ".webp"}:
+            ext = ".png"
+        rel_path = f"products/uploads/{uuid4().hex}{ext}"
+        saved_path = default_storage.save(rel_path, uploaded)
+        media_url = f"{settings.MEDIA_URL}{saved_path}"
+        return Response(
+            {
+                "image_url": request.build_absolute_uri(media_url),
+                "path": saved_path,
+                "size_bytes": getattr(uploaded, "size", 0),
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class MerchantExternalImageSearchView(APIView):
+    permission_classes = [IsMerchant]
+
+    def get(self, request):
+        q = request.query_params.get("q", "")
+        try:
+            page = max(1, int(request.query_params.get("page", "1")))
+        except ValueError:
+            page = 1
+        return Response(search_external_product_images(q, page=page))
+
+
+class MerchantBarcodeImportView(APIView):
+    permission_classes = [IsMerchant]
+
+    def get(self, request, barcode):
+        clean_code = (barcode or "").strip()
+        local_item = (
+            CatalogLibraryItem.objects.select_related("library_category")
+            .filter(barcode=clean_code, is_active=True)
+            .first()
+        )
+        if local_item:
+            serialized = CatalogLibraryItemSerializer(
+                local_item, context={"request": request}
+            ).data
+            return Response(
+                {
+                    "status": "found",
+                    "product": {
+                        "source": "gowar_library",
+                        "barcode": serialized["barcode"],
+                        "name": serialized["name"],
+                        "name_ar": serialized["name"],
+                        "name_en": serialized["name_en"],
+                        "brand": serialized["brand"],
+                        "package_size": serialized["package_size"],
+                        "category_hint": serialized["category_name_en"],
+                        "default_store_category": serialized["default_store_category"],
+                        "default_unit": serialized["default_unit"],
+                        "image_url": serialized["thumbnail_url"],
+                        "attribution": "Gowar Curated Product Library",
+                    },
+                }
+            )
+
+        off_res = lookup_open_food_facts_barcode(clean_code)
+        if off_res["status"] == "invalid":
+            return Response(
+                {"detail": "Please enter a valid numeric barcode (4-32 digits)."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(off_res)
+
+
+class MerchantProductDatabaseSearchView(APIView):
+    permission_classes = [IsMerchant]
+
+    def get(self, request):
+        q = (request.query_params.get("q") or "").strip()
+        if len(q) < 2:
+            return Response({"status": "ok", "results": []})
+        try:
+            page = max(1, int(request.query_params.get("page", "1")))
+        except ValueError:
+            page = 1
+        return Response(search_open_food_facts_products(q, page=page))

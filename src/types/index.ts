@@ -96,6 +96,7 @@ export interface Product {
   oldPrice?: number;
   stock: number;
   sku?: string;
+  barcode?: string;
   unitAr: string;
   unitEn: string;
   isAvailable: boolean;

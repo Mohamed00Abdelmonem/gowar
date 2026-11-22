@@ -1,6 +1,8 @@
 import {
+  API_BASE_URL,
   apiRequest,
   clearAuthTokens,
+  getAccessToken,
   getRefreshToken,
   setAuthTokens,
   type BackendUserSummary,
@@ -1214,5 +1216,145 @@ export const merchantDeliveryApi = {
       method: 'POST',
       body: { delivery_user_id: deliveryUserId },
     });
+  },
+};
+
+
+export interface CatalogLibraryCategoryPayload {
+  id: string;
+  name: string;
+  name_en: string;
+  slug: string;
+  icon: string;
+  color: string;
+  default_category: string | null;
+  sort_order: number;
+  items_count: number;
+}
+
+export interface CatalogLibraryItemPayload {
+  id: string;
+  name: string;
+  name_en: string;
+  slug: string;
+  brand: string;
+  package_size: string;
+  barcode: string;
+  default_unit: string;
+  default_unit_en: string;
+  category_slug: string;
+  category_name: string;
+  category_name_en: string;
+  default_store_category: string | null;
+  thumbnail_url: string;
+}
+
+export interface ExternalImageSearchResultItem {
+  id: string;
+  thumbnail_url: string;
+  source_url: string;
+  source_website: string;
+  title: string;
+  attribution: string;
+  license: string;
+}
+
+export interface ExternalImageSearchResponse {
+  configured: boolean;
+  provider: string | null;
+  status: string;
+  results: ExternalImageSearchResultItem[];
+  google_images_fallback_url: string;
+}
+
+export interface ImportedProductPayload {
+  source: string;
+  barcode: string;
+  name: string;
+  name_ar: string;
+  name_en: string;
+  brand: string;
+  package_size: string;
+  category_hint: string;
+  default_store_category?: string | null;
+  default_unit?: string;
+  image_url: string;
+  attribution: string;
+}
+
+export const catalogLibraryApi = {
+  fetchCategories() {
+    return apiRequest<CatalogLibraryCategoryPayload[]>('/merchant/catalog-library/categories/');
+  },
+
+  fetchItems(params?: { category?: string; q?: string; page?: number; pageSize?: number }) {
+    const qs = new URLSearchParams();
+    if (params?.category && params.category !== 'all') qs.set('category', params.category);
+    if (params?.q) qs.set('q', params.q);
+    if (params?.page) qs.set('page', String(params.page));
+    if (params?.pageSize) qs.set('page_size', String(params.pageSize));
+    const query = qs.toString();
+    return apiRequest<{
+      count: number;
+      next: string | null;
+      previous: string | null;
+      results: CatalogLibraryItemPayload[];
+    }>(`/merchant/catalog-library/items/${query ? `?${query}` : ''}`);
+  },
+
+  uploadProductImage(
+    file: File,
+    onProgress?: (percent: number) => void
+  ): Promise<{ image_url: string; path: string; size_bytes: number }> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const url = `${API_BASE_URL}/merchant/products/upload-image/`;
+      xhr.open('POST', url, true);
+      const token = getAccessToken();
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      }
+      xhr.upload.onprogress = (ev) => {
+        if (ev.lengthComputable && onProgress) {
+          onProgress(Math.round((ev.loaded / ev.total) * 100));
+        }
+      };
+      xhr.onload = () => {
+        try {
+          const parsed = JSON.parse(xhr.responseText || '{}');
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(parsed);
+          } else {
+            reject(new Error(parsed.detail || 'Image upload failed.'));
+          }
+        } catch {
+          reject(new Error('Image upload failed.'));
+        }
+      };
+      xhr.onerror = () => reject(new Error('Network error during image upload.'));
+      const fd = new FormData();
+      fd.append('image', file);
+      xhr.send(fd);
+    });
+  },
+
+  searchExternalImages(q: string, page = 1) {
+    const qs = new URLSearchParams({ q, page: String(page) });
+    return apiRequest<ExternalImageSearchResponse>(
+      `/merchant/catalog-library/external-images/?${qs.toString()}`
+    );
+  },
+
+  lookupBarcode(barcode: string) {
+    return apiRequest<{ status: string; product: ImportedProductPayload | null }>(
+      `/merchant/product-import/barcode/${encodeURIComponent(barcode.trim())}/`
+    );
+  },
+
+  searchProductDatabase(q: string, page = 1) {
+    const qs = new URLSearchParams({ q, page: String(page) });
+    return apiRequest<{ status: string; results: ImportedProductPayload[] }>(
+      `/merchant/product-import/search/?${qs.toString()}`
+    );
   },
 };

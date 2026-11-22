@@ -1,6 +1,40 @@
+from django.conf import settings
+from django.templatetags.static import static
 from django.utils.text import slugify
+from PIL import Image, UnidentifiedImageError
 from rest_framework import serializers
-from .models import Category, Product, ProductImage
+from .models import (
+    CatalogLibraryCategory,
+    CatalogLibraryItem,
+    Category,
+    Product,
+    ProductImage,
+)
+
+MAX_PRODUCT_IMAGE_BYTES = 5 * 1024 * 1024  # 5 MB
+ALLOWED_PRODUCT_IMAGE_FORMATS = {"JPEG", "PNG", "WEBP"}
+
+
+def validate_uploaded_product_image(uploaded_file) -> None:
+    if not uploaded_file:
+        return
+    if getattr(uploaded_file, "size", 0) > MAX_PRODUCT_IMAGE_BYTES:
+        raise serializers.ValidationError("Image size must not exceed 5 MB.")
+    pos = uploaded_file.tell() if hasattr(uploaded_file, "tell") else None
+    try:
+        img = Image.open(uploaded_file)
+        img.verify()
+        if (img.format or "").upper() not in ALLOWED_PRODUCT_IMAGE_FORMATS:
+            raise serializers.ValidationError(
+                "Unsupported image format. Allowed formats: JPEG, PNG, WEBP."
+            )
+    except serializers.ValidationError:
+        raise
+    except (UnidentifiedImageError, OSError, Exception) as exc:
+        raise serializers.ValidationError("Invalid or corrupted image file.") from exc
+    finally:
+        if pos is not None and hasattr(uploaded_file, "seek"):
+            uploaded_file.seek(pos)
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -80,6 +114,10 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "store", "created_at", "updated_at"]
 
+    def validate_image(self, value):
+        validate_uploaded_product_image(value)
+        return value
+
     def validate(self, attrs):
         price = attrs.get("price", getattr(self.instance, "price", None))
         discounted = attrs.get(
@@ -90,3 +128,62 @@ class ProductSerializer(serializers.ModelSerializer):
                 {"discounted_price": "Discounted price must be lower than regular price."}
             )
         return attrs
+
+
+class CatalogLibraryCategorySerializer(serializers.ModelSerializer):
+    items_count = serializers.IntegerField(read_only=True, default=0)
+
+    class Meta:
+        model = CatalogLibraryCategory
+        fields = [
+            "id",
+            "name",
+            "name_en",
+            "slug",
+            "icon",
+            "color",
+            "default_category",
+            "sort_order",
+            "items_count",
+        ]
+
+
+class CatalogLibraryItemSerializer(serializers.ModelSerializer):
+    category_slug = serializers.CharField(source="library_category.slug", read_only=True)
+    category_name = serializers.CharField(source="library_category.name", read_only=True)
+    category_name_en = serializers.CharField(source="library_category.name_en", read_only=True)
+    default_store_category = serializers.UUIDField(
+        source="library_category.default_category_id", read_only=True
+    )
+    thumbnail_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CatalogLibraryItem
+        fields = [
+            "id",
+            "name",
+            "name_en",
+            "slug",
+            "brand",
+            "package_size",
+            "barcode",
+            "default_unit",
+            "default_unit_en",
+            "category_slug",
+            "category_name",
+            "category_name_en",
+            "default_store_category",
+            "thumbnail_url",
+        ]
+
+    def get_thumbnail_url(self, obj: CatalogLibraryItem) -> str:
+        request = self.context.get("request")
+        if obj.image:
+            url = obj.image.url
+            return request.build_absolute_uri(url) if request else url
+        if obj.static_image_path:
+            url = static(obj.static_image_path)
+            if not url.startswith("/"):
+                url = f"{settings.STATIC_URL}{obj.static_image_path}"
+            return request.build_absolute_uri(url) if request else url
+        return ""

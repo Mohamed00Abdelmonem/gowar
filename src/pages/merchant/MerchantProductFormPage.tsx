@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowRight, Save, Upload } from 'lucide-react';
+import { ArrowRight, Save } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { PRODUCT_IMAGES } from '../../utils/visuals';
-import { SafeImage } from '../../components/common/SafeImage';
+import { ProductImagePicker } from '../../components/merchant/ProductImagePicker';
+import { ProductImportBar } from '../../components/merchant/ProductImportBar';
+import { buildImportedFormPatch } from '../../services/catalogLibraryHelpers';
+import type { CatalogLibraryItemPayload, ImportedProductPayload } from '../../services/gowarApi';
 
 export const MerchantProductFormPage: React.FC = () => {
   const { productId } = useParams();
@@ -21,22 +24,38 @@ export const MerchantProductFormPage: React.FC = () => {
   const [oldPrice, setOldPrice] = useState(existing?.oldPrice ? String(existing.oldPrice) : '');
   const [stock, setStock] = useState(existing ? String(existing.stock) : '20');
   const [sku, setSku] = useState(existing?.sku ?? '');
+  const [barcode, setBarcode] = useState(existing?.barcode ?? '');
   const [unitAr, setUnitAr] = useState(existing?.unitAr ?? '١ قطعة');
   const [image, setImage] = useState(existing?.image ?? PRODUCT_IMAGES.milk);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageAttribution, setImageAttribution] = useState<string>('');
   const [isAvailable, setIsAvailable] = useState(existing?.isAvailable ?? true);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setImage(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleApplyImported = (imported: ImportedProductPayload) => {
+    const patch = buildImportedFormPatch(imported, categoryId || categories[0]?.id || '');
+    if (patch.nameAr) setNameAr(patch.nameAr);
+    if (patch.nameEn) setNameEn(patch.nameEn);
+    if (patch.descriptionAr && !descriptionAr) setDescriptionAr(patch.descriptionAr);
+    if (patch.unitAr) setUnitAr(patch.unitAr);
+    if (patch.barcode) setBarcode(patch.barcode);
+    if (patch.categoryId && categories.some((c) => c.id === patch.categoryId)) {
+      setCategoryId(patch.categoryId);
+    }
+    if (patch.image) {
+      setImageFile(null);
+      setImage(patch.image);
+      setImageAttribution(imported.attribution || '');
+    }
+  };
+
+  const handleSelectLibraryItem = (item: CatalogLibraryItemPayload) => {
+    if (!nameAr.trim()) setNameAr(item.name);
+    if (!nameEn.trim()) setNameEn(item.name_en);
+    if (!barcode.trim() && item.barcode) setBarcode(item.barcode);
+    if (item.default_unit && unitAr === '١ قطعة') setUnitAr(item.default_unit);
+    if (item.default_store_category && categories.some((c) => c.id === item.default_store_category)) {
+      setCategoryId(item.default_store_category);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,6 +82,7 @@ export const MerchantProductFormPage: React.FC = () => {
       oldPrice: numericOldPrice,
       stock: numericStock,
       sku: sku.trim() || undefined,
+      barcode: barcode.trim() || undefined,
       unitAr: unitAr.trim() || 'قطعة',
       unitEn: unitAr.trim() || 'Unit',
       isAvailable,
@@ -81,17 +101,6 @@ export const MerchantProductFormPage: React.FC = () => {
     }
   };
 
-  const presetImages = [
-    { label: t('حليب', 'Milk'), url: PRODUCT_IMAGES.milk },
-    { label: t('جبنة', 'Cheese'), url: PRODUCT_IMAGES.cheese },
-    { label: t('أرز', 'Rice'), url: PRODUCT_IMAGES.rice },
-    { label: t('زيت', 'Oil'), url: PRODUCT_IMAGES.oil },
-    { label: t('مشروبات', 'Soda'), url: PRODUCT_IMAGES.soda },
-    { label: t('شيبسي', 'Chips'), url: PRODUCT_IMAGES.chips },
-    { label: t('منظفات', 'Detergent'), url: PRODUCT_IMAGES.detergent },
-    { label: t('مخبوزات', 'Bread'), url: PRODUCT_IMAGES.bread },
-  ];
-
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       <div className="flex items-center justify-between">
@@ -109,53 +118,32 @@ export const MerchantProductFormPage: React.FC = () => {
         </div>
       </div>
 
+      {!existing && <ProductImportBar onApplyImportedProduct={handleApplyImported} />}
+
       <form
         onSubmit={handleSubmit}
         className="bg-white rounded-2xl border border-[#EAE6E1] p-5 sm:p-7 space-y-6 shadow-2xs"
       >
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* Image Preview & Upload */}
-          <div className="md:col-span-4 space-y-3">
-            <label className="block text-xs font-bold text-[#6E6A66]">
-              {t('صورة المنتج', 'Product Image')}
-            </label>
-            <div className="aspect-square rounded-2xl overflow-hidden bg-[#FAF9F7] border border-[#EAE6E1]">
-              <SafeImage src={image} alt={nameAr || 'Product'} className="w-full h-full object-cover" />
-            </div>
-
-            <label className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl border border-[#EAE6E1] bg-[#FAF9F7] hover:bg-[#E6F5EC] text-xs font-bold text-[#1C1917] cursor-pointer">
-              <Upload className="w-4 h-4 text-[#1B8E53]" />
-              <span>{t('رفع صورة من جهازك', 'Upload Image')}</span>
-              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-            </label>
-
-            <div>
-              <span className="block text-[11px] font-bold text-[#6E6A66] mb-1.5">
-                {t('أو اختر صورة جاهزة:', 'Or choose preset:')}
-              </span>
-              <div className="grid grid-cols-4 gap-1.5">
-                {presetImages.map((p) => (
-                  <button
-                    key={p.label}
-                    type="button"
-                    onClick={() => {
-                      setImageFile(null);
-                      setImage(p.url);
-                    }}
-                    className={`rounded-lg overflow-hidden border-2 aspect-square ${
-                      image === p.url ? 'border-[#1B8E53]' : 'border-transparent'
-                    }`}
-                    title={p.label}
-                  >
-                    <SafeImage src={p.url} alt={p.label} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* Smart Image Library, Upload & Online Search */}
+          <div className="md:col-span-5 space-y-2">
+            <ProductImagePicker
+              selectedImage={image}
+              productNameHint={nameEn || nameAr}
+              onSelectImageUrl={(url, attr) => {
+                setImage(url);
+                setImageAttribution(attr || '');
+              }}
+              onSelectLibraryItem={handleSelectLibraryItem}
+              onLocalFileSelected={setImageFile}
+            />
+            {imageAttribution && (
+              <p className="text-[10px] text-[#6E6A66] text-center">{imageAttribution}</p>
+            )}
           </div>
 
           {/* Fields */}
-          <div className="md:col-span-8 space-y-4">
+          <div className="md:col-span-7 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-[#6E6A66] mb-1">
@@ -284,6 +272,20 @@ export const MerchantProductFormPage: React.FC = () => {
                   className="w-full px-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#6E6A66] mb-1">
+                {t('الباركود (اختياري)', 'Barcode (Optional)')}
+              </label>
+              <input
+                type="text"
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value)}
+                placeholder="6221155001011"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
+                dir="ltr"
+              />
             </div>
 
             <label className="flex items-center gap-2.5 pt-2 cursor-pointer">

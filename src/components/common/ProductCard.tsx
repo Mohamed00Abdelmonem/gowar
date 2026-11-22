@@ -36,11 +36,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`bg-white rounded-2xl border transition-all overflow-hidden flex flex-col justify-between ${
-        qtyInCart > 0
+      className={`bg-white rounded-2xl border transition-all overflow-hidden flex flex-col justify-between ${qtyInCart > 0
           ? 'border-emerald-500 ring-1 ring-emerald-500/20 shadow-xs'
           : 'border-[#EAE6E1] hover:border-[#D5CEC6]'
-      }`}
+        }`}
     >
       <div>
         <Link
@@ -93,9 +92,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               {language === 'ar' ? product.unitAr : product.unitEn}
             </span>
             <span
-              className={`font-semibold ${
-                outOfStock ? 'text-rose-600' : 'text-emerald-700'
-              }`}
+              className={`font-semibold ${outOfStock ? 'text-rose-600' : 'text-emerald-700'
+                }`}
             >
               {outOfStock ? t('غير متوفر', 'Unavailable') : t('متوفر', 'Available')}
             </span>
@@ -157,3 +155,4 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     </div>
   );
 };
+

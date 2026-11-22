@@ -105,3 +105,57 @@ class ProductImage(UUIDTimeStampedModel):
 
     class Meta:
         ordering = ["sort_order", "created_at"]
+
+
+class CatalogLibraryCategory(UUIDTimeStampedModel):
+    name = models.CharField(max_length=120)
+    name_en = models.CharField(max_length=120)
+    slug = models.SlugField(max_length=140, unique=True, allow_unicode=True)
+    icon = models.CharField(max_length=60, default="ShoppingBasket")
+    color = models.CharField(max_length=20, default="#1B8E53")
+    default_category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="library_categories",
+    )
+    sort_order = models.PositiveSmallIntegerField(default=0, db_index=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+
+    class Meta:
+        verbose_name_plural = "Catalog Library Categories"
+        ordering = ["sort_order", "name_en"]
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.name_en})"
+
+
+class CatalogLibraryItem(UUIDTimeStampedModel):
+    library_category = models.ForeignKey(
+        CatalogLibraryCategory,
+        on_delete=models.CASCADE,
+        related_name="items",
+    )
+    name = models.CharField(max_length=200)
+    name_en = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, unique=True, allow_unicode=True)
+    brand = models.CharField(max_length=120, blank=True)
+    package_size = models.CharField(max_length=60, blank=True)
+    barcode = models.CharField(max_length=64, blank=True, db_index=True)
+    default_unit = models.CharField(max_length=40, default="قطعة")
+    default_unit_en = models.CharField(max_length=40, default="Unit")
+    image = models.ImageField(upload_to="catalog_library/", blank=True, null=True)
+    static_image_path = models.CharField(max_length=255, blank=True)
+    image_hash = models.CharField(max_length=64, blank=True, db_index=True)
+    sort_order = models.PositiveSmallIntegerField(default=0, db_index=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+
+    class Meta:
+        ordering = ["sort_order", "name_en"]
+        indexes = [
+            models.Index(fields=["library_category", "is_active", "sort_order"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.name_en})"

@@ -1945,6 +1945,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               : {}),
             stock_quantity: productInput.stock,
             sku: productInput.sku || '',
+            barcode: productInput.barcode || '',
             unit: productInput.unitAr,
             unit_en: productInput.unitEn,
             is_available: productInput.isAvailable,
@@ -1992,6 +1993,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ...(updates.price !== undefined ? { price: updates.price.toFixed(2) } : {}),
             ...(updates.stock !== undefined ? { stock_quantity: updates.stock } : {}),
             ...(updates.sku !== undefined ? { sku: updates.sku } : {}),
+            ...(updates.barcode !== undefined ? { barcode: updates.barcode } : {}),
             ...(updates.isAvailable !== undefined ? { is_available: updates.isAvailable } : {}),
             ...(updates.image && updates.image.startsWith('http')
               ? { image_url: updates.image }

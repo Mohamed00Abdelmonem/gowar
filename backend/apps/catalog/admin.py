@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Category, Product, ProductImage
+from .models import (
+    CatalogLibraryCategory,
+    CatalogLibraryItem,
+    Category,
+    Product,
+    ProductImage,
+)
 
 
 class ProductImageInline(admin.TabularInline):
@@ -44,3 +50,28 @@ class ProductImageAdmin(admin.ModelAdmin):
     list_display = ["product", "is_primary", "sort_order", "created_at"]
     list_filter = ["is_primary"]
     raw_id_fields = ["product"]
+
+
+@admin.register(CatalogLibraryCategory)
+class CatalogLibraryCategoryAdmin(admin.ModelAdmin):
+    list_display = ["name", "name_en", "slug", "default_category", "sort_order", "is_active"]
+    list_filter = ["is_active"]
+    search_fields = ["name", "name_en", "slug"]
+    prepopulated_fields = {"slug": ("name_en",)}
+
+
+@admin.register(CatalogLibraryItem)
+class CatalogLibraryItemAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "name_en",
+        "brand",
+        "package_size",
+        "library_category",
+        "barcode",
+        "sort_order",
+        "is_active",
+    ]
+    list_filter = ["library_category", "is_active"]
+    search_fields = ["name", "name_en", "brand", "barcode", "slug"]
+    prepopulated_fields = {"slug": ("name_en",)}
