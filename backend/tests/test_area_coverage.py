@@ -3,11 +3,23 @@ import pytest
 from django.contrib.gis.geos import Point
 
 from apps.locations.models import Area
+from apps.merchants.models import MerchantProfile
 from apps.stores.models import Store
 
 
 @pytest.mark.django_db
 def test_mansoura_active_and_removed_areas_excluded_from_public_list(api_client):
+    for ar, en in [
+        ("التجمع الخامس", "New Cairo"),
+        ("الشيخ زايد", "Sheikh Zayed"),
+        ("سموحة", "Smouha"),
+        ("المعادي", "Maadi"),
+    ]:
+        Area.objects.get_or_create(
+            name_en=en,
+            defaults={"name_ar": ar, "is_active": False},
+        )
+
     res = api_client.get("/api/v1/locations/areas/")
     assert res.status_code == 200
     names_en = {a["name_en"] for a in res.data}
@@ -20,8 +32,12 @@ def test_mansoura_active_and_removed_areas_excluded_from_public_list(api_client)
 def test_inactive_area_rejected_for_new_customer_address_while_historical_kept(
     api_client, customer_user
 ):
-    inactive_maadi = Area.objects.filter(name_en="Maadi", is_active=False).first()
-    assert inactive_maadi is not None
+    inactive_maadi, _ = Area.objects.get_or_create(
+        name_en="Maadi",
+        defaults={"name_ar": "المعادي", "is_active": False},
+    )
+    inactive_maadi.is_active = False
+    inactive_maadi.save(update_fields=["is_active"])
 
     api_client.force_authenticate(user=customer_user)
     bad_res = api_client.post(
@@ -55,7 +71,7 @@ def test_inactive_area_rejected_for_new_customer_address_while_historical_kept(
 @pytest.mark.django_db
 def test_mansoura_postgis_nearby_store_discovery(api_client, merchants_and_stores):
     mansoura = Area.objects.get(name_en="Mansoura", is_active=True)
-    merchant_profile = merchants_and_stores["baraka"].merchant
+    merchant_profile = MerchantProfile.objects.first()
     mansoura_store = Store.objects.create(
         merchant=merchant_profile,
         name="ماركت الجامعة - المنصورة",
