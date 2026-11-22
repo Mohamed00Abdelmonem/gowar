@@ -4,7 +4,6 @@ from unittest.mock import patch
 import pytest
 from pywebpush import WebPushException
 
-from apps.accounts.models import User
 from apps.notifications.models import Notification, NotificationPreference, PushSubscription
 
 
