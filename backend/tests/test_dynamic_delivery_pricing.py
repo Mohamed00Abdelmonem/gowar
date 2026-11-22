@@ -29,8 +29,8 @@ def test_billable_km_1_5km_band_boundaries(distance_km, expected_billable):
 def test_merchant_delivery_price_validation_and_multi_merchant_rates(
     api_client, merchants_and_stores
 ):
-    baraka = merchants_and_stores["store_baraka"]
-    nour = merchants_and_stores["store_nour"]
+    baraka = merchants_and_stores["s1"]
+    nour = merchants_and_stores["s2"]
 
     # Reject negative delivery price
     api_client.force_authenticate(user=baraka.merchant.user)
@@ -64,14 +64,14 @@ def test_merchant_delivery_price_validation_and_multi_merchant_rates(
 def test_delivery_quote_invalid_coords_and_checkout_ignores_frontend_fee_and_preserves_snapshot(
     api_client, customer_user, merchants_and_stores, sample_catalog
 ):
-    store = merchants_and_stores["store_baraka"]
+    store = merchants_and_stores["s1"]
     store.delivery_price_per_km = Decimal("12.00")
     store.delivery_radius_km = Decimal("10.00")
     store.free_delivery_threshold = None
     store.save(
         update_fields=["delivery_price_per_km", "delivery_radius_km", "free_delivery_threshold"]
     )
-    prod = sample_catalog["products"][0]
+    prod = sample_catalog["p1"]
 
     # Invalid coordinates on quote endpoint
     bad_quote = api_client.get(
@@ -128,7 +128,7 @@ def test_delivery_quote_invalid_coords_and_checkout_ignores_frontend_fee_and_pre
 def test_missing_store_price_raises_validation_error(merchants_and_stores):
     from apps.stores.services import calculate_dynamic_delivery_quote
 
-    store = merchants_and_stores["store_baraka"]
+    store = merchants_and_stores["s1"]
     store.delivery_price_per_km = None
     with pytest.raises(ValidationError):
         calculate_dynamic_delivery_quote(store, 30.0566, 31.3376)
