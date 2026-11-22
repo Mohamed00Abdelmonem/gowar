@@ -15,8 +15,6 @@ import {
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
@@ -394,31 +392,56 @@ export const MerchantOverviewPage: React.FC = () => {
             {t('إجمالي الوحدات المباعة من الطلبات المكتملة', 'Total units sold across delivered orders')}
           </p>
           {topProductsChart.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-xs text-[#6E6A66]">
+            <div className="h-56 flex items-center justify-center text-xs text-[#6E6A66]">
               {t('لا توجد طلبات مكتملة بعد لعرض الأكثر مبيعاً', 'No delivered orders yet')}
             </div>
           ) : (
-            <div className="h-64 w-full" dir="ltr">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topProductsChart} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#EAE6E1" />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: '#6E6A66' }} />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    width={125}
-                    tick={{ fontSize: 11, fill: '#1C1917' }}
-                  />
-                  <Tooltip />
-                  <Bar
-                    dataKey="sold"
-                    name={t('الكمية المباعة', 'Units Sold')}
-                    fill="#F47B20"
-                    radius={[0, 6, 6, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            (() => {
+              const maxSold = Math.max(...topProductsChart.map((p) => p.sold), 1);
+              return (
+                <div className="space-y-3">
+                  {topProductsChart.map((item, idx) => {
+                    const pct = Math.max(8, Math.round((item.sold / maxSold) * 100));
+                    return (
+                      <div
+                        key={item.name}
+                        className="rounded-xl bg-[#FAF9F7] border border-[#EAE6E1]/80 p-3 transition-colors hover:border-[#FBD8C5]"
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span
+                              className={`w-6 h-6 rounded-lg text-[11px] font-extrabold flex items-center justify-center shrink-0 ${
+                                idx === 0
+                                  ? 'bg-[#D6450D] text-white shadow-2xs'
+                                  : 'bg-[#FFF2EB] text-[#D6450D]'
+                              }`}
+                            >
+                              {idx + 1}
+                            </span>
+                            <span className="text-xs sm:text-sm font-bold text-[#1C1917] truncate">
+                              {item.name}
+                            </span>
+                          </div>
+                          <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#EAE6E1] text-[11px] font-extrabold text-[#D6450D] shrink-0">
+                            {item.sold} {t('وحدة', 'sold')}
+                          </span>
+                        </div>
+                        <div className="w-full h-2 rounded-full bg-[#EAE6E1]/70 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              idx === 0
+                                ? 'bg-gradient-to-r from-[#D6450D] to-[#F47B20]'
+                                : 'bg-[#F47B20]/85'
+                            }`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()
           )}
         </div>
       </div>
