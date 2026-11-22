@@ -5,6 +5,7 @@ import {
   setAuthTokens,
   type BackendUserSummary,
 } from './apiClient';
+import { cleanupPushSubscriptionOnLogout } from './pushNotifications';
 import type {
   AppNotification,
   Area,
@@ -47,6 +48,8 @@ export interface BackendNotificationPayload {
   store?: string | null;
   title: string;
   body: string;
+  title_en?: string;
+  body_en?: string;
   link: string;
   is_read: boolean;
   created_at: string;
@@ -61,9 +64,9 @@ export function mapBackendNotification(
     audience,
     merchantId: n.store ?? undefined,
     titleAr: n.title,
-    titleEn: n.title,
+    titleEn: n.title_en || n.title,
     bodyAr: n.body,
-    bodyEn: n.body,
+    bodyEn: n.body_en || n.body,
     createdAt: n.created_at,
     read: n.is_read,
     link: n.link || (audience === 'merchant' ? '/merchant/orders' : '/orders'),
@@ -127,6 +130,7 @@ export const authApi = {
   async logout(): Promise<void> {
     const refresh = getRefreshToken();
     try {
+      await cleanupPushSubscriptionOnLogout();
       if (refresh) {
         await apiRequest('/auth/logout/', {
           method: 'POST',
@@ -860,6 +864,47 @@ export const marketplaceApi = {
 
   markNotificationsRead() {
     return apiRequest('/notifications/mark-read/', { method: 'POST' });
+  },
+
+  fetchPushConfig() {
+    return apiRequest<{ enabled: boolean; vapid_public_key: string }>(
+      '/notifications/push/config/',
+      { skipAuth: true }
+    );
+  },
+
+  fetchPushPreferences() {
+    return apiRequest<{ push_enabled: boolean; order_updates: boolean }>(
+      '/notifications/push/preferences/'
+    );
+  },
+
+  updatePushPreferences(payload: { push_enabled?: boolean; order_updates?: boolean }) {
+    return apiRequest<{ push_enabled: boolean; order_updates: boolean }>(
+      '/notifications/push/preferences/',
+      {
+        method: 'PATCH',
+        body: payload,
+      }
+    );
+  },
+
+  registerPushSubscription(payload: {
+    endpoint: string;
+    keys: { p256dh: string; auth: string };
+    language: 'ar' | 'en';
+  }) {
+    return apiRequest('/notifications/push/subscriptions/', {
+      method: 'POST',
+      body: payload,
+    });
+  },
+
+  unregisterPushSubscription(endpoint: string) {
+    return apiRequest<{ deleted: boolean }>('/notifications/push/subscriptions/', {
+      method: 'DELETE',
+      body: { endpoint },
+    });
   },
 
   async fetchAdminSettings(): Promise<PlatformSettings> {

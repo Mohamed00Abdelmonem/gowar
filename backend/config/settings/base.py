@@ -200,3 +200,8 @@ GOWAR_DEFAULT_COMMISSION_RATE = "5.00"
 GOWAR_DEFAULT_SEARCH_RADIUS_KM = 3
 GOWAR_MIN_SEARCH_RADIUS_KM = 1
 GOWAR_MAX_SEARCH_RADIUS_KM = 20
+
+# Web Push (VAPID) configuration
+VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY", "").strip()
+VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY", "").strip()
+VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "mailto:admin@gowar.local").strip()

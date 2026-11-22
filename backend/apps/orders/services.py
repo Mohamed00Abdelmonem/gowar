@@ -9,7 +9,7 @@ from apps.commissions.models import CommissionRecord, CommissionStatus
 from apps.inventory.services import deduct_stock_for_order, restock_for_cancelled_order
 from apps.locations.models import CustomerAddress
 from apps.merchants.models import ApprovalStatus
-from apps.notifications.models import Notification
+from apps.notifications.services import create_and_dispatch_notification
 from apps.payments.services import get_payment_provider
 from apps.stores.services import evaluate_delivery_coverage
 from .models import Order, OrderItem, OrderStatusChoices, OrderStatusHistory
@@ -212,12 +212,26 @@ def create_order_from_cart(
         status=CommissionStatus.PENDING,
     )
 
-    Notification.objects.create(
+    create_and_dispatch_notification(
         recipient=store.merchant.user,
         store=store,
         title=f"طلب جديد #{order.order_number}",
         body=f"طلب جديد بقيمة {order.total_amount} جنيه بانتظار قبولك",
+        title_en="New Order Received",
+        body_en=f"You have received a new order (#{order.order_number}). Open Gowar to view its details.",
         link=f"/merchant/orders/{order.id}",
+        event_key=f"order-created-merchant-{order.id}",
+    )
+
+    create_and_dispatch_notification(
+        recipient=customer,
+        store=store,
+        title=f"تم استلام طلبك #{order.order_number}",
+        body=f"تم إرسال طلبك إلى {store.name} وبانتظار تأكيد المتجر",
+        title_en=f"Order Received #{order.order_number}",
+        body_en=f"Your order has been sent to {store.name_en or store.name} and is awaiting confirmation.",
+        link=f"/orders/{order.id}",
+        event_key=f"order-created-customer-{order.id}",
     )
 
     # Clear cart cleanly inside the same transaction
@@ -285,26 +299,52 @@ def transition_order_status(
     )
 
     status_messages_ar = {
-        OrderStatusChoices.ACCEPTED: "تم قبول طلبك من المتجر وجاري المتابعة",
-        OrderStatusChoices.PREPARING: "جاري تجهيز طلبك الآن في المتجر",
-        OrderStatusChoices.READY_FOR_DELIVERY: "طلبك جاهز وسيخرج للتوصيل قريباً",
-        OrderStatusChoices.OUT_FOR_DELIVERY: "طلبك خرج مع المندوب وهو في الطريق إليك",
-        OrderStatusChoices.DELIVERED: "تم توصيل طلبك بالسلامة، نتمنى لك يوماً سعيداً",
-        OrderStatusChoices.CANCELLED: f"تم إلغاء الطلب{f' ({reject_reason})' if reject_reason else ''}",
+        OrderStatusChoices.ACCEPTED: ("تم قبول طلبك", "تم قبول طلبك من المتجر وجاري المتابعة"),
+        OrderStatusChoices.PREPARING: ("جاري تجهيز طلبك", "جاري تجهيز طلبك الآن في المتجر"),
+        OrderStatusChoices.READY_FOR_DELIVERY: ("طلبك جاهز للتوصيل", "طلبك جاهز وسيخرج للتوصيل قريباً"),
+        OrderStatusChoices.OUT_FOR_DELIVERY: ("طلبك في الطريق إليك!", "طلبك خرج مع المندوب وهو في الطريق إليك"),
+        OrderStatusChoices.DELIVERED: ("تم توصيل طلبك", "تم توصيل طلبك بالسلامة، نتمنى لك يوماً سعيداً"),
+        OrderStatusChoices.CANCELLED: (
+            "تم إلغاء الطلب",
+            f"تم إلغاء الطلب{f' ({reject_reason})' if reject_reason else ''}",
+        ),
     }
-    Notification.objects.create(
+    status_messages_en = {
+        OrderStatusChoices.ACCEPTED: ("Order Confirmed", f"Your order #{order.order_number} has been accepted by the store."),
+        OrderStatusChoices.PREPARING: ("Preparing Your Order", f"Your order #{order.order_number} is now being prepared."),
+        OrderStatusChoices.READY_FOR_DELIVERY: ("Order Ready for Delivery", f"Your order #{order.order_number} is packed and ready for delivery."),
+        OrderStatusChoices.OUT_FOR_DELIVERY: ("Your Order Is On Its Way", "Your order is out for delivery!"),
+        OrderStatusChoices.DELIVERED: ("Order Delivered", f"Your order #{order.order_number} has been delivered. Enjoy!"),
+        OrderStatusChoices.CANCELLED: (
+            "Order Cancelled",
+            f"Your order #{order.order_number} was cancelled{f' ({reject_reason})' if reject_reason else ''}.",
+        ),
+    }
+    title_ar, body_ar = status_messages_ar.get(
+        target_status, (f"تحديث حالة الطلب #{order.order_number}", f"حالة طلبك الآن: {target_status}")
+    )
+    title_en, body_en = status_messages_en.get(
+        target_status, (f"Order Update #{order.order_number}", f"Your order status is now: {target_status}")
+    )
+    create_and_dispatch_notification(
         recipient=order.customer,
         store=order.store,
-        title=f"تحديث حالة الطلب #{order.order_number}",
-        body=status_messages_ar.get(target_status, f"حالة طلبك الآن: {target_status}"),
+        title=f"{title_ar} #{order.order_number}" if "#" not in title_ar else title_ar,
+        body=body_ar,
+        title_en=title_en,
+        body_en=body_en,
         link=f"/orders/{order.id}",
+        event_key=f"order-status-{order.id}-{target_status}",
     )
     if target_status == OrderStatusChoices.CANCELLED and actor.role == "customer":
-        Notification.objects.create(
+        create_and_dispatch_notification(
             recipient=order.store.merchant.user,
             store=order.store,
             title=f"تم إلغاء الطلب #{order.order_number}",
             body=f"قام العميل بإلغاء الطلب #{order.order_number}",
+            title_en=f"Order Cancelled #{order.order_number}",
+            body_en=f"Order #{order.order_number} was cancelled by the customer.",
             link=f"/merchant/orders/{order.id}",
+            event_key=f"order-cancelled-merchant-{order.id}",
         )
     return order

@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Volume2, VolumeX } from 'lucide-react';
+import { Bell, BellRing, Volume2, VolumeX } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatDateTime } from '../../utils/i18n';
 import { getAccessToken, IS_BACKEND_API_ENABLED } from '../../services/apiClient';
+import { marketplaceApi } from '../../services/gowarApi';
+import {
+  disableWebPushNotifications,
+  enableWebPushNotifications,
+  getBrowserNotificationPermission,
+  getWebPushSupportStatus,
+} from '../../services/pushNotifications';
 import {
   isNotificationSoundEnabled,
   playNotificationSound,
@@ -16,9 +23,73 @@ interface NotificationBellProps {
 }
 
 export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, merchantId }) => {
-  const { language, t, notifications, markNotificationsRead } = useApp();
+  const { language, t, notifications, markNotificationsRead, showToast } = useApp();
   const [open, setOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(() => isNotificationSoundEnabled());
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+
+  const isAuthenticated = IS_BACKEND_API_ENABLED && Boolean(getAccessToken());
+  const pushSupport = getWebPushSupportStatus();
+  const browserPerm = getBrowserNotificationPermission();
+
+  useEffect(() => {
+    if (!open || !isAuthenticated || pushSupport !== 'supported') return;
+    let cancelled = false;
+    marketplaceApi
+      .fetchPushPreferences()
+      .then((pref) => {
+        if (!cancelled) {
+          setPushEnabled(pref.push_enabled && getBrowserNotificationPermission() === 'granted');
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [open, isAuthenticated, pushSupport]);
+
+  const handleTogglePush = async () => {
+    if (pushBusy) return;
+    setPushBusy(true);
+    try {
+      if (pushEnabled) {
+        await disableWebPushNotifications();
+        setPushEnabled(false);
+        showToast(t('تم إيقاف الإشعارات الخارجية لهذا الجهاز.', 'Push alerts disabled for this device.'), 'info');
+      } else {
+        const res = await enableWebPushNotifications(language);
+        if (res.ok) {
+          setPushEnabled(true);
+          showToast(t('تم تفعيل الإشعارات الفورية بنجاح!', 'Push alerts enabled!'), 'success');
+        } else if (res.reason === 'denied') {
+          showToast(
+            t('تم حظر الإشعارات في المتصفح. اسمح بها من إعدادات الموقع.', 'Notifications blocked in browser settings.'),
+            'error'
+          );
+        } else if (res.reason === 'requires_https') {
+          showToast(
+            t('الإشعارات الخارجية تتطلب اتصال HTTPS آمن.', 'External push alerts require HTTPS.'),
+            'info'
+          );
+        } else if (res.reason === 'requires_ios_install') {
+          showToast(
+            t('على آيفون، أضف جوار للشاشة الرئيسية أولاً لتفعيل الإشعارات.', 'On iPhone, Add Gowar to Home Screen first to enable push.'),
+            'info'
+          );
+        } else if (res.reason === 'not_configured') {
+          showToast(
+            t('مفاتيح الإشعارات غير مفعلة على الخادم حالياً.', 'Push keys are not configured on the server yet.'),
+            'info'
+          );
+        } else {
+          showToast(t('تعذر تفعيل الإشعارات حالياً.', 'Could not enable push notifications.'), 'error');
+        }
+      }
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const scopedNotifs = notifications.filter((n) => {
     if (n.audience !== audience) return false;
@@ -80,6 +151,32 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, me
                   : t('إشعارات طلباتي', 'Order Alerts')}
               </span>
               <div className="flex items-center gap-1.5">
+                {isAuthenticated && (
+                  <button
+                    type="button"
+                    disabled={pushBusy}
+                    onClick={handleTogglePush}
+                    title={
+                      browserPerm === 'denied'
+                        ? t('الإشعارات محظورة في المتصفح', 'Blocked in browser')
+                        : pushEnabled
+                          ? t('إيقاف الإشعارات الخارجية', 'Disable push alerts')
+                          : t('تفعيل الإشعارات الخارجية', 'Enable push alerts')
+                    }
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold border transition-colors ${
+                      pushEnabled
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-[#FAF9F7] text-[#6E6A66] border-[#EAE6E1] hover:text-[#1C1917]'
+                    }`}
+                  >
+                    <BellRing className="w-3 h-3" />
+                    <span>
+                      {pushEnabled
+                        ? t('Push مفعل', 'Push On')
+                        : t('تفعيل Push', 'Enable Push')}
+                    </span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={toggleSound}

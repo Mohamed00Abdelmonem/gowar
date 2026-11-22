@@ -4,6 +4,7 @@ import { AppProvider } from './context/AppContext';
 import { ToastContainer } from './components/common/ToastContainer';
 import { CartConflictModal } from './components/common/CartConflictModal';
 import { PwaInstallModal } from './components/pwa/PwaInstallModal';
+import { PushNotificationPrompt } from './components/notifications/PushNotificationPrompt';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 // Layouts
@@ -139,6 +140,7 @@ export function App() {
 
         <CartConflictModal />
         <PwaInstallModal />
+        <PushNotificationPrompt />
         <ToastContainer />
       </BrowserRouter>
     </AppProvider>

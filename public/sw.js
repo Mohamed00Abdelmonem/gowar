@@ -85,3 +85,65 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+
+self.addEventListener('push', (event) => {
+  let payload = {};
+  if (event.data) {
+    try {
+      payload = event.data.json();
+    } catch {
+      try {
+        payload = { body: event.data.text() };
+      } catch {
+        payload = {};
+      }
+    }
+  }
+
+  const title =
+    typeof payload.title === 'string' && payload.title.trim() ? payload.title.trim() : 'Gowar';
+  const body =
+    typeof payload.body === 'string' && payload.body.trim()
+      ? payload.body.trim()
+      : 'You have a new update in Gowar.';
+  const targetUrl =
+    typeof payload.url === 'string' && payload.url.startsWith('/') ? payload.url : '/';
+
+  const options = {
+    body,
+    icon: typeof payload.icon === 'string' ? payload.icon : '/pwa-192x192.png',
+    badge: typeof payload.badge === 'string' ? payload.badge : '/pwa-192x192.png',
+    tag: typeof payload.tag === 'string' && payload.tag ? payload.tag : 'gowar-notification',
+    renotify: true,
+    data: { url: targetUrl },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const rawPath = event.notification?.data?.url;
+  const safePath = typeof rawPath === 'string' && rawPath.startsWith('/') ? rawPath : '/';
+  const targetUrl = new URL(safePath, self.location.origin).href;
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url.startsWith(self.location.origin) && 'focus' in client) {
+            if ('navigate' in client) {
+              return client.navigate(targetUrl).then((navigated) => (navigated || client).focus());
+            }
+            return client.focus();
+          }
+        }
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(targetUrl);
+        }
+        return undefined;
+      })
+  );
+});
