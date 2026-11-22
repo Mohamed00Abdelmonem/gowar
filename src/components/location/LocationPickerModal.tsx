@@ -37,10 +37,10 @@ interface LocationPickerModalProps {
 const PIN_ICON = L.divIcon({
   className: 'gowar-customer-pin',
   html: `<div style="position:relative;display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);">
-    <div style="width:38px;height:38px;border-radius:9999px;background:#D6450D;border:3px solid #FFFFFF;box-shadow:0 6px 16px rgba(214,69,13,0.45);display:flex;align-items:center;justify-content:center;">
+    <div style="width:38px;height:38px;border-radius:9999px;background:#1B8E53;border:3px solid #FFFFFF;box-shadow:0 6px 16px rgba(214,69,13,0.45);display:flex;align-items:center;justify-content:center;">
       <div style="width:10px;height:10px;border-radius:9999px;background:#FFFFFF;"></div>
     </div>
-    <div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:10px solid #D6450D;margin-top:-2px;"></div>
+    <div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:10px solid #1B8E53;margin-top:-2px;"></div>
   </div>`,
   iconSize: [0, 0],
   iconAnchor: [0, 0],
@@ -390,7 +390,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 placeholder={t('ابحث عن عنوان أو منطقة...', 'Search street, area, or landmark...')}
-                className="w-full ps-10 pe-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-xs sm:text-sm focus:outline-none focus:border-[#D6450D]"
+                className="w-full ps-10 pe-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-xs sm:text-sm focus:outline-none focus:border-[#1B8E53]"
               />
             </div>
             <button
@@ -406,7 +406,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
             type="button"
             onClick={handleUseCurrentLocation}
             disabled={gpsLoading}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#FFF2EB] hover:bg-[#FDE2D2] border border-[#FBD8C5] text-[#D6450D] text-xs font-extrabold transition-colors shrink-0 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#E6F5EC] hover:bg-[#D5EFE0] border border-[#C2E7D2] text-[#1B8E53] text-xs font-extrabold transition-colors shrink-0 disabled:opacity-60"
           >
             {gpsLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -429,9 +429,9 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                 key={item.id}
                 type="button"
                 onClick={() => handleSelectSuggestion(item)}
-                className="w-full text-start px-3.5 py-2.5 hover:bg-[#FFF2EB]/70 transition-colors flex items-start gap-2.5"
+                className="w-full text-start px-3.5 py-2.5 hover:bg-[#E6F5EC]/70 transition-colors flex items-start gap-2.5"
               >
-                <MapPin className="w-4 h-4 text-[#D6450D] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#1B8E53] shrink-0 mt-0.5" />
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-[#1C1917] truncate">
                     {item.shortLabel}
@@ -460,7 +460,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         <div className="relative rounded-2xl overflow-hidden border border-[#EAE6E1] bg-[#F5F2EE]">
           <div ref={mapContainerRef} className="w-full h-64 sm:h-72" />
           <div className="pointer-events-none absolute top-2.5 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 z-[400] px-3 py-1 rounded-full bg-white/95 border border-[#EAE6E1] shadow-sm text-[11px] font-bold text-[#1C1917] whitespace-nowrap flex items-center gap-1.5">
-            <Navigation className="w-3 h-3 text-[#D6450D]" />
+            <Navigation className="w-3 h-3 text-[#1B8E53]" />
             <span>{t('حرّك العلامة لتحديد مكانك أو اضغط على الخريطة', 'Drag the marker or tap anywhere on the map')}</span>
           </div>
         </div>
@@ -482,8 +482,8 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                       onClick={() => handleSelectSavedAddress(addr.id)}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold whitespace-nowrap transition-colors shrink-0 ${
                         selected
-                          ? 'bg-[#FFF2EB] border-[#D6450D] text-[#D6450D]'
-                          : 'bg-[#FAF9F7] border-[#EAE6E1] text-[#1C1917] hover:border-[#D6450D]'
+                          ? 'bg-[#E6F5EC] border-[#1B8E53] text-[#1B8E53]'
+                          : 'bg-[#FAF9F7] border-[#EAE6E1] text-[#1C1917] hover:border-[#1B8E53]'
                       }`}
                     >
                       {selected && <Check className="w-3.5 h-3.5" />}
@@ -512,7 +512,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
                       className={`px-3 py-1 rounded-full text-[11px] font-bold border whitespace-nowrap transition-colors shrink-0 ${
                         active
                           ? 'bg-[#1C1917] text-white border-[#1C1917]'
-                          : 'bg-white text-[#6E6A66] border-[#EAE6E1] hover:border-[#D6450D]'
+                          : 'bg-white text-[#6E6A66] border-[#EAE6E1] hover:border-[#1B8E53]'
                       }`}
                     >
                       {language === 'ar' ? area.nameAr : area.nameEn}
@@ -537,7 +537,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
         )}
         <div className="rounded-2xl bg-[#FAF9F7] border border-[#EAE6E1] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-start gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center shrink-0">
               <MapPin className="w-4 h-4" />
             </div>
             <div className="min-w-0">
@@ -555,7 +555,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
           <button
             type="button"
             onClick={handleConfirm}
-            className="px-6 py-3 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs sm:text-sm font-extrabold transition-colors shrink-0 inline-flex items-center justify-center gap-1.5 shadow-sm"
+            className="px-6 py-3 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs sm:text-sm font-extrabold transition-colors shrink-0 inline-flex items-center justify-center gap-1.5 shadow-sm"
           >
             <Check className="w-4 h-4" />
             <span>{t('تأكيد الموقع', 'Confirm This Location')}</span>

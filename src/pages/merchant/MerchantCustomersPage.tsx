@@ -148,7 +148,7 @@ export const MerchantCustomersPage: React.FC = () => {
       {/* KPI Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl border border-[#EAE6E1] p-4 flex items-center gap-3.5 shadow-2xs">
-          <div className="w-11 h-11 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center shrink-0">
             <Users className="w-5 h-5" />
           </div>
           <div>
@@ -177,7 +177,7 @@ export const MerchantCustomersPage: React.FC = () => {
           </div>
           <div>
             <div className="text-xs text-[#6E6A66]">{t('متوسط إنفاق العميل (مكتمل)', 'Avg. Delivered Spend / Customer')}</div>
-            <div className="text-xl font-extrabold text-[#D6450D]">
+            <div className="text-xl font-extrabold text-[#1B8E53]">
               {formatEGP(avgSpend, language)}
             </div>
           </div>
@@ -226,7 +226,7 @@ export const MerchantCustomersPage: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-4 text-[#6E6A66]">
                       <span className="inline-flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-[#D6450D]" />
+                        <MapPin className="w-3.5 h-3.5 text-[#1B8E53]" />
                         {cust.areaLabel}
                       </span>
                     </td>
@@ -236,7 +236,7 @@ export const MerchantCustomersPage: React.FC = () => {
                         ({formatNumber(cust.deliveredCount, language)} {t('مكتمل', 'delivered')})
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 font-extrabold text-[#D6450D]">
+                    <td className="py-3.5 px-4 font-extrabold text-[#1B8E53]">
                       {formatEGP(cust.totalSpent, language)}
                     </td>
                     <td className="py-3.5 px-4 text-[#6E6A66]">
@@ -246,7 +246,7 @@ export const MerchantCustomersPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setSelectedCustomer(cust)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FFF2EB] text-[#D6450D] font-bold hover:bg-[#FDE2D2]"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#E6F5EC] text-[#1B8E53] font-bold hover:bg-[#D5EFE0]"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>{t('عرض الطلبات', 'View Orders')}</span>
@@ -287,7 +287,7 @@ export const MerchantCustomersPage: React.FC = () => {
               </div>
               <div>
                 <div className="text-[#6E6A66]">{t('إجمالي المشتريات', 'Total Spent')}</div>
-                <div className="font-extrabold text-[#D6450D]">
+                <div className="font-extrabold text-[#1B8E53]">
                   {formatEGP(selectedCustomer.totalSpent, language)}
                 </div>
               </div>
@@ -309,7 +309,7 @@ export const MerchantCustomersPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2.5">
-                      <span className="font-extrabold text-[#D6450D]">
+                      <span className="font-extrabold text-[#1B8E53]">
                         {formatEGP(ord.total, language)}
                       </span>
                       <span

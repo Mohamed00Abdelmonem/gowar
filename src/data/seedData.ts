@@ -95,7 +95,7 @@ export const SEED_CATEGORIES: Category[] = [
     nameAr: 'بقالة',
     nameEn: 'Groceries',
     icon: 'ShoppingBasket',
-    color: '#D6450D',
+    color: '#1B8E53',
     isGlobal: true,
   },
   {
@@ -169,7 +169,7 @@ export const SEED_MERCHANTS: Merchant[] = [
       'سوبر ماركت متكامل لاحتياجات البيت اليومية من البقالة والألبان الطازجة والمنظفات بأسعار منافسة وتوصيل سريع لمدينة نصر.',
     descriptionEn:
       'Full-service neighborhood supermarket for daily groceries, fresh dairy, and cleaning essentials with fast Nasr City delivery.',
-    logo: createSvgFallback('البركة', '#FFF2EB', '#D6450D'),
+    logo: createSvgFallback('البركة', '#E6F5EC', '#1B8E53'),
     coverImage: STORE_COVERS.albaraka,
     phone: '01012345678',
     addressAr: '١٤ شارع عباس العقاد، مدينة نصر، القاهرة',
@@ -421,7 +421,7 @@ export const SEED_MERCHANTS: Merchant[] = [
       'خضار وفاكهة طازجة يومياً، منتجات ألبان فاخرة ومخبوزات طرية لتغطية المعادي ودجلة.',
     descriptionEn:
       'Fresh fruits, vegetables, artisan dairy, and warm bakery items serving Maadi and Degla.',
-    logo: createSvgFallback('الزهراء', '#FFF2EB', '#D6450D'),
+    logo: createSvgFallback('الزهراء', '#E6F5EC', '#1B8E53'),
     coverImage: STORE_COVERS.alzahraa,
     phone: '01033445566',
     addressAr: '٢٢ شارع ٩، المعادي، القاهرة',

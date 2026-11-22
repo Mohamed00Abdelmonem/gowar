@@ -198,7 +198,7 @@ export const PwaInstallModal: React.FC = () => {
         className="pwa-modal-animate relative w-full max-w-[420px] rounded-3xl bg-white border border-[#EAE6E1] shadow-[0_24px_60px_-12px_rgba(28,25,23,0.38)] overflow-hidden"
       >
         {/* Warm top decorative header band */}
-        <div className="relative px-6 pt-8 pb-5 bg-gradient-to-b from-[#FFF2EB] via-[#FFF9F5] to-white text-center">
+        <div className="relative px-6 pt-8 pb-5 bg-gradient-to-b from-[#E6F5EC] via-[#FFF9F5] to-white text-center">
           <button
             type="button"
             onClick={handleDismiss}
@@ -212,7 +212,7 @@ export const PwaInstallModal: React.FC = () => {
 
           {/* Floating Gowar app icon */}
           <div className="relative mx-auto w-20 h-20 mb-4 flex items-center justify-center">
-            <div className="absolute inset-1 rounded-3xl bg-[#D6450D]/20 blur-xl" />
+            <div className="absolute inset-1 rounded-3xl bg-[#1B8E53]/20 blur-xl" />
             <div className="pwa-icon-float relative w-20 h-20 rounded-[22px] bg-white p-1.5 shadow-[0_12px_28px_-6px_rgba(214,69,13,0.35)] border border-[#EAE6E1]">
               <img
                 src="/pwa-192x192.png"
@@ -222,7 +222,7 @@ export const PwaInstallModal: React.FC = () => {
             </div>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide bg-[#FFF2EB] text-[#D6450D] border border-[#D6450D]/15 mb-3">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide bg-[#E6F5EC] text-[#1B8E53] border border-[#1B8E53]/15 mb-3">
             <Smartphone className="w-3.5 h-3.5" />
             {t('تطبيق جوار السريع', 'Gowar Mobile App')}
           </span>
@@ -267,27 +267,27 @@ export const PwaInstallModal: React.FC = () => {
                 </p>
 
                 <div className="flex items-center gap-3">
-                  <span className="w-7 h-7 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-extrabold flex items-center justify-center shrink-0">
+                  <span className="w-7 h-7 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-extrabold flex items-center justify-center shrink-0">
                     1
                   </span>
                   <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[#1C1917] font-medium">
                     <span>{t('اضغط على زر المشاركة', 'Tap the Share button')}</span>
-                    <Share className="w-4 h-4 text-[#D6450D] shrink-0" />
+                    <Share className="w-4 h-4 text-[#1B8E53] shrink-0" />
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="w-7 h-7 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-extrabold flex items-center justify-center shrink-0">
+                  <span className="w-7 h-7 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-extrabold flex items-center justify-center shrink-0">
                     2
                   </span>
                   <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[#1C1917] font-medium">
                     <span>{t('اختر "إضافة إلى الشاشة الرئيسية"', 'Select "Add to Home Screen"')}</span>
-                    <PlusSquare className="w-4 h-4 text-[#D6450D] shrink-0" />
+                    <PlusSquare className="w-4 h-4 text-[#1B8E53] shrink-0" />
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="w-7 h-7 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-extrabold flex items-center justify-center shrink-0">
+                  <span className="w-7 h-7 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-extrabold flex items-center justify-center shrink-0">
                     3
                   </span>
                   <span className="text-xs sm:text-sm text-[#1C1917] font-medium">
@@ -312,7 +312,7 @@ export const PwaInstallModal: React.FC = () => {
                 type="button"
                 disabled={installState === 'installing'}
                 onClick={handleInstallClick}
-                className="pwa-cta-attention w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#D6450D] to-[#F47B20] hover:from-[#B33808] hover:to-[#D6450D] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-70"
+                className="pwa-cta-attention w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#1B8E53] to-[#22A863] hover:from-[#147242] hover:to-[#1B8E53] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-70"
               >
                 <Download className="w-5 h-5 shrink-0" />
                 <span>

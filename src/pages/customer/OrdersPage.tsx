@@ -20,7 +20,7 @@ export const OrdersPage: React.FC = () => {
           action={
             <Link
               to="/stores"
-              className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+              className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
             >
               {t('تصفح المحلات', 'Browse Stores')}
             </Link>
@@ -49,7 +49,7 @@ export const OrdersPage: React.FC = () => {
             <Link
               key={order.id}
               to={`/orders/${order.id}`}
-              className="block bg-white rounded-2xl border border-[#EAE6E1] p-4 sm:p-5 hover:border-[#D6450D] hover:shadow-xs transition-all"
+              className="block bg-white rounded-2xl border border-[#EAE6E1] p-4 sm:p-5 hover:border-[#1B8E53] hover:shadow-xs transition-all"
             >
               <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#EAE6E1]">
                 <div className="flex items-center gap-2.5">
@@ -71,7 +71,7 @@ export const OrdersPage: React.FC = () => {
 
               <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-1.5 text-sm font-bold text-[#D6450D]">
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-[#1B8E53]">
                     <Store className="w-4 h-4" />
                     <span>
                       {store ? (language === 'ar' ? store.nameAr : store.nameEn) : order.merchantId}
@@ -91,7 +91,7 @@ export const OrdersPage: React.FC = () => {
                       {formatEGP(order.total, language)}
                     </span>
                   </div>
-                  <span className="px-3.5 py-2 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-bold">
+                  <span className="px-3.5 py-2 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-bold">
                     {t('تتبع الطلب', 'Track Order')}
                   </span>
                 </div>

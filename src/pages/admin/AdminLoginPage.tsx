@@ -95,7 +95,7 @@ export const AdminLoginPage: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@gowar.demo"
                   dir="ltr"
-                  className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+                  className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
                 />
               </div>
             </div>
@@ -113,7 +113,7 @@ export const AdminLoginPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   dir="ltr"
-                  className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+                  className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
                 />
               </div>
             </div>
@@ -133,14 +133,14 @@ export const AdminLoginPage: React.FC = () => {
           {!IS_BACKEND_API_ENABLED && (
             <div className="pt-4 border-t border-[#EAE6E1] space-y-2.5">
               <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#1C1917]">
-                <KeyRound className="w-3.5 h-3.5 text-[#D6450D]" />
+                <KeyRound className="w-3.5 h-3.5 text-[#1B8E53]" />
                 <span>{t('بيانات دخول الإدارة التجريبية', 'Super Admin Demo Credentials')}</span>
               </div>
 
               <div className="p-3 rounded-2xl bg-[#FAF9F7] border border-[#EAE6E1] flex items-center justify-between gap-3">
                 <div className="text-xs space-y-0.5 min-w-0">
                   <div className="font-extrabold text-[#1C1917]">
-                    Super Admin <span className="text-[#D6450D]">({adminDemo.nameAr})</span>
+                    Super Admin <span className="text-[#1B8E53]">({adminDemo.nameAr})</span>
                   </div>
                   <div className="text-[#6E6A66] truncate" dir="ltr">
                     {adminDemo.email} / {adminDemo.password}
@@ -153,7 +153,7 @@ export const AdminLoginPage: React.FC = () => {
                     setPassword(adminDemo.password);
                     setError('');
                   }}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-[11px] font-bold shrink-0"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-[11px] font-bold shrink-0"
                 >
                   <Sparkles className="w-3 h-3" />
                   <span>{t('تعبئة تلقائية', 'Auto-Fill')}</span>

@@ -35,7 +35,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({
   return (
     <Link
       to={`/stores/${merchant.id}`}
-      className="group bg-white rounded-2xl border border-[#EAE6E1] hover:border-[#D6450D] shadow-2xs hover:shadow-md transition-all overflow-hidden flex flex-col"
+      className="group bg-white rounded-2xl border border-[#EAE6E1] hover:border-[#1B8E53] shadow-2xs hover:shadow-md transition-all overflow-hidden flex flex-col"
     >
       <div className="relative h-36 sm:h-40 overflow-hidden bg-[#FAF9F7]">
         <SafeImage
@@ -60,7 +60,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({
             {getStoreTypeLabel(merchant.type, language)}
           </span>
           {(merchant.customerCompletedOrdersCount ?? 0) > 0 && (
-            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#FFF2EB] text-[#D6450D] border border-[#FBD8C5] shadow-xs">
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#E6F5EC] text-[#1B8E53] border border-[#C2E7D2] shadow-xs">
               {(merchant.customerCompletedOrdersCount ?? 0) > 1
                 ? t(
                     `طلبت منه ${merchant.customerCompletedOrdersCount} مرات`,
@@ -123,7 +123,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({
             <span className="block text-[11px] text-[#6E6A66]">{t('التوصيل', 'Delivery')}</span>
             <span
               className={`text-xs sm:text-sm font-bold ${
-                availability.isDeliverable ? 'text-[#D6450D]' : 'text-amber-700'
+                availability.isDeliverable ? 'text-[#1B8E53]' : 'text-amber-700'
               }`}
             >
               {availability.deliveryStatus === 'pickup_only'
@@ -141,7 +141,7 @@ export const StoreCard: React.FC<StoreCardProps> = ({
           </div>
         </div>
 
-        <div className="w-full py-2.5 px-4 rounded-xl bg-[#FFF2EB] group-hover:bg-[#D6450D] text-[#D6450D] group-hover:text-white text-sm font-extrabold transition-colors flex items-center justify-center gap-1.5">
+        <div className="w-full py-2.5 px-4 rounded-xl bg-[#E6F5EC] group-hover:bg-[#1B8E53] text-[#1B8E53] group-hover:text-white text-sm font-extrabold transition-colors flex items-center justify-center gap-1.5">
           <span>{t('شوف المنتجات', 'View Products')}</span>
           <ArrowIcon className="w-4 h-4" />
         </div>

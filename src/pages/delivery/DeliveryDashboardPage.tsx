@@ -182,7 +182,7 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
       case 'out_for_delivery':
         return {
           label: t('جاري التوصيل', 'Out for Delivery'),
-          cls: 'bg-[#FFF2EB] text-[#D6450D] border-[#FBD8C5]',
+          cls: 'bg-[#E6F5EC] text-[#1B8E53] border-[#C2E7D2]',
         };
       case 'delivered':
         return {
@@ -219,7 +219,7 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
       label: t('في الطريق للعميل', 'Out for Delivery'),
       value: summary.out_for_delivery,
       icon: Truck,
-      tone: 'bg-[#FFF2EB] text-[#D6450D]',
+      tone: 'bg-[#E6F5EC] text-[#1B8E53]',
     },
     {
       label: t('تم توصيلها', 'Delivered'),
@@ -261,7 +261,7 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
               <div className="text-sm font-extrabold text-[#1C1917] flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#D6450D]" />
+                <Clock className="w-4 h-4 text-[#1B8E53]" />
                 <span>
                   {shiftStatus.is_on_shift
                     ? t('المناوبة نشطة الآن', 'Shift Active')
@@ -342,8 +342,8 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
                 }}
                 className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold border transition-colors ${
                   sharingActive
-                    ? 'bg-[#FFF2EB] border-[#D6450D] text-[#D6450D]'
-                    : 'bg-[#FAF9F7] border-[#EAE6E1] text-[#1C1917] hover:border-[#D6450D]'
+                    ? 'bg-[#E6F5EC] border-[#1B8E53] text-[#1B8E53]'
+                    : 'bg-[#FAF9F7] border-[#EAE6E1] text-[#1C1917] hover:border-[#1B8E53]'
                 }`}
               >
                 <Navigation className="w-3.5 h-3.5" />
@@ -400,7 +400,7 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
               onClick={() => setStatusFilter(tab.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${
                 statusFilter === tab.id
-                  ? 'bg-[#D6450D] text-white'
+                  ? 'bg-[#1B8E53] text-white'
                   : 'bg-[#FAF9F7] text-[#6E6A66] hover:text-[#1C1917]'
               }`}
             >
@@ -432,12 +432,12 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
 
       {loading ? (
         <div className="py-12 flex items-center justify-center gap-2 text-sm text-[#6E6A66]">
-          <Loader2 className="w-5 h-5 animate-spin text-[#D6450D]" />
+          <Loader2 className="w-5 h-5 animate-spin text-[#1B8E53]" />
           <span>{t('جاري تحميل الطلبات...', 'Loading orders...')}</span>
         </div>
       ) : orders.length === 0 ? (
         <div className="bg-white rounded-2xl border border-[#EAE6E1] p-10 text-center space-y-2">
-          <Truck className="w-10 h-10 text-[#D6450D]/40 mx-auto" />
+          <Truck className="w-10 h-10 text-[#1B8E53]/40 mx-auto" />
           <p className="text-sm font-extrabold text-[#1C1917]">
             {t('لا توجد طلبات مطابقة حالياً', 'No assigned orders found')}
           </p>
@@ -471,13 +471,13 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
 
                   <div className="space-y-1.5 text-xs text-[#6E6A66]">
                     <div className="flex items-center gap-2 text-[#1C1917] font-bold">
-                      <Store className="w-3.5 h-3.5 text-[#D6450D] shrink-0" />
+                      <Store className="w-3.5 h-3.5 text-[#1B8E53] shrink-0" />
                       <span className="truncate">{storeName}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-[#1C1917]">{order.customer_name}</span>
                       {customerPhone && (
-                        <span className="inline-flex items-center gap-1 text-[#D6450D] font-bold">
+                        <span className="inline-flex items-center gap-1 text-[#1B8E53] font-bold">
                           <Phone className="w-3 h-3" />
                           {customerPhone}
                         </span>
@@ -510,7 +510,7 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
 
                   <Link
                     to={`/delivery/orders/${order.id}`}
-                    className="px-4 py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-extrabold transition-colors"
+                    className="px-4 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-extrabold transition-colors"
                   >
                     {t('تفاصيل الطلب', 'Open Order Details')}
                   </Link>

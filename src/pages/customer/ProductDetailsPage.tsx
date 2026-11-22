@@ -44,7 +44,7 @@ export const ProductDetailsPage: React.FC = () => {
           action={
             <Link
               to="/stores"
-              className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+              className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
             >
               {t('تصفح المحلات', 'Browse Stores')}
             </Link>
@@ -71,7 +71,7 @@ export const ProductDetailsPage: React.FC = () => {
     <div className="max-w-5xl mx-auto px-3 sm:px-6 py-5 space-y-6">
       <Link
         to={`/stores/${store.id}`}
-        className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#6E6A66] hover:text-[#D6450D]"
+        className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#6E6A66] hover:text-[#1B8E53]"
       >
         <BackArrow className="w-4 h-4" />
         <span>
@@ -118,7 +118,7 @@ export const ProductDetailsPage: React.FC = () => {
             </p>
 
             <div className="flex items-baseline gap-3 pt-1">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#D6450D]">
+              <span className="text-2xl sm:text-3xl font-extrabold text-[#1B8E53]">
                 {formatEGP(product.price, language)}
               </span>
               {product.oldPrice && product.oldPrice > product.price && (
@@ -134,7 +134,7 @@ export const ProductDetailsPage: React.FC = () => {
 
             <Link
               to={`/stores/${store.id}`}
-              className="flex items-center justify-between p-3.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] hover:border-[#D6450D] transition-colors"
+              className="flex items-center justify-between p-3.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] hover:border-[#1B8E53] transition-colors"
             >
               <div className="flex items-center gap-3">
                 <SafeImage
@@ -147,12 +147,12 @@ export const ProductDetailsPage: React.FC = () => {
                     {t('متوفر في محل', 'Sold by')}
                   </span>
                   <span className="text-sm font-bold text-[#1C1917] inline-flex items-center gap-1.5">
-                    <Store className="w-3.5 h-3.5 text-[#D6450D]" />
+                    <Store className="w-3.5 h-3.5 text-[#1B8E53]" />
                     {language === 'ar' ? store.nameAr : store.nameEn}
                   </span>
                 </div>
               </div>
-              <span className="text-xs font-bold text-[#D6450D]">
+              <span className="text-xs font-bold text-[#1B8E53]">
                 {t('توصيل', 'Delivery')} {formatEGP(store.delivery.deliveryFee, language)}
               </span>
             </Link>
@@ -226,7 +226,7 @@ export const ProductDetailsPage: React.FC = () => {
       {similarFromOtherStores.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-base font-extrabold text-[#1C1917] inline-flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#D6450D]" />
+            <CheckCircle2 className="w-4 h-4 text-[#1B8E53]" />
             <span>{t('نفس القسم في محلات تانية قريبة', 'Same Category in Other Nearby Stores')}</span>
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -236,7 +236,7 @@ export const ProductDetailsPage: React.FC = () => {
                 <Link
                   key={sp.id}
                   to={`/product/${sp.id}`}
-                  className="bg-white rounded-2xl border border-[#EAE6E1] p-3 flex items-center gap-3 hover:border-[#D6450D] transition-colors"
+                  className="bg-white rounded-2xl border border-[#EAE6E1] p-3 flex items-center gap-3 hover:border-[#1B8E53] transition-colors"
                 >
                   <SafeImage
                     src={sp.image}
@@ -244,7 +244,7 @@ export const ProductDetailsPage: React.FC = () => {
                     className="w-14 h-14 rounded-xl object-cover shrink-0 bg-[#FAF9F7]"
                   />
                   <div className="min-w-0 flex-1">
-                    <span className="text-[11px] font-bold text-[#D6450D] block truncate">
+                    <span className="text-[11px] font-bold text-[#1B8E53] block truncate">
                       {spStore ? (language === 'ar' ? spStore.nameAr : spStore.nameEn) : ''}
                     </span>
                     <span className="text-sm font-bold text-[#1C1917] block truncate">

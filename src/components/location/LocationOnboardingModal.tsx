@@ -234,7 +234,7 @@ export const LocationOnboardingModal: React.FC<LocationOnboardingModalProps> = (
         onClick={(e) => e.stopPropagation()}
         className="pwa-modal-animate relative w-full max-w-[430px] rounded-3xl bg-white border border-[#EAE6E1] shadow-[0_24px_60px_-12px_rgba(28,25,23,0.35)] overflow-hidden"
       >
-        <div className="relative px-6 pt-8 pb-5 bg-gradient-to-b from-[#FFF2EB] via-[#FFF9F5] to-white text-center">
+        <div className="relative px-6 pt-8 pb-5 bg-gradient-to-b from-[#E6F5EC] via-[#FFF9F5] to-white text-center">
           <button
             type="button"
             onClick={handleDismiss}
@@ -248,9 +248,9 @@ export const LocationOnboardingModal: React.FC<LocationOnboardingModalProps> = (
 
           {/* Animated Map Pin Illustration */}
           <div className="relative mx-auto w-24 h-24 mb-4 flex items-center justify-center">
-            <div className="absolute inset-2 rounded-full bg-[#D6450D]/15 animate-ping" />
-            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#FFF2EB] to-[#FFE4D4] border border-[#FBD8C5]" />
-            <div className="pwa-icon-float relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D6450D] to-[#F47B20] text-white shadow-[0_12px_24px_-6px_rgba(214,69,13,0.45)] flex items-center justify-center">
+            <div className="absolute inset-2 rounded-full bg-[#1B8E53]/15 animate-ping" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#E6F5EC] to-[#FFE4D4] border border-[#C2E7D2]" />
+            <div className="pwa-icon-float relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#1B8E53] to-[#22A863] text-white shadow-[0_12px_24px_-6px_rgba(214,69,13,0.45)] flex items-center justify-center">
               <MapPin className="w-7 h-7" />
             </div>
           </div>
@@ -287,7 +287,7 @@ export const LocationOnboardingModal: React.FC<LocationOnboardingModalProps> = (
               type="button"
               disabled={locating}
               onClick={requestCurrentLocation}
-              className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#D6450D] to-[#F47B20] hover:from-[#B33808] hover:to-[#D6450D] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] disabled:opacity-70"
+              className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#1B8E53] to-[#22A863] hover:from-[#147242] hover:to-[#1B8E53] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] disabled:opacity-70"
             >
               {locating ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -302,7 +302,7 @@ export const LocationOnboardingModal: React.FC<LocationOnboardingModalProps> = (
               type="button"
               disabled={locating}
               onClick={requestCurrentLocation}
-              className="pwa-cta-attention w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#D6450D] to-[#F47B20] hover:from-[#B33808] hover:to-[#D6450D] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-70"
+              className="pwa-cta-attention w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#1B8E53] to-[#22A863] hover:from-[#147242] hover:to-[#1B8E53] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-70"
             >
               {locating ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -322,7 +322,7 @@ export const LocationOnboardingModal: React.FC<LocationOnboardingModalProps> = (
             onClick={handleChooseManually}
             className={`w-full py-3 px-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
               issue && !canRetry
-                ? 'bg-[#D6450D] hover:bg-[#B33808] text-white shadow-sm'
+                ? 'bg-[#1B8E53] hover:bg-[#147242] text-white shadow-sm'
                 : 'bg-[#FAF9F7] hover:bg-[#F2EFEA] text-[#1C1917] border border-[#EAE6E1]'
             }`}
           >

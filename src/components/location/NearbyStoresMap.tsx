@@ -25,7 +25,7 @@ function createCustomerIcon(label: string) {
 }
 
 function createStoreIcon(deliverable: boolean, isOpen: boolean) {
-  const bg = !isOpen ? '#475569' : deliverable ? '#D6450D' : '#D97706';
+  const bg = !isOpen ? '#475569' : deliverable ? '#1B8E53' : '#D97706';
   return L.divIcon({
     className: 'gowar-map-store',
     html: `<div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;">
@@ -86,10 +86,10 @@ export const NearbyStoresMap: React.FC<NearbyStoresMapProps> = ({ stores }) => {
     const radiusMeters = customerLocation.searchRadiusKm * 1000;
     const circle = L.circle([customerLocation.lat, customerLocation.lng], {
       radius: radiusMeters,
-      color: '#D6450D',
+      color: '#1B8E53',
       weight: 2,
       opacity: 0.75,
-      fillColor: '#D6450D',
+      fillColor: '#1B8E53',
       fillOpacity: 0.1,
     }).addTo(group);
 
@@ -134,7 +134,7 @@ export const NearbyStoresMap: React.FC<NearbyStoresMapProps> = ({ stores }) => {
       badgeEl.style.fontSize = '11px';
       badgeEl.style.fontWeight = '700';
       badgeEl.style.marginTop = '4px';
-      badgeEl.style.color = isDeliverable ? '#D6450D' : '#B45309';
+      badgeEl.style.color = isDeliverable ? '#1B8E53' : '#B45309';
 
       const btnEl = document.createElement('button');
       btnEl.type = 'button';
@@ -144,7 +144,7 @@ export const NearbyStoresMap: React.FC<NearbyStoresMapProps> = ({ stores }) => {
       btnEl.style.padding = '6px 10px';
       btnEl.style.borderRadius = '10px';
       btnEl.style.border = 'none';
-      btnEl.style.background = '#D6450D';
+      btnEl.style.background = '#1B8E53';
       btnEl.style.color = '#FFFFFF';
       btnEl.style.fontWeight = '800';
       btnEl.style.fontSize = '11px';
@@ -171,7 +171,7 @@ export const NearbyStoresMap: React.FC<NearbyStoresMapProps> = ({ stores }) => {
             {t('موقعك المحدد', 'Your Location')}
           </span>
           <span className="inline-flex items-center gap-1.5 font-bold text-[#1C1917]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#D6450D]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#1B8E53]" />
             {t('محل متاح للتوصيل', 'Delivers to You')}
           </span>
           <span className="inline-flex items-center gap-1.5 font-bold text-[#6E6A66]">

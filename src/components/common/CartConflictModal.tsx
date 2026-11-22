@@ -46,7 +46,7 @@ export const CartConflictModal: React.FC = () => {
           <ShoppingBag className="w-4 h-4 text-[#6E6A66]" />
           <div className="text-end">
             <span className="text-[#6E6A66] block">{t('المحل الجديد', 'New Store')}</span>
-            <span className="font-bold text-[#D6450D] text-sm">
+            <span className="font-bold text-[#1B8E53] text-sm">
               {newStore ? (language === 'ar' ? newStore.nameAr : newStore.nameEn) : ''}
             </span>
           </div>
@@ -63,7 +63,7 @@ export const CartConflictModal: React.FC = () => {
           <button
             type="button"
             onClick={confirmReplaceCart}
-            className="flex-1 py-3 px-4 rounded-xl bg-[#D6450D] text-white text-sm font-bold hover:bg-[#B33808] transition-colors"
+            className="flex-1 py-3 px-4 rounded-xl bg-[#1B8E53] text-white text-sm font-bold hover:bg-[#147242] transition-colors"
           >
             {t('ابدأ سلة جديدة', 'Start a new cart')}
           </button>

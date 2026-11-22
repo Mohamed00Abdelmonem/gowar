@@ -72,7 +72,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {showStoreBadge && store && (
             <Link
               to={`/stores/${store.id}`}
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D6450D] bg-[#FFF2EB] px-2 py-0.5 rounded-md max-w-full hover:bg-[#FDE2D2]"
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#1B8E53] bg-[#E6F5EC] px-2 py-0.5 rounded-md max-w-full hover:bg-[#D5EFE0]"
             >
               <Store className="w-3 h-3 shrink-0" />
               <span className="truncate">
@@ -83,7 +83,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           <Link
             to={`/product/${product.id}`}
-            className="block text-sm font-bold text-[#1C1917] hover:text-[#D6450D] transition-colors line-clamp-2 min-h-[2.5rem] leading-snug"
+            className="block text-sm font-bold text-[#1C1917] hover:text-[#1B8E53] transition-colors line-clamp-2 min-h-[2.5rem] leading-snug"
           >
             {productName}
           </Link>

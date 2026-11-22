@@ -60,7 +60,7 @@ export const CartPage: React.FC = () => {
           action={
             <Link
               to="/stores"
-              className="px-6 py-3 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-sm font-bold transition-colors"
+              className="px-6 py-3 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-sm font-bold transition-colors"
             >
               {t('شوف المحلات القريبة', 'Browse Nearby Stores')}
             </Link>
@@ -102,7 +102,7 @@ export const CartPage: React.FC = () => {
         <div>
           <Link
             to={`/stores/${store.id}`}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6E6A66] hover:text-[#D6450D] mb-1"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6E6A66] hover:text-[#1B8E53] mb-1"
           >
             <BackArrow className="w-3.5 h-3.5" />
             <span>{t('رجوع للمحل', 'Back to Store')}</span>
@@ -136,7 +136,7 @@ export const CartPage: React.FC = () => {
                   {t('المحل المختار', 'Selected Store')}
                 </span>
                 <div className="flex items-center gap-1.5 text-sm font-extrabold text-[#1C1917] truncate">
-                  <Store className="w-4 h-4 text-[#D6450D] shrink-0" />
+                  <Store className="w-4 h-4 text-[#1B8E53] shrink-0" />
                   <span className="truncate">
                     {language === 'ar' ? store.nameAr : store.nameEn}
                   </span>
@@ -149,14 +149,14 @@ export const CartPage: React.FC = () => {
             </div>
             <Link
               to={`/stores/${store.id}`}
-              className="px-3 py-2 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-bold shrink-0 hover:bg-[#FDE2D2]"
+              className="px-3 py-2 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-bold shrink-0 hover:bg-[#D5EFE0]"
             >
               + {t('أضف أصناف تانية', 'Add items')}
             </Link>
           </div>
 
           {freeThreshold && !qualifiesFree && (
-            <div className="bg-[#FFF2EB] border border-[#FBD8C5] rounded-2xl p-3.5 flex items-center gap-2.5 text-xs font-bold text-[#D6450D]">
+            <div className="bg-[#E6F5EC] border border-[#C2E7D2] rounded-2xl p-3.5 flex items-center gap-2.5 text-xs font-bold text-[#1B8E53]">
               <Truck className="w-4 h-4 shrink-0" />
               <span>
                 {t(
@@ -180,7 +180,7 @@ export const CartPage: React.FC = () => {
                   <div className="flex items-start justify-between gap-2">
                     <Link
                       to={`/product/${product.id}`}
-                      className="text-sm font-bold text-[#1C1917] hover:text-[#D6450D] line-clamp-2"
+                      className="text-sm font-bold text-[#1C1917] hover:text-[#1B8E53] line-clamp-2"
                     >
                       {language === 'ar' ? product.nameAr : product.nameEn}
                     </Link>
@@ -263,7 +263,7 @@ export const CartPage: React.FC = () => {
 
           <div className="flex justify-between items-center text-base font-extrabold text-[#1C1917]">
             <span>{t('الإجمالي', 'Total')}</span>
-            <span className="text-xl text-[#D6450D]">{formatEGP(total, language)}</span>
+            <span className="text-xl text-[#1B8E53]">{formatEGP(total, language)}</span>
           </div>
 
           {/* Optional Promo Code (Tucked away cleanly) */}
@@ -271,7 +271,7 @@ export const CartPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowPromo(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6E6A66] hover:text-[#D6450D]"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6E6A66] hover:text-[#1B8E53]"
             >
               <Tag className="w-3.5 h-3.5" />
               <span>{t('عندك كود خصم؟', 'Have a promo code?')}</span>
@@ -283,11 +283,11 @@ export const CartPage: React.FC = () => {
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value)}
                 placeholder={t('اكتب الكود (GOWAR10)', 'Enter code (GOWAR10)')}
-                className="flex-1 px-3 py-2 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-xs focus:outline-none focus:border-[#D6450D]"
+                className="flex-1 px-3 py-2 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-xs focus:outline-none focus:border-[#1B8E53]"
               />
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-bold"
+                className="px-4 py-2 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-bold"
               >
                 {t('تطبيق', 'Apply')}
               </button>
@@ -310,7 +310,7 @@ export const CartPage: React.FC = () => {
             type="button"
             disabled={belowMinOrder}
             onClick={() => navigate(`/checkout?discount=${appliedDiscount}`)}
-            className="w-full py-4 px-5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] disabled:bg-slate-300 text-white text-sm sm:text-base font-extrabold transition-colors shadow-sm"
+            className="w-full py-4 px-5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] disabled:bg-slate-300 text-white text-sm sm:text-base font-extrabold transition-colors shadow-sm"
           >
             {t(
               `كمّل الطلب — ${formatEGP(total, language)}`,

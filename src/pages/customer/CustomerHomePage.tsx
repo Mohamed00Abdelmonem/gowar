@@ -15,6 +15,7 @@ import { CategoryIcon } from '../../components/common/CategoryIcon';
 import { EmptyState } from '../../components/common/EmptyState';
 import { LocationPickerModal } from '../../components/location/LocationPickerModal';
 import { RadiusControl } from '../../components/location/RadiusControl';
+import { PromoBannerCarousel } from '../../components/promotions/PromoBannerCarousel';
 import { filterNearbyStores } from '../../services/locationService';
 import promoBannerImg from '../../assets/promo-banner.jpg';
 
@@ -94,7 +95,7 @@ export const CustomerHomePage: React.FC = () => {
             <button
               type="button"
               onClick={() => setLocationPickerOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D6450D] hover:underline text-start"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1B8E53] hover:underline text-start"
             >
               <MapPin className="w-4 h-4 shrink-0" />
               <span>{t('التوصيل إلى:', 'Delivering to:')}</span>
@@ -103,7 +104,7 @@ export const CustomerHomePage: React.FC = () => {
                   ? customerLocation.formattedAddressAr
                   : customerLocation.formattedAddressEn}
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-[#FFF2EB] text-[#D6450D] text-[11px]">
+              <span className="px-2 py-0.5 rounded-full bg-[#E6F5EC] text-[#1B8E53] text-[11px]">
                 {t('تغيير', 'Change')}
               </span>
             </button>
@@ -115,7 +116,7 @@ export const CustomerHomePage: React.FC = () => {
           <button
             type="button"
             onClick={() => setLocationPickerOpen(true)}
-            className="inline-flex items-center gap-1.5 self-start sm:self-auto px-3.5 py-2 rounded-xl bg-[#FFF2EB] hover:bg-[#FDE2D2] text-[#D6450D] text-xs font-extrabold shrink-0 transition-colors"
+            className="inline-flex items-center gap-1.5 self-start sm:self-auto px-3.5 py-2 rounded-xl bg-[#E6F5EC] hover:bg-[#D5EFE0] text-[#1B8E53] text-xs font-extrabold shrink-0 transition-colors"
           >
             <MapPin className="w-3.5 h-3.5" />
             <span>{t('حدد مكان التوصيل', 'Select Location')}</span>
@@ -131,12 +132,12 @@ export const CustomerHomePage: React.FC = () => {
               value={homeSearch}
               onChange={(e) => setHomeSearch(e.target.value)}
               placeholder={t('بتدور على إيه؟ منتج أو محل', 'What are you looking for? Product or store')}
-              className="w-full ps-11 pe-4 py-3.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm sm:text-base text-[#1C1917] placeholder-[#6E6A66] focus:outline-none focus:border-[#D6450D] focus:bg-white transition-colors"
+              className="w-full ps-11 pe-4 py-3.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm sm:text-base text-[#1C1917] placeholder-[#6E6A66] focus:outline-none focus:border-[#1B8E53] focus:bg-white transition-colors"
             />
           </div>
           <button
             type="submit"
-            className="px-5 sm:px-7 py-3.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-sm font-extrabold transition-colors shrink-0"
+            className="px-5 sm:px-7 py-3.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-sm font-extrabold transition-colors shrink-0"
           >
             {t('ابحث', 'Search')}
           </button>
@@ -151,13 +152,20 @@ export const CustomerHomePage: React.FC = () => {
             <Link
               key={word}
               to={`/stores?q=${encodeURIComponent(word)}`}
-              className="px-3 py-1.5 rounded-full bg-[#FAF9F7] hover:bg-[#FFF2EB] border border-[#EAE6E1] hover:border-[#D6450D] text-xs font-semibold text-[#1C1917] hover:text-[#D6450D] whitespace-nowrap transition-colors shrink-0"
+              className="px-3 py-1.5 rounded-full bg-[#FAF9F7] hover:bg-[#E6F5EC] border border-[#EAE6E1] hover:border-[#1B8E53] text-xs font-semibold text-[#1C1917] hover:text-[#1B8E53] whitespace-nowrap transition-colors shrink-0"
             >
               {word}
             </Link>
           ))}
         </div>
       </section>
+
+      {/* 2.5 Promotional Banners & Offers Carousel */}
+      <PromoBannerCarousel
+        latitude={customerLocation.lat}
+        longitude={customerLocation.lng}
+        areaId={customerLocation.areaId}
+      />
 
       {/* 3. Main Categories */}
       <section className="space-y-3">
@@ -167,7 +175,7 @@ export const CustomerHomePage: React.FC = () => {
           </h2>
           <Link
             to="/stores"
-            className="text-xs font-bold text-[#D6450D] hover:underline inline-flex items-center gap-1"
+            className="text-xs font-bold text-[#1B8E53] hover:underline inline-flex items-center gap-1"
           >
             <span>{t('كل المحلات', 'All stores')}</span>
             <ArrowIcon className="w-3.5 h-3.5" />
@@ -181,7 +189,7 @@ export const CustomerHomePage: React.FC = () => {
               <Link
                 key={cat.id}
                 to={`/stores?category=${cat.id}`}
-                className="bg-white rounded-2xl border border-[#EAE6E1] p-2.5 sm:p-3.5 flex flex-col items-center text-center gap-1.5 sm:gap-2 hover:border-[#D6450D] transition-colors"
+                className="bg-white rounded-2xl border border-[#EAE6E1] p-2.5 sm:p-3.5 flex flex-col items-center text-center gap-1.5 sm:gap-2 hover:border-[#1B8E53] transition-colors"
               >
                 <div
                   className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center"
@@ -213,7 +221,7 @@ export const CustomerHomePage: React.FC = () => {
           </div>
           <Link
             to="/stores"
-            className="text-xs font-bold text-[#D6450D] hover:underline inline-flex items-center gap-1"
+            className="text-xs font-bold text-[#1B8E53] hover:underline inline-flex items-center gap-1"
           >
             <span>{t('عرض الكل والخريطة', 'See all & Map')}</span>
             <ArrowIcon className="w-3.5 h-3.5" />
@@ -240,7 +248,7 @@ export const CustomerHomePage: React.FC = () => {
                   onClick={() =>
                     setSearchRadiusKm(Math.min(20, customerLocation.searchRadiusKm + 5))
                   }
-                  className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold hover:bg-[#B33808]"
+                  className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold hover:bg-[#147242]"
                 >
                   {t('زود نطاق البحث', 'Expand Search Radius')}
                 </button>
@@ -275,7 +283,7 @@ export const CustomerHomePage: React.FC = () => {
           </h2>
           <Link
             to="/stores"
-            className="text-xs font-bold text-[#D6450D] hover:underline inline-flex items-center gap-1"
+            className="text-xs font-bold text-[#1B8E53] hover:underline inline-flex items-center gap-1"
           >
             <span>{t('كل المحلات', 'All stores')}</span>
             <ArrowIcon className="w-3.5 h-3.5" />
@@ -311,13 +319,13 @@ export const CustomerHomePage: React.FC = () => {
       {/* 7. Offers & Compact Weekly Deal Banner */}
       {offerProducts.length > 0 && (
         <section className="space-y-4">
-          <div className="relative rounded-2xl overflow-hidden bg-[#2A1207] text-white p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="relative rounded-2xl overflow-hidden bg-[#0F3822] text-white p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <img
               src={promoBannerImg}
               alt={t('عروض المحلات', 'Store Offers')}
               className="absolute inset-0 w-full h-full object-cover object-left pointer-events-none"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1C1917]/90 via-[#2E1307]/70 to-[#1C1917]/45 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1C1917]/90 via-[#13442A]/70 to-[#1C1917]/45 pointer-events-none" />
             <div className="relative z-10 space-y-1">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-200">
                 <Tag className="w-3.5 h-3.5" />
@@ -329,7 +337,7 @@ export const CustomerHomePage: React.FC = () => {
             </div>
             <Link
               to="/stores"
-              className="relative z-10 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-[#D6450D] text-xs font-extrabold self-start sm:self-auto shrink-0"
+              className="relative z-10 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-[#1B8E53] text-xs font-extrabold self-start sm:self-auto shrink-0"
             >
               <span>{t('شوف كل المحلات', 'Browse Stores')}</span>
               <ArrowIcon className="w-4 h-4" />

@@ -54,7 +54,7 @@ const DeliverySettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) =>
     >
       <div className="flex items-center justify-between p-4 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1]">
         <div className="flex items-center gap-3">
-          <Truck className="w-5 h-5 text-[#D6450D]" />
+          <Truck className="w-5 h-5 text-[#1B8E53]" />
           <div>
             <div className="text-sm font-bold text-[#1C1917]">
               {t('تفعيل خدمة التوصيل للمنازل', 'Enable Home Delivery')}
@@ -68,16 +68,16 @@ const DeliverySettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) =>
           type="button"
           onClick={() => setDeliveryEnabled((v) => !v)}
           className={`w-12 h-6 rounded-full p-0.5 flex items-center transition-colors ${
-            deliveryEnabled ? 'bg-[#D6450D] justify-end' : 'bg-slate-300 justify-start'
+            deliveryEnabled ? 'bg-[#1B8E53] justify-end' : 'bg-slate-300 justify-start'
           }`}
         >
           <span className="w-5 h-5 rounded-full bg-white shadow-xs" />
         </button>
       </div>
 
-      <div className="rounded-2xl bg-[#FFF2EB]/60 border border-[#FBD8C5] p-4 space-y-2">
+      <div className="rounded-2xl bg-[#E6F5EC]/60 border border-[#C2E7D2] p-4 space-y-2">
         <div className="flex items-start gap-2.5">
-          <Info className="w-4 h-4 text-[#D6450D] shrink-0 mt-0.5" />
+          <Info className="w-4 h-4 text-[#1B8E53] shrink-0 mt-0.5" />
           <div>
             <p className="text-xs sm:text-sm font-extrabold text-[#1C1917]">
               {t('تسعير التوصيل بالكيلومتر', 'Distance-Based Delivery Pricing')}
@@ -98,7 +98,7 @@ const DeliverySettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) =>
           ].map((band) => (
             <div key={band.km} className="rounded-xl bg-white border border-[#EAE6E1] px-2 py-1.5">
               <div className="text-[#6E6A66] font-semibold">{band.label}</div>
-              <div className="text-[#D6450D] font-extrabold mt-0.5">
+              <div className="text-[#1B8E53] font-extrabold mt-0.5">
                 {((Math.max(0, Number(pricePerKm) || 0)) * band.km).toFixed(2)} {t('ج.م', 'EGP')}
               </div>
             </div>
@@ -207,7 +207,7 @@ const DeliverySettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) =>
                 key={area.id}
                 className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer text-xs font-bold transition-colors ${
                   checked
-                    ? 'border-[#D6450D] bg-[#FFF2EB] text-[#D6450D]'
+                    ? 'border-[#1B8E53] bg-[#E6F5EC] text-[#1B8E53]'
                     : 'border-[#EAE6E1] bg-[#FAF9F7] text-[#1C1917]'
                 }`}
               >
@@ -215,7 +215,7 @@ const DeliverySettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) =>
                   type="checkbox"
                   checked={checked}
                   onChange={() => toggleArea(area.id)}
-                  className="accent-[#D6450D]"
+                  className="accent-[#1B8E53]"
                 />
                 <span>{language === 'ar' ? area.nameAr : area.nameEn}</span>
               </label>
@@ -227,7 +227,7 @@ const DeliverySettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) =>
       <div className="flex justify-end pt-3 border-t border-[#EAE6E1]">
         <button
           type="submit"
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
         >
           <Save className="w-4 h-4" />
           <span>{t('حفظ إعدادات التوصيل', 'Save Delivery Settings')}</span>
@@ -251,10 +251,10 @@ export const MerchantDeliveryPage: React.FC = () => {
         </p>
       </div>
 
-      <div className="p-4 rounded-2xl bg-[#FFF2EB] border border-[#FBD8C5] flex items-start gap-3 text-xs text-[#1C1917]">
-        <Info className="w-5 h-5 text-[#D6450D] shrink-0 mt-0.5" />
+      <div className="p-4 rounded-2xl bg-[#E6F5EC] border border-[#C2E7D2] flex items-start gap-3 text-xs text-[#1C1917]">
+        <Info className="w-5 h-5 text-[#1B8E53] shrink-0 mt-0.5" />
         <div>
-          <strong className="block text-sm text-[#D6450D]">
+          <strong className="block text-sm text-[#1B8E53]">
             {t('التوصيل يتم مباشرة بواسطة محلك', 'Merchant-Fulfilled Delivery Model')}
           </strong>
           <p className="text-[#1C1917]/80 mt-0.5 leading-relaxed">

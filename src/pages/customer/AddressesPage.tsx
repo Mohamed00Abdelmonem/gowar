@@ -63,7 +63,7 @@ export const AddressesPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setMapModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FFF2EB] border border-[#FBD8C5] text-[#D6450D] text-xs font-bold"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#E6F5EC] border border-[#C2E7D2] text-[#1B8E53] text-xs font-bold"
           >
             <MapPin className="w-4 h-4" />
             <span>{t('تحديد على الخريطة', 'Pick on Map')}</span>
@@ -71,7 +71,7 @@ export const AddressesPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
           >
             <Plus className="w-4 h-4" />
             <span>{t('إضافة عنوان', 'Add Address')}</span>
@@ -86,11 +86,11 @@ export const AddressesPage: React.FC = () => {
             <div
               key={addr.id}
               className={`bg-white rounded-2xl border p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                addr.isDefault ? 'border-[#D6450D] ring-1 ring-[#D6450D]/20' : 'border-[#EAE6E1]'
+                addr.isDefault ? 'border-[#1B8E53] ring-1 ring-[#1B8E53]/20' : 'border-[#EAE6E1]'
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center shrink-0">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
@@ -104,7 +104,7 @@ export const AddressesPage: React.FC = () => {
                       </span>
                     )}
                     {addr.isDefault && (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#FFF2EB] text-[#D6450D]">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#E6F5EC] text-[#1B8E53]">
                         {t('الافتراضي', 'Default')}
                       </span>
                     )}
@@ -123,7 +123,7 @@ export const AddressesPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setDefaultAddress(addr.id)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-bold"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-bold"
                   >
                     <Check className="w-3.5 h-3.5" />
                     <span>{t('تعيين كافتراضي', 'Set Default')}</span>
@@ -230,7 +230,7 @@ export const AddressesPage: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-sm font-bold"
+            className="w-full py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-sm font-bold"
           >
             {t('حفظ العنوان', 'Save Address')}
           </button>

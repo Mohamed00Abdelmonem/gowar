@@ -72,7 +72,7 @@ export const OrderTrackingPage: React.FC = () => {
           action={
             <Link
               to="/orders"
-              className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+              className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
             >
               {t('العودة لطلباتي', 'Back to Orders')}
             </Link>
@@ -91,7 +91,7 @@ export const OrderTrackingPage: React.FC = () => {
         <div>
           <Link
             to="/orders"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6E6A66] hover:text-[#D6450D] mb-1"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6E6A66] hover:text-[#1B8E53] mb-1"
           >
             <BackArrow className="w-3.5 h-3.5" />
             <span>{t('العودة لطلباتي', 'Back to My Orders')}</span>
@@ -165,7 +165,7 @@ export const OrderTrackingPage: React.FC = () => {
         ) : (
           <>
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-              <span className="inline-flex items-center gap-1.5 font-extrabold text-[#D6450D]">
+              <span className="inline-flex items-center gap-1.5 font-extrabold text-[#1B8E53]">
                 <Clock className="w-4 h-4" />
                 {t(
                   `الطلب هيوصل خلال ${order.estimatedDeliveryMin} دقيقة تقريباً`,
@@ -192,9 +192,9 @@ export const OrderTrackingPage: React.FC = () => {
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center border-2 shrink-0 transition-colors ${
                         done
-                          ? 'bg-[#D6450D] border-[#D6450D] text-white'
+                          ? 'bg-[#1B8E53] border-[#1B8E53] text-white'
                           : 'bg-[#FAF9F7] border-[#EAE6E1] text-[#6E6A66]'
-                      } ${active ? 'ring-4 ring-[#FFF2EB]' : ''}`}
+                      } ${active ? 'ring-4 ring-[#E6F5EC]' : ''}`}
                     >
                       {idx === 4 ? (
                         <PackageCheck className="w-4 h-4" />
@@ -256,7 +256,7 @@ export const OrderTrackingPage: React.FC = () => {
                     }}
                     className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border ${
                       order.status === s.key
-                        ? 'bg-[#D6450D] text-white border-[#D6450D]'
+                        ? 'bg-[#1B8E53] text-white border-[#1B8E53]'
                         : 'bg-[#FAF9F7] text-[#1C1917] border-[#EAE6E1]'
                     }`}
                   >
@@ -308,7 +308,7 @@ export const OrderTrackingPage: React.FC = () => {
             {store && (
               <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1]">
                 <div className="flex items-center gap-2.5">
-                  <Store className="w-4 h-4 text-[#D6450D]" />
+                  <Store className="w-4 h-4 text-[#1B8E53]" />
                   <div>
                     <div className="text-xs font-bold text-[#1C1917]">
                       {language === 'ar' ? store.nameAr : store.nameEn}
@@ -327,7 +327,7 @@ export const OrderTrackingPage: React.FC = () => {
                       'info'
                     )
                   }
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#D6450D] text-white text-xs font-bold"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1B8E53] text-white text-xs font-bold"
                 >
                   <Phone className="w-3.5 h-3.5" />
                   <span>{t('كلم المحل', 'Call Store')}</span>
@@ -337,7 +337,7 @@ export const OrderTrackingPage: React.FC = () => {
 
             <div className="text-xs text-[#6E6A66] space-y-1.5">
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#D6450D] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#1B8E53] shrink-0 mt-0.5" />
                 <span>{language === 'ar' ? order.deliveryAddressAr : order.deliveryAddressEn}</span>
               </div>
               {order.notes && (
@@ -364,7 +364,7 @@ export const OrderTrackingPage: React.FC = () => {
               )}
               <div className="flex justify-between font-extrabold text-base pt-1 text-[#1C1917]">
                 <span>{t('الإجمالي', 'Total')}</span>
-                <span className="text-[#D6450D]">{formatEGP(order.total, language)}</span>
+                <span className="text-[#1B8E53]">{formatEGP(order.total, language)}</span>
               </div>
             </div>
           </div>

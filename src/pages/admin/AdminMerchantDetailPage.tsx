@@ -126,7 +126,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           to="/admin/merchants"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D6450D] hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1B8E53] hover:underline"
         >
           <ArrowRight className="w-3.5 h-3.5" />
           <span>{t('العودة لقائمة التجار', 'Back to Merchants')}</span>
@@ -141,7 +141,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
                 onClick={() => setPreset(p.id)}
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-colors ${
                   preset === p.id
-                    ? 'bg-[#D6450D] text-white'
+                    ? 'bg-[#1B8E53] text-white'
                     : 'text-[#6E6A66] hover:text-[#1C1917]'
                 }`}
               >
@@ -151,7 +151,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
           </div>
           {preset === 'custom' && (
             <div className="flex items-center gap-1.5 bg-white border border-[#EAE6E1] rounded-xl px-2.5 py-1 text-xs">
-              <Calendar className="w-3.5 h-3.5 text-[#D6450D]" />
+              <Calendar className="w-3.5 h-3.5 text-[#1B8E53]" />
               <input
                 type="date"
                 value={customFrom}
@@ -184,7 +184,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
                 <h1 className="text-xl font-extrabold text-[#1C1917]">
                   {language === 'ar' ? merchant.nameAr : merchant.nameEn}
                 </h1>
-                {merchant.verified && <BadgeCheck className="w-5 h-5 text-[#D6450D]" />}
+                {merchant.verified && <BadgeCheck className="w-5 h-5 text-[#1B8E53]" />}
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${statusMeta.badgeClass}`}>
                   {statusMeta.label}
                 </span>
@@ -215,7 +215,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
               <button
                 type="button"
                 onClick={() => setMerchantStatus(merchant.id, 'approved')}
-                className="px-4 py-2 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+                className="px-4 py-2 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
               >
                 {t('اعتماد وتفعيل', 'Approve & Activate')}
               </button>
@@ -253,9 +253,9 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
               {formatNumber(delivered.length, language)} / {formatNumber(windowOrders.length, language)}
             </strong>
           </div>
-          <div className="p-3.5 rounded-xl bg-[#FFF2EB] border border-[#FBD8C5]">
-            <span className="text-[#D6450D] font-bold block">{t('المبيعات المحققة (GMV)', 'Realized GMV')}</span>
-            <strong className="text-lg text-[#D6450D]">{formatEGP(gmv, language)}</strong>
+          <div className="p-3.5 rounded-xl bg-[#E6F5EC] border border-[#C2E7D2]">
+            <span className="text-[#1B8E53] font-bold block">{t('المبيعات المحققة (GMV)', 'Realized GMV')}</span>
+            <strong className="text-lg text-[#1B8E53]">{formatEGP(gmv, language)}</strong>
           </div>
           <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
             <span className="text-emerald-700 font-bold block">{t('عمولات المنصة', 'Commission Earned')}</span>
@@ -273,7 +273,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-[#EAE6E1]">
           <div className="text-xs text-[#6E6A66] flex items-center gap-1.5">
-            <MapPin className="w-4 h-4 text-[#D6450D]" />
+            <MapPin className="w-4 h-4 text-[#1B8E53]" />
             <span>{language === 'ar' ? merchant.addressAr : merchant.addressEn}</span>
           </div>
 
@@ -292,7 +292,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
             <button
               type="button"
               onClick={() => updateMerchantCommission(merchant.id, Number(commissionInput) || 0)}
-              className="px-3.5 py-1.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+              className="px-3.5 py-1.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
             >
               {t('حفظ', 'Save')}
             </button>
@@ -317,8 +317,8 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
                   type="monotone"
                   dataKey="sales"
                   name={t('المبيعات (جنيه)', 'Sales (EGP)')}
-                  stroke="#D6450D"
-                  fill="#FFF2EB"
+                  stroke="#1B8E53"
+                  fill="#E6F5EC"
                   strokeWidth={2.5}
                 />
               </AreaChart>
@@ -342,7 +342,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
                   <span className="font-bold text-[#1C1917] truncate">{tp.name}</span>
                   <span className="shrink-0 text-[#6E6A66]">
                     <strong className="text-[#1C1917]">{tp.sold}</strong> {t('وحدة', 'units')} •{' '}
-                    <strong className="text-[#D6450D]">{formatEGP(tp.revenue, language)}</strong>
+                    <strong className="text-[#1B8E53]">{formatEGP(tp.revenue, language)}</strong>
                   </span>
                 </div>
               ))}
@@ -355,7 +355,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-5 bg-white rounded-2xl border border-[#EAE6E1] p-5 space-y-3 shadow-2xs">
           <h2 className="text-sm font-extrabold text-[#1C1917] flex items-center gap-2">
-            <MessageSquareQuote className="w-4 h-4 text-[#D6450D]" />
+            <MessageSquareQuote className="w-4 h-4 text-[#1B8E53]" />
             <span>{t(`تقييمات العملاء (${storeReviews.length})`, `Customer Reviews (${storeReviews.length})`)}</span>
           </h2>
           {storeReviews.length === 0 ? (
@@ -401,7 +401,7 @@ const MerchantDetailContent: React.FC<{ merchant: Merchant }> = ({ merchant }) =
                       <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold border ${sm.badgeClass}`}>
                         {sm.label}
                       </span>
-                      <strong className="text-[#D6450D]">{formatEGP(o.total, language)}</strong>
+                      <strong className="text-[#1B8E53]">{formatEGP(o.total, language)}</strong>
                     </div>
                   </div>
                 );
@@ -428,7 +428,7 @@ export const AdminMerchantDetailPage: React.FC = () => {
         title={t('التاجر غير موجود', 'Merchant not found')}
         description={t('تعذر العثور على بيانات هذا التاجر.', 'Merchant record was not found.')}
         action={
-          <Link to="/admin/merchants" className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold">
+          <Link to="/admin/merchants" className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold">
             {t('العودة للتجار', 'Back to Merchants')}
           </Link>
         }

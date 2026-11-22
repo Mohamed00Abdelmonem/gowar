@@ -58,7 +58,7 @@ export const MerchantProductsPage: React.FC = () => {
 
         <Link
           to="/merchant/products/new"
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>{t('إضافة منتج جديد', 'Add New Product')}</span>
@@ -74,14 +74,14 @@ export const MerchantProductsPage: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('ابحث باسم المنتج أو كود SKU...', 'Search product name or SKU...')}
-            className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+            className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
           />
         </div>
         <div className="sm:col-span-5">
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm font-medium focus:outline-none focus:border-[#D6450D]"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm font-medium focus:outline-none focus:border-[#1B8E53]"
           >
             <option value="all">{t('كل التصنيفات', 'All Categories')}</option>
             {categories.map((c) => (
@@ -101,7 +101,7 @@ export const MerchantProductsPage: React.FC = () => {
           action={
             <Link
               to="/merchant/products/new"
-              className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+              className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
             >
               + {t('إضافة منتج', 'Add Product')}
             </Link>
@@ -132,7 +132,7 @@ export const MerchantProductsPage: React.FC = () => {
                         {cat ? (language === 'ar' ? cat.nameAr : cat.nameEn) : ''} •{' '}
                         {language === 'ar' ? product.unitAr : product.unitEn}
                       </div>
-                      <div className="text-sm font-extrabold text-[#D6450D] mt-1">
+                      <div className="text-sm font-extrabold text-[#1B8E53] mt-1">
                         {formatEGP(product.price, language)}
                       </div>
                     </div>
@@ -145,7 +145,7 @@ export const MerchantProductsPage: React.FC = () => {
                             ? 'bg-rose-50 text-rose-700'
                             : product.stock <= 5
                               ? 'bg-amber-50 text-amber-800'
-                              : 'bg-[#FFF2EB] text-[#D6450D]'
+                              : 'bg-[#E6F5EC] text-[#1B8E53]'
                         }`}
                       >
                         {t('المخزون:', 'Stock:')} {product.stock}
@@ -157,7 +157,7 @@ export const MerchantProductsPage: React.FC = () => {
                         }
                         className={`w-10 h-5 rounded-full transition-colors p-0.5 flex items-center ${
                           product.isAvailable
-                            ? 'bg-[#D6450D] justify-end'
+                            ? 'bg-[#1B8E53] justify-end'
                             : 'bg-slate-300 justify-start'
                         }`}
                         aria-label={t('تبديل الإتاحة', 'Toggle availability')}
@@ -228,7 +228,7 @@ export const MerchantProductsPage: React.FC = () => {
                       <td className="py-3 px-4 text-[#6E6A66]">
                         {cat ? (language === 'ar' ? cat.nameAr : cat.nameEn) : '-'}
                       </td>
-                      <td className="py-3 px-4 font-extrabold text-[#D6450D]">
+                      <td className="py-3 px-4 font-extrabold text-[#1B8E53]">
                         {formatEGP(product.price, language)}
                         {product.oldPrice && (
                           <span className="block text-[10px] text-[#6E6A66] line-through font-normal">
@@ -243,7 +243,7 @@ export const MerchantProductsPage: React.FC = () => {
                               ? 'bg-rose-50 text-rose-700'
                               : product.stock <= 5
                                 ? 'bg-amber-50 text-amber-800'
-                                : 'bg-[#FFF2EB] text-[#D6450D]'
+                                : 'bg-[#E6F5EC] text-[#1B8E53]'
                           }`}
                         >
                           {product.stock}
@@ -256,7 +256,7 @@ export const MerchantProductsPage: React.FC = () => {
                             updateProduct(product.id, { isAvailable: !product.isAvailable })
                           }
                           className={`w-11 h-6 rounded-full transition-colors p-0.5 flex items-center ${
-                            product.isAvailable ? 'bg-[#D6450D] justify-end' : 'bg-slate-300 justify-start'
+                            product.isAvailable ? 'bg-[#1B8E53] justify-end' : 'bg-slate-300 justify-start'
                           }`}
                           aria-label={t('تبديل الإتاحة', 'Toggle availability')}
                         >
@@ -267,7 +267,7 @@ export const MerchantProductsPage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <Link
                             to={`/merchant/products/${product.id}/edit`}
-                            className="p-2 rounded-lg border border-[#EAE6E1] text-[#1C1917] hover:border-[#D6450D] hover:text-[#D6450D]"
+                            className="p-2 rounded-lg border border-[#EAE6E1] text-[#1C1917] hover:border-[#1B8E53] hover:text-[#1B8E53]"
                             title={t('تعديل', 'Edit')}
                           >
                             <Edit3 className="w-3.5 h-3.5" />

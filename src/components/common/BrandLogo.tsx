@@ -34,7 +34,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({ variant = 'dark', compact 
           <div className="text-lg font-extrabold tracking-tight text-white">
             {t('جوار', 'Gowar')}
           </div>
-          <p className="text-[11px] text-orange-100 hidden sm:block">
+          <p className="text-[11px] text-emerald-100 hidden sm:block">
             {t('كل اللي تحتاجه من المحلات اللي حواليك', 'Everything from stores around you')}
           </p>
         </div>

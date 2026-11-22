@@ -1,7 +1,7 @@
 // Curated grocery & storefront photography with crisp SVG data-URI fallback
 // so no broken image icons ever appear even under restricted network environments.
 
-export function createSvgFallback(title: string, bgHex = '#FFF2EB', accentHex = '#D6450D'): string {
+export function createSvgFallback(title: string, bgHex = '#E6F5EC', accentHex = '#1B8E53'): string {
   const safeText = title.slice(0, 18).replace(/[<>&"']/g, '');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
     <defs>

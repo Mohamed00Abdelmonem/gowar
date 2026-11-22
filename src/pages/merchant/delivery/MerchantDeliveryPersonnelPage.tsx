@@ -219,7 +219,7 @@ export const MerchantDeliveryPersonnelPage: React.FC = () => {
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-extrabold self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-extrabold self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>{t('إضافة مندوب جديد', 'Add Delivery Person')}</span>
@@ -235,7 +235,7 @@ export const MerchantDeliveryPersonnelPage: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('ابحث بالاسم أو الهاتف أو البريد...', 'Search by name, phone, or email...')}
-              className="w-full ps-10 pe-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D]"
+              className="w-full ps-10 pe-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53]"
             />
           </div>
 
@@ -244,7 +244,7 @@ export const MerchantDeliveryPersonnelPage: React.FC = () => {
               type="checkbox"
               checked={includeArchived}
               onChange={(e) => setIncludeArchived(e.target.checked)}
-              className="rounded border-[#EAE6E1] text-[#D6450D]"
+              className="rounded border-[#EAE6E1] text-[#1B8E53]"
             />
             <span>{t('إظهار المؤرشفين', 'Show archived')}</span>
           </label>
@@ -252,7 +252,7 @@ export const MerchantDeliveryPersonnelPage: React.FC = () => {
 
         {loading ? (
           <div className="py-12 flex items-center justify-center gap-2 text-sm text-[#6E6A66]">
-            <Loader2 className="w-5 h-5 animate-spin text-[#D6450D]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#1B8E53]" />
             <span>{t('جاري التحميل...', 'Loading...')}</span>
           </div>
         ) : error ? (
@@ -269,7 +269,7 @@ export const MerchantDeliveryPersonnelPage: React.FC = () => {
             <button
               type="button"
               onClick={openCreateModal}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
             >
               <Plus className="w-4 h-4" />
               <span>{t('إضافة أول مندوب', 'Add First Driver')}</span>
@@ -292,7 +292,7 @@ export const MerchantDeliveryPersonnelPage: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="flex items-center gap-1.5 text-[#1C1917]" dir="ltr">
-                    <Phone className="w-3.5 h-3.5 text-[#D6450D]" />
+                    <Phone className="w-3.5 h-3.5 text-[#1B8E53]" />
                     <span>{d.phone_number}</span>
                   </div>
                   <div className="text-[#6E6A66]">
@@ -495,7 +495,7 @@ export const MerchantDeliveryPersonnelPage: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 rounded-xl bg-[#D6450D] text-white text-xs font-extrabold disabled:opacity-60"
+              className="px-5 py-2 rounded-xl bg-[#1B8E53] text-white text-xs font-extrabold disabled:opacity-60"
             >
               {submitting ? t('جاري الحفظ...', 'Saving...') : t('حفظ', 'Save')}
             </button>
@@ -541,7 +541,7 @@ export const MerchantDeliveryPersonnelPage: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 rounded-xl bg-[#D6450D] text-white text-xs font-extrabold"
+              className="px-5 py-2 rounded-xl bg-[#1B8E53] text-white text-xs font-extrabold"
             >
               {t('تحديث كلمة المرور', 'Update Password')}
             </button>
@@ -558,7 +558,7 @@ export const MerchantDeliveryPersonnelPage: React.FC = () => {
       >
         {detailLoading ? (
           <div className="py-8 flex items-center justify-center gap-2 text-sm text-[#6E6A66]">
-            <Loader2 className="w-5 h-5 animate-spin text-[#D6450D]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#1B8E53]" />
             <span>{t('جاري تحميل السجل...', 'Loading history...')}</span>
           </div>
         ) : (

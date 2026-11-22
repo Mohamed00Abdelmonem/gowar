@@ -58,7 +58,7 @@ export const RoleSwitcherBar: React.FC = () => {
                   onClick={() => navigate(r.path)}
                   className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md font-semibold transition-colors whitespace-nowrap ${
                     active
-                      ? 'bg-[#D6450D] text-white shadow-xs'
+                      ? 'bg-[#1B8E53] text-white shadow-xs'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >

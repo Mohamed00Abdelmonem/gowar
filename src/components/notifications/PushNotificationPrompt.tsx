@@ -94,7 +94,7 @@ export const PushNotificationPrompt: React.FC = () => {
     <div className="fixed bottom-20 sm:bottom-5 inset-x-3 sm:inset-x-auto sm:end-5 sm:max-w-sm z-40 pwa-modal-animate">
       <div className="bg-white rounded-2xl border border-[#EAE6E1] shadow-[0_18px_42px_-12px_rgba(28,25,23,0.28)] p-4">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center shrink-0">
             <BellRing className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -122,7 +122,7 @@ export const PushNotificationPrompt: React.FC = () => {
                 type="button"
                 disabled={submitting}
                 onClick={handleEnable}
-                className="px-3.5 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold transition-colors disabled:opacity-60"
+                className="px-3.5 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold transition-colors disabled:opacity-60"
               >
                 {submitting ? t('جاري التفعيل...', 'Enabling...') : t('تفعيل الإشعارات', 'Enable Alerts')}
               </button>

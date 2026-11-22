@@ -72,7 +72,7 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
     <div className="max-w-md mx-auto px-4 py-10">
       <div className="bg-white rounded-3xl border border-[#EAE6E1] p-6 sm:p-7 shadow-xs space-y-5">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center shrink-0">
             {mode === 'login' ? <User className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
           </div>
           <div>
@@ -95,7 +95,7 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
               setError('');
             }}
             className={`py-2 rounded-lg text-xs font-bold transition-colors ${
-              mode === 'login' ? 'bg-[#D6450D] text-white' : 'text-[#6E6A66]'
+              mode === 'login' ? 'bg-[#1B8E53] text-white' : 'text-[#6E6A66]'
             }`}
           >
             {t('تسجيل الدخول', 'Sign In')}
@@ -107,7 +107,7 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
               setError('');
             }}
             className={`py-2 rounded-lg text-xs font-bold transition-colors ${
-              mode === 'register' ? 'bg-[#D6450D] text-white' : 'text-[#6E6A66]'
+              mode === 'register' ? 'bg-[#1B8E53] text-white' : 'text-[#6E6A66]'
             }`}
           >
             {t('حساب جديد', 'Register')}
@@ -217,7 +217,7 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-[#D6450D] hover:bg-[#B33808] disabled:opacity-60 text-white text-sm font-extrabold transition-colors"
+            className="w-full py-3 rounded-xl bg-[#1B8E53] hover:bg-[#147242] disabled:opacity-60 text-white text-sm font-extrabold transition-colors"
           >
             {loading
               ? t('جاري التنفيذ...', 'Please wait...')
@@ -228,7 +228,7 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
         </form>
 
         <div className="text-center pt-2 border-t border-[#EAE6E1]">
-          <Link to="/" className="text-xs font-bold text-[#6E6A66] hover:text-[#D6450D]">
+          <Link to="/" className="text-xs font-bold text-[#6E6A66] hover:text-[#1B8E53]">
             {t('العودة لتصفح المحلات', 'Continue browsing stores')}
           </Link>
         </div>

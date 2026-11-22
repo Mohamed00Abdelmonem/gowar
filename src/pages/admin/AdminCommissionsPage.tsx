@@ -41,7 +41,7 @@ export const AdminCommissionsPage: React.FC = () => {
       {/* Global Commission Card */}
       <div className="bg-white rounded-2xl border border-[#EAE6E1] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center">
+          <div className="w-11 h-11 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center">
             <Percent className="w-5 h-5" />
           </div>
           <div>
@@ -50,7 +50,7 @@ export const AdminCommissionsPage: React.FC = () => {
             </h2>
             <p className="text-xs text-[#6E6A66]">
               {t('إجمالي عمولات المنصة المحققة:', 'Total calculated commissions:')}{' '}
-              <strong className="text-[#D6450D]">{formatEGP(totalCommission, language)}</strong>
+              <strong className="text-[#1B8E53]">{formatEGP(totalCommission, language)}</strong>
             </p>
           </div>
         </div>
@@ -71,7 +71,7 @@ export const AdminCommissionsPage: React.FC = () => {
             onClick={() =>
               updatePlatformSettings({ defaultCommissionRate: Number(globalRate) || 0 })
             }
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{t('تحديث', 'Update')}</span>
@@ -123,14 +123,14 @@ export const AdminCommissionsPage: React.FC = () => {
                         className="w-20 px-2.5 py-1.5 rounded-lg border border-[#EAE6E1] font-bold"
                       />
                     </td>
-                    <td className="py-3 px-4 font-extrabold text-[#D6450D]">
+                    <td className="py-3 px-4 font-extrabold text-[#1B8E53]">
                       {formatEGP(commSum, language)}
                     </td>
                     <td className="py-3 px-4">
                       <button
                         type="button"
                         onClick={() => updateMerchantCommission(m.id, Number(rateVal) || 0)}
-                        className="px-3 py-1.5 rounded-lg bg-[#FFF2EB] text-[#D6450D] font-bold hover:bg-[#FDE2D2]"
+                        className="px-3 py-1.5 rounded-lg bg-[#E6F5EC] text-[#1B8E53] font-bold hover:bg-[#D5EFE0]"
                       >
                         {t('تطبيق', 'Apply')}
                       </button>
@@ -199,7 +199,7 @@ export const AdminCommissionsPage: React.FC = () => {
                           </span>
                         </td>
                         <td className="py-3 px-4 font-bold text-[#1C1917]">{rec.store_name}</td>
-                        <td className="py-3 px-4 font-extrabold text-[#D6450D]">
+                        <td className="py-3 px-4 font-extrabold text-[#1B8E53]">
                           {formatEGP(Number(rec.commission_amount), language)}
                           {Number(rec.reversed_commission_amount) > 0 && (
                             <span className="block text-[10px] text-rose-600 font-normal">

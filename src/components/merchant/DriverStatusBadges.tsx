@@ -16,8 +16,8 @@ export const DriverOperationalBadge: React.FC<{ status: DriverOperationalStatus 
       );
     case 'on_delivery':
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#FFF2EB] text-[#D6450D] border border-[#FBD8C5]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#D6450D] animate-pulse" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#E6F5EC] text-[#1B8E53] border border-[#C2E7D2]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#1B8E53] animate-pulse" />
           {t('في توصيل', 'On Delivery')}
         </span>
       );

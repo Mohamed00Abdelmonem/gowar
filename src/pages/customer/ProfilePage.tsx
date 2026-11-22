@@ -63,7 +63,7 @@ export const ProfilePage: React.FC = () => {
         ) : (
           <Link
             to="/login"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FFF2EB] border border-[#FBD8C5] text-[#D6450D] text-xs font-bold"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#E6F5EC] border border-[#C2E7D2] text-[#1B8E53] text-xs font-bold"
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>{t('تسجيل الدخول / إنشاء حساب', 'Sign In / Register')}</span>
@@ -75,9 +75,9 @@ export const ProfilePage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Link
           to="/orders"
-          className="bg-white rounded-2xl border border-[#EAE6E1] p-4 flex items-center gap-3 hover:border-[#D6450D] transition-colors"
+          className="bg-white rounded-2xl border border-[#EAE6E1] p-4 flex items-center gap-3 hover:border-[#1B8E53] transition-colors"
         >
-          <div className="w-11 h-11 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center">
+          <div className="w-11 h-11 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center">
             <ClipboardList className="w-5 h-5" />
           </div>
           <div>
@@ -90,9 +90,9 @@ export const ProfilePage: React.FC = () => {
 
         <Link
           to="/addresses"
-          className="bg-white rounded-2xl border border-[#EAE6E1] p-4 flex items-center gap-3 hover:border-[#D6450D] transition-colors"
+          className="bg-white rounded-2xl border border-[#EAE6E1] p-4 flex items-center gap-3 hover:border-[#1B8E53] transition-colors"
         >
-          <div className="w-11 h-11 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center">
+          <div className="w-11 h-11 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center">
             <MapPin className="w-5 h-5" />
           </div>
           <div>
@@ -105,7 +105,7 @@ export const ProfilePage: React.FC = () => {
 
         <Link
           to="/favorites"
-          className="bg-white rounded-2xl border border-[#EAE6E1] p-4 flex items-center gap-3 hover:border-[#D6450D] transition-colors"
+          className="bg-white rounded-2xl border border-[#EAE6E1] p-4 flex items-center gap-3 hover:border-[#1B8E53] transition-colors"
         >
           <div className="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center">
             <Heart className="w-5 h-5" />
@@ -125,7 +125,7 @@ export const ProfilePage: React.FC = () => {
         className="bg-white rounded-2xl border border-[#EAE6E1] p-5 sm:p-6 space-y-5 shadow-xs"
       >
         <div className="flex items-center gap-3 pb-4 border-b border-[#EAE6E1]">
-          <div className="w-12 h-12 rounded-2xl bg-[#D6450D] text-white flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#1B8E53] text-white flex items-center justify-center">
             <User className="w-6 h-6" />
           </div>
           <div>
@@ -145,7 +145,7 @@ export const ProfilePage: React.FC = () => {
               type="text"
               value={nameAr}
               onChange={(e) => setNameAr(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
             />
           </div>
           <div>
@@ -156,7 +156,7 @@ export const ProfilePage: React.FC = () => {
               type="text"
               value={nameEn}
               onChange={(e) => setNameEn(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
             />
           </div>
           <div>
@@ -167,7 +167,7 @@ export const ProfilePage: React.FC = () => {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
             />
           </div>
           <div>
@@ -178,7 +178,7 @@ export const ProfilePage: React.FC = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
             />
           </div>
         </div>
@@ -193,7 +193,7 @@ export const ProfilePage: React.FC = () => {
           </button>
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
           >
             <Save className="w-4 h-4" />
             <span>{t('حفظ التعديلات', 'Save Changes')}</span>

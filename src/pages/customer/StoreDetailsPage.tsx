@@ -74,7 +74,7 @@ export const StoreDetailsPage: React.FC = () => {
           action={
             <Link
               to="/stores"
-              className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+              className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
             >
               {t('العودة للمحلات', 'Back to Stores')}
             </Link>
@@ -98,7 +98,7 @@ export const StoreDetailsPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <Link
           to="/stores"
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#6E6A66] hover:text-[#D6450D]"
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#6E6A66] hover:text-[#1B8E53]"
         >
           <BackArrow className="w-4 h-4" />
           <span>{t('العودة للمحلات', 'Back to Stores')}</span>
@@ -154,7 +154,7 @@ export const StoreDetailsPage: React.FC = () => {
         <div className="p-4 sm:p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#6E6A66]">
             <span className="inline-flex items-center gap-1.5 font-bold text-[#1C1917]">
-              <MapPin className="w-3.5 h-3.5 text-[#D6450D]" />
+              <MapPin className="w-3.5 h-3.5 text-[#1B8E53]" />
               <span>{formatDistanceAway(availability.distanceKm, language, true)}</span>
             </span>
             <span>
@@ -203,7 +203,7 @@ export const StoreDetailsPage: React.FC = () => {
               <span className="block text-[11px] text-[#6E6A66]">
                 {t('رسوم التوصيل', 'Delivery Fee')}
               </span>
-              <span className="text-sm sm:text-base font-extrabold text-[#D6450D] mt-0.5 block">
+              <span className="text-sm sm:text-base font-extrabold text-[#1B8E53] mt-0.5 block">
                 {store.delivery.deliveryEnabled
                   ? formatEGP(store.delivery.deliveryFee, language)
                   : t('استلام من المحل', 'Pickup only')}
@@ -249,7 +249,7 @@ export const StoreDetailsPage: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t(`بتدور على إيه جوه ${store.nameAr}؟`, `Search inside ${store.nameEn}...`)}
-            className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-white border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D]"
+            className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-white border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53]"
           />
         </div>
 
@@ -259,8 +259,8 @@ export const StoreDetailsPage: React.FC = () => {
             onClick={() => setSelectedCat('all')}
             className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors min-h-[38px] ${
               selectedCat === 'all'
-                ? 'bg-[#D6450D] text-white'
-                : 'bg-white border border-[#EAE6E1] text-[#1C1917] hover:border-[#D6450D]'
+                ? 'bg-[#1B8E53] text-white'
+                : 'bg-white border border-[#EAE6E1] text-[#1C1917] hover:border-[#1B8E53]'
             }`}
           >
             {t('كل المنتجات', 'All Products')} ({storeProducts.length})
@@ -272,8 +272,8 @@ export const StoreDetailsPage: React.FC = () => {
               onClick={() => setSelectedCat(cat.id)}
               className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors min-h-[38px] ${
                 selectedCat === cat.id
-                  ? 'bg-[#D6450D] text-white'
-                  : 'bg-white border border-[#EAE6E1] text-[#1C1917] hover:border-[#D6450D]'
+                  ? 'bg-[#1B8E53] text-white'
+                  : 'bg-white border border-[#EAE6E1] text-[#1C1917] hover:border-[#1B8E53]'
               }`}
             >
               {language === 'ar' ? cat.nameAr : cat.nameEn}
@@ -298,7 +298,7 @@ export const StoreDetailsPage: React.FC = () => {
                 setSelectedCat('all');
                 setSearchTerm('');
               }}
-              className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+              className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
             >
               {t('عرض كل المنتجات', 'Show All Products')}
             </button>

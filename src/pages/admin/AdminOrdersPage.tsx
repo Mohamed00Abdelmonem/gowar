@@ -147,12 +147,12 @@ export const AdminOrdersPage: React.FC = () => {
                         {formatDateTime(o.createdAt, language)}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-bold text-[#D6450D]">
+                    <td className="py-3 px-4 font-bold text-[#1B8E53]">
                       {store ? (language === 'ar' ? store.nameAr : store.nameEn) : o.merchantId}
                     </td>
                     <td className="py-3 px-4">{o.customerName}</td>
                     <td className="py-3 px-4 font-extrabold">{formatEGP(o.total, language)}</td>
-                    <td className="py-3 px-4 text-[#D6450D] font-bold">
+                    <td className="py-3 px-4 text-[#1B8E53] font-bold">
                       {formatEGP(o.platformCommission, language)}
                     </td>
                     <td className="py-3 px-4">
@@ -164,7 +164,7 @@ export const AdminOrdersPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => openOrderModal(o)}
-                        className="text-[#D6450D] font-bold hover:underline"
+                        className="text-[#1B8E53] font-bold hover:underline"
                       >
                         {t('معاينة', 'View')}
                       </button>
@@ -203,7 +203,7 @@ export const AdminOrdersPage: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div className="border-t border-[#EAE6E1] pt-2 flex justify-between text-sm font-extrabold text-[#D6450D]">
+            <div className="border-t border-[#EAE6E1] pt-2 flex justify-between text-sm font-extrabold text-[#1B8E53]">
               <span>{t('الإجمالي', 'Total')}</span>
               <span>{formatEGP(selectedOrder.total, language)}</span>
             </div>

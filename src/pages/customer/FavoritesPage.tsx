@@ -31,7 +31,7 @@ export const FavoritesPage: React.FC = () => {
           action={
             <Link
               to="/stores"
-              className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+              className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
             >
               {t('استكشاف المحلات', 'Explore Stores')}
             </Link>

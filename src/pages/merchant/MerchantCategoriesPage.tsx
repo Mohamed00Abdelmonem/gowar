@@ -67,7 +67,7 @@ export const MerchantCategoriesPage: React.FC = () => {
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
         >
           <Plus className="w-4 h-4" />
           <span>{t('إضافة تصنيف خاص', 'Add Custom Category')}</span>
@@ -84,7 +84,7 @@ export const MerchantCategoriesPage: React.FC = () => {
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center shrink-0">
                     <FolderTree className="w-5 h-5" />
                   </div>
                   <div>
@@ -98,7 +98,7 @@ export const MerchantCategoriesPage: React.FC = () => {
                 </div>
                 <span
                   className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    cat.isGlobal ? 'bg-[#FAF9F7] text-[#6E6A66]' : 'bg-[#FFF2EB] text-[#D6450D]'
+                    cat.isGlobal ? 'bg-[#FAF9F7] text-[#6E6A66]' : 'bg-[#E6F5EC] text-[#1B8E53]'
                   }`}
                 >
                   {cat.isGlobal ? t('عام', 'Global') : t('خاص بالمحل', 'Custom')}
@@ -109,7 +109,7 @@ export const MerchantCategoriesPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setAssignCatId(cat.id)}
-                  className="text-xs font-bold text-[#D6450D] hover:underline"
+                  className="text-xs font-bold text-[#1B8E53] hover:underline"
                 >
                   {t('تعيين منتجات للقسم', 'Assign Products')}
                 </button>
@@ -172,7 +172,7 @@ export const MerchantCategoriesPage: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full py-2.5 rounded-xl bg-[#D6450D] text-white text-sm font-bold"
+            className="w-full py-2.5 rounded-xl bg-[#1B8E53] text-white text-sm font-bold"
           >
             {t('حفظ', 'Save')}
           </button>
@@ -203,8 +203,8 @@ export const MerchantCategoriesPage: React.FC = () => {
                     onClick={() => updateProduct(p.id, { categoryId: assignCatId })}
                     className={`px-3 py-1 rounded-lg text-[11px] font-bold ${
                       assigned
-                        ? 'bg-[#FFF2EB] text-[#D6450D]'
-                        : 'bg-[#D6450D] text-white hover:bg-[#B33808]'
+                        ? 'bg-[#E6F5EC] text-[#1B8E53]'
+                        : 'bg-[#1B8E53] text-white hover:bg-[#147242]'
                     }`}
                   >
                     {assigned ? t('مضاف حالياً', 'Assigned') : t('نقل هنا', 'Assign')}

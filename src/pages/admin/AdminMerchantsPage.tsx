@@ -128,7 +128,7 @@ export const AdminMerchantsPage: React.FC = () => {
               <div className="flex items-center justify-between text-xs text-[#6E6A66] pt-2 border-t border-[#EAE6E1]">
                 <span>
                   <strong className="text-[#1C1917]">{storeOrders.length}</strong> {t('طلب', 'orders')} •{' '}
-                  <strong className="text-[#D6450D]">{formatEGP(sales, language)}</strong>
+                  <strong className="text-[#1B8E53]">{formatEGP(sales, language)}</strong>
                 </span>
                 <Link
                   to={`/admin/merchants/${m.id}`}
@@ -180,10 +180,10 @@ export const AdminMerchantsPage: React.FC = () => {
                         <div>
                           <Link
                             to={`/admin/merchants/${m.id}`}
-                            className="font-bold text-[#1C1917] hover:text-[#D6450D] inline-flex items-center gap-1"
+                            className="font-bold text-[#1C1917] hover:text-[#1B8E53] inline-flex items-center gap-1"
                           >
                             <span>{language === 'ar' ? m.nameAr : m.nameEn}</span>
-                            {m.verified && <BadgeCheck className="w-3.5 h-3.5 text-[#D6450D]" />}
+                            {m.verified && <BadgeCheck className="w-3.5 h-3.5 text-[#1B8E53]" />}
                           </Link>
                           <div className="text-[11px] text-[#6E6A66]">
                             {language === 'ar' ? m.ownerNameAr ?? '' : m.ownerNameEn ?? ''} •{' '}
@@ -195,7 +195,7 @@ export const AdminMerchantsPage: React.FC = () => {
                     <td className="py-3 px-4">
                       <div className="font-bold text-[#1C1917]">{getStoreTypeLabel(m.type, language)}</div>
                       <div className="text-[11px] text-[#6E6A66] flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-[#D6450D]" />
+                        <MapPin className="w-3 h-3 text-[#1B8E53]" />
                         <span>{area ? (language === 'ar' ? area.nameAr : area.nameEn) : m.areaId}</span>
                       </div>
                     </td>
@@ -205,7 +205,7 @@ export const AdminMerchantsPage: React.FC = () => {
                     <td className="py-3 px-4 whitespace-nowrap">
                       <span className="font-bold text-[#1C1917]">{formatNumber(prodCount, language)}</span>{' '}
                       {t('منتج', 'items')} •{' '}
-                      <span className="font-bold text-[#D6450D]">{formatNumber(storeOrders.length, language)}</span>{' '}
+                      <span className="font-bold text-[#1B8E53]">{formatNumber(storeOrders.length, language)}</span>{' '}
                       {t('طلب', 'orders')}
                     </td>
                     <td className="py-3 px-4 font-extrabold text-[#1C1917] whitespace-nowrap">
@@ -235,7 +235,7 @@ export const AdminMerchantsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => setMerchantStatus(m.id, 'approved')}
-                              className="px-2.5 py-1 rounded-lg bg-[#D6450D] text-white font-bold"
+                              className="px-2.5 py-1 rounded-lg bg-[#1B8E53] text-white font-bold"
                             >
                               {t('اعتماد', 'Approve')}
                             </button>
@@ -261,14 +261,14 @@ export const AdminMerchantsPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setMerchantStatus(m.id, 'approved')}
-                            className="px-2.5 py-1 rounded-lg bg-[#FFF2EB] text-[#D6450D] font-bold"
+                            className="px-2.5 py-1 rounded-lg bg-[#E6F5EC] text-[#1B8E53] font-bold"
                           >
                             {t('تفعيل', 'Activate')}
                           </button>
                         )}
                         <Link
                           to={`/admin/merchants/${m.id}`}
-                          className="px-2.5 py-1 rounded-lg border border-[#EAE6E1] text-[#1C1917] font-bold hover:border-[#D6450D]"
+                          className="px-2.5 py-1 rounded-lg border border-[#EAE6E1] text-[#1C1917] font-bold hover:border-[#1B8E53]"
                         >
                           {t('التفاصيل', 'Details')}
                         </Link>

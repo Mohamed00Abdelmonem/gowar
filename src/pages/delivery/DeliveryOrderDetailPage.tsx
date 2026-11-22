@@ -81,7 +81,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
       radius: 9,
       color: '#FFFFFF',
       weight: 3,
-      fillColor: '#D6450D',
+      fillColor: '#1B8E53',
       fillOpacity: 1,
     }).addTo(map);
 
@@ -143,7 +143,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="py-16 flex items-center justify-center gap-2 text-sm text-[#6E6A66]">
-        <Loader2 className="w-5 h-5 animate-spin text-[#D6450D]" />
+        <Loader2 className="w-5 h-5 animate-spin text-[#1B8E53]" />
         <span>{t('جاري تحميل تفاصيل الطلب...', 'Loading order details...')}</span>
       </div>
     );
@@ -158,7 +158,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
         </p>
         <Link
           to="/delivery"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
         >
           <BackIcon className="w-4 h-4" />
           <span>{t('العودة للطلبات', 'Back to Dashboard')}</span>
@@ -196,7 +196,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFF2EB] text-[#D6450D] border border-[#FBD8C5]">
+          <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[#E6F5EC] text-[#1B8E53] border border-[#C2E7D2]">
             {order.order_status}
           </span>
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#FAF9F7] text-[#1C1917] border border-[#EAE6E1]">
@@ -214,7 +214,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
               {snap.recipient_name || order.customer_name}
             </div>
             <div className="text-xs text-[#6E6A66] flex items-start gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[#D6450D] shrink-0 mt-0.5" />
+              <MapPin className="w-3.5 h-3.5 text-[#1B8E53] shrink-0 mt-0.5" />
               <span>
                 {snap.formatted_address}
                 {snap.building_number ? ` — ${t('عمارة', 'Bldg')} ${snap.building_number}` : ''}
@@ -258,7 +258,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
               rel="noopener noreferrer"
               className="w-full py-3.5 px-5 rounded-xl bg-[#1C1917] hover:bg-[#332E2A] text-white text-sm font-extrabold flex items-center justify-center gap-2 transition-colors shadow-sm"
             >
-              <Navigation className="w-4 h-4 text-[#F47B20]" />
+              <Navigation className="w-4 h-4 text-[#22A863]" />
               <span>{t('التوجيه للعميل عبر خرائط جوجل', 'Navigate to Customer')}</span>
               <ExternalLink className="w-4 h-4 opacity-80" />
             </a>
@@ -280,7 +280,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white rounded-2xl border border-[#EAE6E1] p-4 sm:p-5 space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-[#6E6A66]">
-            <Store className="w-4 h-4 text-[#D6450D]" />
+            <Store className="w-4 h-4 text-[#1B8E53]" />
             <span>{t('بيانات المتجر', 'Merchant / Store')}</span>
           </div>
           <div className="text-sm font-extrabold text-[#1C1917]">{storeName}</div>
@@ -288,7 +288,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
           {order.store_phone && (
             <a
               href={`tel:${order.store_phone}`}
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#D6450D]"
+              className="inline-flex items-center gap-1 text-xs font-bold text-[#1B8E53]"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>{order.store_phone}</span>
@@ -331,7 +331,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
             </div>
             <div className="flex justify-between text-sm font-extrabold text-[#1C1917] pt-1">
               <span>{t('الإجمالي المطلوب', 'Total Amount')}</span>
-              <span className="text-[#D6450D]">{formatEGP(Number(order.total_amount), language)}</span>
+              <span className="text-[#1B8E53]">{formatEGP(Number(order.total_amount), language)}</span>
             </div>
           </div>
         </div>
@@ -345,7 +345,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
               type="button"
               disabled={busyAction}
               onClick={handleMarkOutForDelivery}
-              className="flex-1 py-4 px-5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-sm font-extrabold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+              className="flex-1 py-4 px-5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-sm font-extrabold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
             >
               {busyAction ? <Loader2 className="w-5 h-5 animate-spin" /> : <Truck className="w-5 h-5" />}
               <span>{t('تأكيد استلام الطلب (في الطريق)', 'Mark Out for Delivery')}</span>

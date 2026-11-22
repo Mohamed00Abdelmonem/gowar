@@ -54,7 +54,7 @@ export const MerchantDeliveryPerformancePage: React.FC = () => {
       label: t('جاري توصيلها الآن', 'In Progress'),
       value: totals?.in_progress_count ?? 0,
       icon: Truck,
-      tone: 'bg-[#FFF2EB] text-[#D6450D]',
+      tone: 'bg-[#E6F5EC] text-[#1B8E53]',
     },
     {
       label: t('مسندة اليوم', 'Assigned Today'),
@@ -125,7 +125,7 @@ export const MerchantDeliveryPerformancePage: React.FC = () => {
       <div className="bg-white rounded-2xl border border-[#EAE6E1] p-4 shadow-2xs">
         {loading && !data ? (
           <div className="py-12 flex items-center justify-center gap-2 text-sm text-[#6E6A66]">
-            <Loader2 className="w-5 h-5 animate-spin text-[#D6450D]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#1B8E53]" />
             <span>{t('جاري التحميل...', 'Loading...')}</span>
           </div>
         ) : error ? (
@@ -162,7 +162,7 @@ export const MerchantDeliveryPerformancePage: React.FC = () => {
                       <DriverOperationalBadge status={d.operational_status} />
                     </td>
                     <td className="py-3 px-2 font-extrabold text-emerald-700">{d.delivered_today}</td>
-                    <td className="py-3 px-2 font-bold text-[#D6450D]">{d.active_orders_count}</td>
+                    <td className="py-3 px-2 font-bold text-[#1B8E53]">{d.active_orders_count}</td>
                     <td className="py-3 px-2">{d.assigned_today}</td>
                     <td className="py-3 px-2 text-rose-600">{d.cancelled_today}</td>
                     <td className="py-3 px-2 font-semibold">{d.delivered_this_week}</td>

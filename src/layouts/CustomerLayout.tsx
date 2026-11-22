@@ -76,9 +76,9 @@ export const CustomerLayout: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setLocationModalOpen(true)}
-                className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FAF9F7] hover:bg-[#FFF2EB] border border-[#EAE6E1] text-start transition-colors max-w-[260px] min-w-0"
+                className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FAF9F7] hover:bg-[#E6F5EC] border border-[#EAE6E1] text-start transition-colors max-w-[260px] min-w-0"
               >
-                <MapPin className="w-4 h-4 text-[#D6450D] shrink-0" />
+                <MapPin className="w-4 h-4 text-[#1B8E53] shrink-0" />
                 <div className="min-w-0 flex-1">
                   <span className="block text-[11px] text-[#6E6A66] leading-none">
                     {t('التوصيل إلى', 'Delivering to')}
@@ -102,7 +102,7 @@ export const CustomerLayout: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('بتدور على إيه؟ منتج أو محل', 'What are you looking for? Product or store')}
-                className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm text-[#1C1917] placeholder-[#6E6A66] focus:outline-none focus:border-[#D6450D] focus:bg-white transition-colors"
+                className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm text-[#1C1917] placeholder-[#6E6A66] focus:outline-none focus:border-[#1B8E53] focus:bg-white transition-colors"
               />
             </form>
 
@@ -115,7 +115,7 @@ export const CustomerLayout: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE6E1] text-xs font-bold text-[#1C1917] hover:bg-[#FAF9F7] transition-colors min-h-[40px]"
                 aria-label={t('حسابي', 'Profile')}
               >
-                <User className="w-4 h-4 text-[#D6450D]" />
+                <User className="w-4 h-4 text-[#1B8E53]" />
                 <span className="hidden sm:inline max-w-[90px] truncate">
                   {language === 'ar'
                     ? activeCustomer.nameAr.split(' ')[0]
@@ -125,12 +125,12 @@ export const CustomerLayout: React.FC = () => {
 
               <Link
                 to="/cart"
-                className="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold transition-colors min-h-[40px]"
+                className="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold transition-colors min-h-[40px]"
                 aria-label={t('سلة الطلبات', 'Shopping Cart')}
               >
                 <ShoppingCart className="w-4 h-4" />
                 <span className="hidden sm:inline">{t('السلة', 'Cart')}</span>
-                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-white text-[#D6450D] text-[11px] font-extrabold">
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-white text-[#1B8E53] text-[11px] font-extrabold">
                   {cartCount}
                 </span>
               </Link>
@@ -142,10 +142,10 @@ export const CustomerLayout: React.FC = () => {
             <button
               type="button"
               onClick={() => setLocationModalOpen(true)}
-              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] hover:bg-[#FFF2EB] border border-[#EAE6E1] text-start transition-colors min-w-0"
+              className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] hover:bg-[#E6F5EC] border border-[#EAE6E1] text-start transition-colors min-w-0"
             >
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <MapPin className="w-4 h-4 text-[#D6450D] shrink-0" />
+                <MapPin className="w-4 h-4 text-[#1B8E53] shrink-0" />
                 <div className="min-w-0 flex-1 flex items-center gap-1.5">
                   <span className="text-xs text-[#6E6A66] shrink-0">
                     {t('التوصيل إلى:', 'Deliver to:')}
@@ -155,7 +155,7 @@ export const CustomerLayout: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <span className="text-[11px] font-bold text-[#D6450D] shrink-0">
+              <span className="text-[11px] font-bold text-[#1B8E53] shrink-0">
                 {t('تغيير', 'Change')}
               </span>
             </button>
@@ -186,17 +186,17 @@ export const CustomerLayout: React.FC = () => {
             </h4>
             <ul className="space-y-2 text-xs text-[#6E6A66]">
               <li>
-                <Link to="/stores" className="hover:text-[#D6450D]">
+                <Link to="/stores" className="hover:text-[#1B8E53]">
                   {t('كل المحلات القريبة', 'Nearby Stores')}
                 </Link>
               </li>
               <li>
-                <Link to="/orders" className="hover:text-[#D6450D]">
+                <Link to="/orders" className="hover:text-[#1B8E53]">
                   {t('طلباتي', 'My Orders')}
                 </Link>
               </li>
               <li>
-                <Link to="/addresses" className="hover:text-[#D6450D]">
+                <Link to="/addresses" className="hover:text-[#1B8E53]">
                   {t('عناويني', 'My Addresses')}
                 </Link>
               </li>
@@ -217,7 +217,7 @@ export const CustomerLayout: React.FC = () => {
                       setSelectedAreaId(a.id);
                       navigate('/stores');
                     }}
-                    className="text-xs px-2.5 py-1 rounded-lg bg-[#FAF9F7] border border-[#EAE6E1] text-[#1C1917] hover:border-[#D6450D]"
+                    className="text-xs px-2.5 py-1 rounded-lg bg-[#FAF9F7] border border-[#EAE6E1] text-[#1C1917] hover:border-[#1B8E53]"
                   >
                     {language === 'ar' ? a.nameAr : a.nameEn}
                   </button>
@@ -235,10 +235,10 @@ export const CustomerLayout: React.FC = () => {
         <div className="fixed bottom-[72px] md:bottom-5 inset-x-3 md:inset-x-auto md:end-6 z-40">
           <Link
             to="/cart"
-            className="max-w-md mx-auto md:w-96 flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-[#D6450D] hover:bg-[#B33808] text-white shadow-xl transition-colors"
+            className="max-w-md mx-auto md:w-96 flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-[#1B8E53] hover:bg-[#147242] text-white shadow-xl transition-colors"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <span className="w-8 h-8 rounded-xl bg-white text-[#D6450D] flex items-center justify-center font-extrabold text-sm shrink-0">
+              <span className="w-8 h-8 rounded-xl bg-white text-[#1B8E53] flex items-center justify-center font-extrabold text-sm shrink-0">
                 {cartCount}
               </span>
               <div className="min-w-0">
@@ -254,7 +254,7 @@ export const CustomerLayout: React.FC = () => {
                 </span>
               </div>
             </div>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#D6450D] text-xs font-extrabold shrink-0">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#1B8E53] text-xs font-extrabold shrink-0">
               <ShoppingCart className="w-4 h-4" />
               <span>{t('افتح السلة', 'Open Cart')}</span>
             </span>
@@ -283,7 +283,7 @@ export const CustomerLayout: React.FC = () => {
               key={item.to}
               to={item.to}
               className={`flex flex-col items-center justify-center gap-0.5 min-w-[68px] min-h-[48px] px-3 py-1 rounded-xl text-xs font-bold transition-colors ${
-                active ? 'text-[#D6450D] bg-[#FFF2EB]' : 'text-[#6E6A66]'
+                active ? 'text-[#1B8E53] bg-[#E6F5EC]' : 'text-[#6E6A66]'
               }`}
             >
               <Icon className="w-5 h-5" />

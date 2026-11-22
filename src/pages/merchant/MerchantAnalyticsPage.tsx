@@ -44,7 +44,7 @@ const STATUS_COLORS: Record<string, string> = {
   pending: '#F59E0B',
   accepted: '#0284C7',
   preparing: '#7C3AED',
-  out_for_delivery: '#D6450D',
+  out_for_delivery: '#1B8E53',
   delivered: '#10B981',
   cancelled: '#E11D48',
 };
@@ -152,7 +152,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
       status,
       name: labels[status] ?? status,
       value,
-      color: STATUS_COLORS[status] ?? '#D6450D',
+      color: STATUS_COLORS[status] ?? '#1B8E53',
     }));
   }, [currentOrders, t]);
 
@@ -337,7 +337,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
                 onClick={() => setPreset(p.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                   preset === p.id
-                    ? 'bg-[#D6450D] text-white'
+                    ? 'bg-[#1B8E53] text-white'
                     : 'text-[#6E6A66] hover:text-[#1C1917]'
                 }`}
               >
@@ -347,7 +347,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
           </div>
           {preset === 'custom' && (
             <div className="flex items-center gap-2 bg-white border border-[#EAE6E1] rounded-xl px-3 py-1.5 text-xs">
-              <Calendar className="w-3.5 h-3.5 text-[#D6450D]" />
+              <Calendar className="w-3.5 h-3.5 text-[#1B8E53]" />
               <input
                 type="date"
                 value={customFrom}
@@ -413,7 +413,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
               className="bg-white rounded-2xl border border-[#EAE6E1] p-4 shadow-2xs flex flex-col justify-between gap-2.5"
             >
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center">
                   <Icon className="w-4 h-4" />
                 </div>
                 {renderGrowth(kpi.growth)}
@@ -451,9 +451,9 @@ export const MerchantAnalyticsPage: React.FC = () => {
               - {formatEGP(metrics.platformCommission, language)}
             </div>
           </div>
-          <div className="rounded-xl bg-[#FFF2EB] border border-[#FBD8C5] p-3">
-            <div className="text-[#D6450D] font-bold">{t('صافي المستحق للمحل', 'Net Merchant Earnings')}</div>
-            <div className="text-base font-extrabold text-[#D6450D] mt-1">
+          <div className="rounded-xl bg-[#E6F5EC] border border-[#C2E7D2] p-3">
+            <div className="text-[#1B8E53] font-bold">{t('صافي المستحق للمحل', 'Net Merchant Earnings')}</div>
+            <div className="text-base font-extrabold text-[#1B8E53] mt-1">
               {formatEGP(metrics.netStoreSales, language)}
             </div>
           </div>
@@ -466,7 +466,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div>
               <h3 className="text-sm font-extrabold text-[#1C1917] flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-[#D6450D]" />
+                <TrendingUp className="w-4 h-4 text-[#1B8E53]" />
                 <span>{t('منحنى المبيعات والطلبات', 'Revenue & Orders Over Time')}</span>
               </h3>
               <p className="text-xs text-[#6E6A66]">
@@ -487,7 +487,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
                   type="button"
                   onClick={() => setGranularity(g)}
                   className={`px-2.5 py-1 rounded-lg ${
-                    granularity === g ? 'bg-[#D6450D] text-white' : 'text-[#6E6A66]'
+                    granularity === g ? 'bg-[#1B8E53] text-white' : 'text-[#6E6A66]'
                   }`}
                 >
                   {label}
@@ -512,9 +512,9 @@ export const MerchantAnalyticsPage: React.FC = () => {
                     type="monotone"
                     dataKey="sales"
                     name={t('المبيعات (جنيه)', 'Delivered Sales (EGP)')}
-                    stroke="#D6450D"
+                    stroke="#1B8E53"
                     strokeWidth={3}
-                    dot={{ r: 3.5, fill: '#D6450D' }}
+                    dot={{ r: 3.5, fill: '#1B8E53' }}
                   />
                   <Line
                     type="monotone"
@@ -607,7 +607,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
                     <td className="py-2 px-3 font-extrabold text-[#1C1917]">
                       {formatNumber(item.sold, language)}
                     </td>
-                    <td className="py-2 px-3 font-extrabold text-[#D6450D]">
+                    <td className="py-2 px-3 font-extrabold text-[#1B8E53]">
                       {formatEGP(item.revenue, language)}
                     </td>
                   </tr>
@@ -620,7 +620,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
         <div className="lg:col-span-5 space-y-5">
           <div className="bg-white rounded-2xl border border-[#EAE6E1] p-5 shadow-2xs">
             <h3 className="text-sm font-extrabold text-[#1C1917] mb-3 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#D6450D]" />
+              <Layers className="w-4 h-4 text-[#1B8E53]" />
               <span>{t('أداء التصنيفات في متجرك', 'Best-Performing Categories')}</span>
             </h3>
             {productInsights.topCategories.length === 0 ? (
@@ -636,7 +636,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
                     <Bar
                       dataKey="revenue"
                       name={t('الإيرادات', 'Revenue')}
-                      fill="#D6450D"
+                      fill="#1B8E53"
                       radius={[6, 6, 0, 0]}
                     />
                   </BarChart>
@@ -714,9 +714,9 @@ export const MerchantAnalyticsPage: React.FC = () => {
                 {inventoryInsights.outOfStock.length}
               </div>
             </div>
-            <div className="rounded-xl bg-[#FFF2EB] border border-[#FBD8C5] p-3">
-              <div className="text-[#D6450D] font-bold">{t('سريع الحركة', 'Fast-Moving')}</div>
-              <div className="text-lg font-extrabold text-[#D6450D] mt-0.5">
+            <div className="rounded-xl bg-[#E6F5EC] border border-[#C2E7D2] p-3">
+              <div className="text-[#1B8E53] font-bold">{t('سريع الحركة', 'Fast-Moving')}</div>
+              <div className="text-lg font-extrabold text-[#1B8E53] mt-0.5">
                 {productInsights.fastMoving.length}
               </div>
             </div>
@@ -734,7 +734,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
                 >
                   <span className="font-bold text-[#1C1917]">{fm.name}</span>
                   <span className="text-[#6E6A66]">
-                    {t('مباع:', 'Sold:')} <strong className="text-[#D6450D]">{fm.sold}</strong> •{' '}
+                    {t('مباع:', 'Sold:')} <strong className="text-[#1B8E53]">{fm.sold}</strong> •{' '}
                     {t('المتاح:', 'Stock:')} <strong>{fm.stock}</strong>
                   </span>
                 </div>
@@ -745,7 +745,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
 
         <div className="bg-white rounded-2xl border border-[#EAE6E1] p-5 shadow-2xs space-y-4">
           <h3 className="text-sm font-extrabold text-[#1C1917] flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#D6450D]" />
+            <Users className="w-4 h-4 text-[#1B8E53]" />
             <span>{t('تحليلات عملاء المتجر', 'Customer Insights')}</span>
           </h3>
 
@@ -762,9 +762,9 @@ export const MerchantAnalyticsPage: React.FC = () => {
                 {customerInsights.returningCount}
               </div>
             </div>
-            <div className="rounded-xl bg-[#FFF2EB] border border-[#FBD8C5] p-3">
-              <div className="text-[#D6450D] font-bold">{t('متوسط الطلبات/عميل', 'Avg Orders/Cust')}</div>
-              <div className="text-lg font-extrabold text-[#D6450D] mt-0.5">
+            <div className="rounded-xl bg-[#E6F5EC] border border-[#C2E7D2] p-3">
+              <div className="text-[#1B8E53] font-bold">{t('متوسط الطلبات/عميل', 'Avg Orders/Cust')}</div>
+              <div className="text-lg font-extrabold text-[#1B8E53] mt-0.5">
                 {customerInsights.avgOrdersPerCustomer}
               </div>
             </div>
@@ -785,7 +785,7 @@ export const MerchantAnalyticsPage: React.FC = () => {
                   <span className="font-bold text-[#1C1917]">{c.name}</span>
                   <span className="text-[#6E6A66]">
                     <strong className="text-[#1C1917]">{c.orders}</strong> {t('طلبات', 'orders')} •{' '}
-                    <strong className="text-[#D6450D]">{formatEGP(c.spend, language)}</strong>
+                    <strong className="text-[#1B8E53]">{formatEGP(c.spend, language)}</strong>
                   </span>
                 </div>
               ))

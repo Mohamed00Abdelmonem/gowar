@@ -81,8 +81,8 @@ export function getOrderStatusMeta(
     delivered: {
       ar: 'تم التوصيل',
       en: 'Delivered',
-      badgeClass: 'bg-[#FFF2EB] text-[#D6450D] border-[#FBD8C5]',
-      dotClass: 'bg-[#D6450D]',
+      badgeClass: 'bg-[#E6F5EC] text-[#1B8E53] border-[#C2E7D2]',
+      dotClass: 'bg-[#1B8E53]',
     },
     cancelled: {
       ar: 'ملغي',
@@ -107,7 +107,7 @@ export function getMerchantStatusMeta(
     approved: {
       ar: 'معتمد ونشط',
       en: 'Approved',
-      badgeClass: 'bg-[#FFF2EB] text-[#D6450D] border-[#FBD8C5]',
+      badgeClass: 'bg-[#E6F5EC] text-[#1B8E53] border-[#C2E7D2]',
     },
     pending: {
       ar: 'بانتظار الموافقة',

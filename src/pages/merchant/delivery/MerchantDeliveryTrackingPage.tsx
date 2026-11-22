@@ -106,7 +106,7 @@ export const MerchantDeliveryTrackingPage: React.FC = () => {
       const isSelected = d.id === selectedDriverId;
       const color =
         d.location_status === 'live'
-          ? '#D6450D'
+          ? '#1B8E53'
           : d.location_status === 'stale'
             ? '#D97706'
             : '#64748B';
@@ -210,7 +210,7 @@ export const MerchantDeliveryTrackingPage: React.FC = () => {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-[#EAE6E1] overflow-hidden shadow-2xs">
           <div className="px-4 py-3 border-b border-[#EAE6E1] flex items-center justify-between text-xs">
             <span className="font-bold text-[#1C1917] inline-flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-[#D6450D]" />
+              <MapPin className="w-4 h-4 text-[#1B8E53]" />
               {t('خريطة التوصيل', 'Delivery Map')}
             </span>
             <div className="flex items-center gap-3 text-[11px] text-[#6E6A66]">
@@ -219,7 +219,7 @@ export const MerchantDeliveryTrackingPage: React.FC = () => {
                 {t('المتجر', 'Store')}
               </span>
               <span className="inline-flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#D6450D]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#1B8E53]" />
                 {t('مندوب', 'Driver')}
               </span>
               <span className="inline-flex items-center gap-1">
@@ -241,7 +241,7 @@ export const MerchantDeliveryTrackingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedDriverId(null)}
-                className="text-xs font-bold text-[#D6450D] hover:underline"
+                className="text-xs font-bold text-[#1B8E53] hover:underline"
               >
                 {t('عرض الكل', 'Show All')}
               </button>
@@ -250,7 +250,7 @@ export const MerchantDeliveryTrackingPage: React.FC = () => {
 
           {loading && drivers.length === 0 ? (
             <div className="py-8 flex items-center justify-center gap-2 text-xs text-[#6E6A66]">
-              <Loader2 className="w-4 h-4 animate-spin text-[#D6450D]" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#1B8E53]" />
               <span>{t('جاري التحميل...', 'Loading...')}</span>
             </div>
           ) : drivers.length === 0 ? (
@@ -265,8 +265,8 @@ export const MerchantDeliveryTrackingPage: React.FC = () => {
                 onClick={() => setSelectedDriverId(d.id)}
                 className={`w-full text-start p-3 rounded-xl border transition-colors space-y-2 ${
                   selectedDriverId === d.id
-                    ? 'border-[#D6450D] bg-[#FFF2EB]/50'
-                    : 'border-[#EAE6E1] bg-[#FAF9F7]/60 hover:border-[#D6450D]/60'
+                    ? 'border-[#1B8E53] bg-[#E6F5EC]/50'
+                    : 'border-[#EAE6E1] bg-[#FAF9F7]/60 hover:border-[#1B8E53]/60'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -291,7 +291,7 @@ export const MerchantDeliveryTrackingPage: React.FC = () => {
 
                 {d.current_order && (
                   <div className="pt-1.5 border-t border-[#EAE6E1] text-xs space-y-0.5">
-                    <div className="font-bold text-[#D6450D] inline-flex items-center gap-1">
+                    <div className="font-bold text-[#1B8E53] inline-flex items-center gap-1">
                       <Package className="w-3.5 h-3.5" />
                       <span>#{d.current_order.order_number}</span>
                     </div>

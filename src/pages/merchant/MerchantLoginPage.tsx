@@ -149,14 +149,14 @@ export const MerchantLoginPage: React.FC = () => {
             onClick={toggleLanguage}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE6E1] text-xs font-bold text-[#1C1917]"
           >
-            <Globe className="w-3.5 h-3.5 text-[#D6450D]" />
+            <Globe className="w-3.5 h-3.5 text-[#1B8E53]" />
             <span>{language === 'ar' ? 'EN' : 'عربي'}</span>
           </button>
         </div>
 
         <div className="bg-white rounded-3xl border border-[#EAE6E1] p-6 sm:p-7 shadow-sm space-y-5">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-2xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center shrink-0">
               <Store className="w-6 h-6" />
             </div>
             <div>
@@ -185,7 +185,7 @@ export const MerchantLoginPage: React.FC = () => {
                 setError('');
               }}
               className={`py-2 rounded-lg text-xs font-bold transition-colors ${
-                mode === 'login' ? 'bg-[#D6450D] text-white' : 'text-[#6E6A66]'
+                mode === 'login' ? 'bg-[#1B8E53] text-white' : 'text-[#6E6A66]'
               }`}
             >
               {t('تسجيل الدخول', 'Sign In')}
@@ -198,7 +198,7 @@ export const MerchantLoginPage: React.FC = () => {
                 setError('');
               }}
               className={`py-2 rounded-lg text-xs font-bold transition-colors ${
-                mode === 'register' ? 'bg-[#D6450D] text-white' : 'text-[#6E6A66]'
+                mode === 'register' ? 'bg-[#1B8E53] text-white' : 'text-[#6E6A66]'
               }`}
             >
               {t('إنشاء حساب تاجر', 'Register Store')}
@@ -247,7 +247,7 @@ export const MerchantLoginPage: React.FC = () => {
                   setMode('login');
                   setError('');
                 }}
-                className="w-full py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-extrabold"
+                className="w-full py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-extrabold"
               >
                 {t('الانتقال لتسجيل الدخول', 'Go to Sign In')}
               </button>
@@ -267,7 +267,7 @@ export const MerchantLoginPage: React.FC = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="ahmed@gowar.demo"
                     dir="ltr"
-                    className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+                    className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
                   />
                 </div>
               </div>
@@ -285,7 +285,7 @@ export const MerchantLoginPage: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     dir="ltr"
-                    className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+                    className="w-full ps-10 pe-4 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
                   />
                 </div>
               </div>
@@ -293,7 +293,7 @@ export const MerchantLoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 rounded-xl bg-[#D6450D] hover:bg-[#B33808] disabled:opacity-60 text-white text-sm font-extrabold transition-colors shadow-xs"
+                className="w-full py-3 rounded-xl bg-[#1B8E53] hover:bg-[#147242] disabled:opacity-60 text-white text-sm font-extrabold transition-colors shadow-xs"
               >
                 {submitting
                   ? t('جاري تسجيل الدخول...', 'Signing in...')
@@ -537,7 +537,7 @@ export const MerchantLoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 rounded-xl bg-[#D6450D] hover:bg-[#B33808] disabled:opacity-60 text-white text-sm font-extrabold transition-colors shadow-xs"
+                className="w-full py-3 rounded-xl bg-[#1B8E53] hover:bg-[#147242] disabled:opacity-60 text-white text-sm font-extrabold transition-colors shadow-xs"
               >
                 {submitting
                   ? t('جاري إرسال الطلب...', 'Submitting application...')
@@ -550,19 +550,19 @@ export const MerchantLoginPage: React.FC = () => {
           {!IS_BACKEND_API_ENABLED && mode === 'login' && (
             <div className="pt-4 border-t border-[#EAE6E1] space-y-2.5">
               <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#1C1917]">
-                <KeyRound className="w-3.5 h-3.5 text-[#D6450D]" />
+                <KeyRound className="w-3.5 h-3.5 text-[#1B8E53]" />
                 <span>{t('حسابات التجربة الجاهزة', 'Demo Merchant Credentials')}</span>
               </div>
 
               {merchantDemos.map((acc) => (
                 <div
                   key={acc.id}
-                  className="p-3 rounded-2xl bg-[#FFF2EB]/70 border border-[#FBD8C5] flex items-center justify-between gap-3"
+                  className="p-3 rounded-2xl bg-[#E6F5EC]/70 border border-[#C2E7D2] flex items-center justify-between gap-3"
                 >
                   <div className="text-xs space-y-0.5 min-w-0">
                     <div className="font-extrabold text-[#1C1917]">
                       {language === 'ar' ? acc.storeNameAr : acc.storeNameEn}{' '}
-                      <span className="text-[10px] font-bold text-[#D6450D]">({acc.merchantCode})</span>
+                      <span className="text-[10px] font-bold text-[#1B8E53]">({acc.merchantCode})</span>
                     </div>
                     <div className="text-[#6E6A66] truncate" dir="ltr">
                       {acc.email} / {acc.password}
@@ -571,7 +571,7 @@ export const MerchantLoginPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleAutoFill(acc.email, acc.password)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-[11px] font-bold shrink-0"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-[11px] font-bold shrink-0"
                   >
                     <Sparkles className="w-3 h-3" />
                     <span>{t('تعبئة تلقائية', 'Auto-Fill')}</span>

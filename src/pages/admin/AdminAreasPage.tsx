@@ -43,7 +43,7 @@ export const AdminAreasPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
         >
           <Plus className="w-4 h-4" />
           <span>{t('إضافة منطقة', 'Add Area')}</span>
@@ -64,7 +64,7 @@ export const AdminAreasPage: React.FC = () => {
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center">
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
@@ -82,7 +82,7 @@ export const AdminAreasPage: React.FC = () => {
                   onClick={() => updateArea(area.id, { isActive: !area.isActive })}
                   className={`px-3 py-1 rounded-full text-[11px] font-bold ${
                     area.isActive
-                      ? 'bg-[#FFF2EB] text-[#D6450D]'
+                      ? 'bg-[#E6F5EC] text-[#1B8E53]'
                       : 'bg-slate-100 text-slate-600'
                   }`}
                 >
@@ -99,7 +99,7 @@ export const AdminAreasPage: React.FC = () => {
                   <strong className="text-[#1C1917]">{storeCount}</strong> {t('محل يغطي الحي', 'stores')}
                 </span>
                 <span className="text-[#6E6A66]">
-                  <strong className="text-[#D6450D]">{orderCount}</strong> {t('طلب', 'orders')}
+                  <strong className="text-[#1B8E53]">{orderCount}</strong> {t('طلب', 'orders')}
                 </span>
               </div>
             </div>
@@ -146,7 +146,7 @@ export const AdminAreasPage: React.FC = () => {
           />
           <button
             type="submit"
-            className="w-full py-2.5 rounded-xl bg-[#D6450D] text-white text-sm font-bold"
+            className="w-full py-2.5 rounded-xl bg-[#1B8E53] text-white text-sm font-bold"
           >
             {t('حفظ المنطقة', 'Save Area')}
           </button>

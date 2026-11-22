@@ -55,7 +55,7 @@ export const AdminReportsPage: React.FC = () => {
               'success'
             )
           }
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
         >
           <Download className="w-4 h-4" />
           <span>{t('تصدير تقرير CSV', 'Export CSV Report')}</span>
@@ -71,7 +71,7 @@ export const AdminReportsPage: React.FC = () => {
         </div>
         <div className="bg-white rounded-2xl border border-[#EAE6E1] p-4">
           <span className="text-xs text-[#6E6A66]">{t('صافي إيرادات المنصة', 'Platform Revenue')}</span>
-          <div className="text-xl font-extrabold text-[#D6450D] mt-1">
+          <div className="text-xl font-extrabold text-[#1B8E53] mt-1">
             {formatEGP(totalRevenue, language)}
           </div>
         </div>
@@ -100,7 +100,7 @@ export const AdminReportsPage: React.FC = () => {
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6E6A66' }} />
               <YAxis tick={{ fontSize: 11, fill: '#6E6A66' }} />
               <Tooltip />
-              <Bar dataKey="sales" name={t('المبيعات', 'Sales')} fill="#D6450D" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="sales" name={t('المبيعات', 'Sales')} fill="#1B8E53" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

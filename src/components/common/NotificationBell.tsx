@@ -128,7 +128,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, me
         }`}
         aria-label={t('الإشعارات', 'Notifications')}
       >
-        <Bell className="w-4 h-4 text-[#D6450D]" />
+        <Bell className="w-4 h-4 text-[#1B8E53]" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -187,7 +187,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, me
                   }
                   className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold border transition-colors ${
                     soundEnabled
-                      ? 'bg-[#FFF2EB] text-[#D6450D] border-[#FBD8C5]'
+                      ? 'bg-[#E6F5EC] text-[#1B8E53] border-[#C2E7D2]'
                       : 'bg-[#FAF9F7] text-[#6E6A66] border-[#EAE6E1]'
                   }`}
                 >
@@ -219,7 +219,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, me
                 <Link
                   to="/login"
                   onClick={() => setOpen(false)}
-                  className="inline-block px-4 py-1.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+                  className="inline-block px-4 py-1.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
                 >
                   {t('تسجيل الدخول', 'Sign In')}
                 </Link>
@@ -238,8 +238,8 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, me
                       onClick={() => setOpen(false)}
                       className={`block p-2.5 rounded-xl transition-colors border ${
                         n.read
-                          ? 'bg-[#FAF9F7] border-transparent hover:bg-[#FFF2EB]'
-                          : 'bg-[#FFF2EB]/70 border-[#FBD8C5] hover:bg-[#FFF2EB]'
+                          ? 'bg-[#FAF9F7] border-transparent hover:bg-[#E6F5EC]'
+                          : 'bg-[#E6F5EC]/70 border-[#C2E7D2] hover:bg-[#E6F5EC]'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -247,7 +247,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, me
                           {language === 'ar' ? n.titleAr : n.titleEn}
                         </p>
                         {!n.read && (
-                          <span className="w-2 h-2 rounded-full bg-[#D6450D] shrink-0 mt-1" />
+                          <span className="w-2 h-2 rounded-full bg-[#1B8E53] shrink-0 mt-1" />
                         )}
                       </div>
                       <p className="text-[11px] text-[#6E6A66] mt-0.5">

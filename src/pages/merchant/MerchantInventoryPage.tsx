@@ -68,7 +68,7 @@ export const MerchantInventoryPage: React.FC = () => {
             onClick={() => setFilter(tab.id as typeof filter)}
             className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors ${
               filter === tab.id
-                ? 'bg-[#D6450D] text-white border-[#D6450D]'
+                ? 'bg-[#1B8E53] text-white border-[#1B8E53]'
                 : 'bg-white text-[#1C1917] border-[#EAE6E1]'
             }`}
           >
@@ -100,7 +100,7 @@ export const MerchantInventoryPage: React.FC = () => {
                         ? 'bg-rose-50 text-rose-700'
                         : product.stock <= 5
                           ? 'bg-amber-50 text-amber-800'
-                          : 'bg-[#FFF2EB] text-[#D6450D]'
+                          : 'bg-[#E6F5EC] text-[#1B8E53]'
                     }`}
                   >
                     {product.stock === 0
@@ -118,7 +118,7 @@ export const MerchantInventoryPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => quickUpdateStock(product.id, product.stock - 1)}
-                className="w-9 h-9 rounded-xl border border-[#EAE6E1] bg-[#FAF9F7] hover:bg-[#FFF2EB] flex items-center justify-center"
+                className="w-9 h-9 rounded-xl border border-[#EAE6E1] bg-[#FAF9F7] hover:bg-[#E6F5EC] flex items-center justify-center"
               >
                 <Minus className="w-4 h-4" />
               </button>
@@ -132,14 +132,14 @@ export const MerchantInventoryPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => quickUpdateStock(product.id, product.stock + 1)}
-                className="w-9 h-9 rounded-xl border border-[#EAE6E1] bg-[#FAF9F7] hover:bg-[#FFF2EB] flex items-center justify-center"
+                className="w-9 h-9 rounded-xl border border-[#EAE6E1] bg-[#FAF9F7] hover:bg-[#E6F5EC] flex items-center justify-center"
               >
                 <Plus className="w-4 h-4" />
               </button>
               <button
                 type="button"
                 onClick={() => quickUpdateStock(product.id, product.stock + 10)}
-                className="px-3 py-2 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-bold hover:bg-[#FDE2D2]"
+                className="px-3 py-2 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-bold hover:bg-[#D5EFE0]"
               >
                 +10
               </button>

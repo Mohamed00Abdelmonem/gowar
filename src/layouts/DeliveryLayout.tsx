@@ -66,7 +66,7 @@ export const DeliveryLayout: React.FC = () => {
                   className={({ isActive }) =>
                     `inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
                       isActive
-                        ? 'bg-[#FFF2EB] text-[#D6450D]'
+                        ? 'bg-[#E6F5EC] text-[#1B8E53]'
                         : 'text-[#6E6A66] hover:bg-[#FAF9F7] hover:text-[#1C1917]'
                     }`
                   }
@@ -84,7 +84,7 @@ export const DeliveryLayout: React.FC = () => {
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
               className="h-9 px-2.5 rounded-xl border border-[#EAE6E1] text-xs font-bold text-[#1C1917] hover:bg-[#FAF9F7] inline-flex items-center gap-1"
             >
-              <Globe className="w-3.5 h-3.5 text-[#D6450D]" />
+              <Globe className="w-3.5 h-3.5 text-[#1B8E53]" />
               <span>{language === 'ar' ? 'EN' : 'عربي'}</span>
             </button>
 
@@ -115,7 +115,7 @@ export const DeliveryLayout: React.FC = () => {
               end={item.end}
               className={({ isActive }) =>
                 `flex flex-col items-center justify-center gap-0.5 min-w-[58px] py-1 px-2 rounded-xl text-[11px] font-bold transition-colors ${
-                  isActive ? 'text-[#D6450D] bg-[#FFF2EB]' : 'text-[#6E6A66]'
+                  isActive ? 'text-[#1B8E53] bg-[#E6F5EC]' : 'text-[#6E6A66]'
                 }`
               }
             >

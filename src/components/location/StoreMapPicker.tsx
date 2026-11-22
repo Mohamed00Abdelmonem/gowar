@@ -36,8 +36,8 @@ function createStorePinIcon(label: string, editing: boolean) {
     className: 'gowar-store-pin',
     html: `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);">
       <div style="padding:2px 8px;border-radius:8px;background:#1C1917;color:#fff;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,0.25);margin-bottom:4px;">${safeLabel || 'Gowar'}</div>
-      <div style="width:34px;height:34px;border-radius:9999px;background:#D6450D;border:3px solid #fff;box-shadow:${ring};display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">🏪</div>
-      <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid #D6450D;margin-top:-2px;"></div>
+      <div style="width:34px;height:34px;border-radius:9999px;background:#1B8E53;border:3px solid #fff;box-shadow:${ring};display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">🏪</div>
+      <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid #1B8E53;margin-top:-2px;"></div>
     </div>`,
     iconSize: [0, 0],
     iconAnchor: [0, 0],
@@ -124,10 +124,10 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
 
     const circle = L.circle([coordinates.lat, coordinates.lng], {
       radius: Math.max(500, deliveryRadiusKm * 1000),
-      color: '#D6450D',
+      color: '#1B8E53',
       weight: 2,
       opacity: 0.7,
-      fillColor: '#D6450D',
+      fillColor: '#1B8E53',
       fillOpacity: 0.1,
     }).addTo(map);
 
@@ -277,7 +277,7 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FFF2EB] hover:bg-[#FDE2D2] text-[#D6450D] text-xs font-extrabold border border-[#FBD8C5]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#E6F5EC] hover:bg-[#D5EFE0] text-[#1B8E53] text-xs font-extrabold border border-[#C2E7D2]"
             >
               <Pencil className="w-3.5 h-3.5" />
               <span>{t('تعديل الموقع', 'Edit Location')}</span>
@@ -291,9 +291,9 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#EAE6E1] bg-white hover:bg-[#FAF9F7] text-xs font-bold text-[#1C1917]"
               >
                 {gpsLoading ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D6450D]" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#1B8E53]" />
                 ) : (
-                  <Navigation className="w-3.5 h-3.5 text-[#D6450D]" />
+                  <Navigation className="w-3.5 h-3.5 text-[#1B8E53]" />
                 )}
                 <span>{t('موقعي الحالي', 'Use GPS')}</span>
               </button>
@@ -302,7 +302,7 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
                   type="button"
                   disabled={saving}
                   onClick={handleConfirmSave}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] disabled:opacity-60 text-white text-xs font-bold"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] disabled:opacity-60 text-white text-xs font-bold"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>{saving ? t('جاري الحفظ...', 'Saving...') : t('حفظ الموقع', 'Save Location')}</span>
@@ -363,9 +363,9 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
                     mapRef.current?.setView([sug.lat, sug.lng], 16);
                     void selectPoint(sug.lat, sug.lng, sug.shortLabel || sug.displayName);
                   }}
-                  className="w-full px-3 py-2 text-start text-xs hover:bg-[#FFF2EB]/60 flex items-start gap-2"
+                  className="w-full px-3 py-2 text-start text-xs hover:bg-[#E6F5EC]/60 flex items-start gap-2"
                 >
-                  <MapPin className="w-3.5 h-3.5 text-[#D6450D] shrink-0 mt-0.5" />
+                  <MapPin className="w-3.5 h-3.5 text-[#1B8E53] shrink-0 mt-0.5" />
                   <span className="text-[#1C1917] line-clamp-1">{sug.displayName}</span>
                 </button>
               ))}
@@ -385,7 +385,7 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
       <div
         ref={containerRef}
         className={`w-full ${heightClass} rounded-2xl border ${
-          editing ? 'border-[#D6450D] ring-2 ring-[#D6450D]/15' : 'border-[#EAE6E1]'
+          editing ? 'border-[#1B8E53] ring-2 ring-[#1B8E53]/15' : 'border-[#EAE6E1]'
         } overflow-hidden z-0`}
       />
     </div>

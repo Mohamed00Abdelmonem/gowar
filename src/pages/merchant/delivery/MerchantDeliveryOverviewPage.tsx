@@ -90,7 +90,7 @@ export const MerchantDeliveryOverviewPage: React.FC = () => {
       label: t('في توصيل الآن', 'On Delivery'),
       value: data?.summary.on_delivery_now ?? 0,
       icon: Truck,
-      tone: 'bg-[#FFF2EB] text-[#D6450D]',
+      tone: 'bg-[#E6F5EC] text-[#1B8E53]',
     },
     {
       label: t('تم توصيلها اليوم', 'Delivered Today'),
@@ -128,12 +128,12 @@ export const MerchantDeliveryOverviewPage: React.FC = () => {
             to="/merchant/delivery-management/tracking"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#EAE6E1] bg-white text-xs font-bold text-[#1C1917] hover:bg-[#FAF9F7]"
           >
-            <MapPin className="w-3.5 h-3.5 text-[#D6450D]" />
+            <MapPin className="w-3.5 h-3.5 text-[#1B8E53]" />
             <span>{t('التتبع المباشر', 'Live Tracking')}</span>
           </Link>
           <Link
             to="/merchant/delivery-management/personnel"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-extrabold"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-extrabold"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>{t('إدارة المناديب', 'Manage Personnel')}</span>
@@ -172,7 +172,7 @@ export const MerchantDeliveryOverviewPage: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('ابحث بالاسم أو رقم الموبايل...', 'Search by name or phone...')}
-              className="w-full ps-10 pe-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D]"
+              className="w-full ps-10 pe-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53]"
             />
           </div>
 
@@ -192,8 +192,8 @@ export const MerchantDeliveryOverviewPage: React.FC = () => {
                 onClick={() => setStatusFilter(val)}
                 className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
                   statusFilter === val
-                    ? 'bg-[#D6450D] text-white border-[#D6450D]'
-                    : 'bg-[#FAF9F7] text-[#1C1917] border-[#EAE6E1] hover:border-[#D6450D]'
+                    ? 'bg-[#1B8E53] text-white border-[#1B8E53]'
+                    : 'bg-[#FAF9F7] text-[#1C1917] border-[#EAE6E1] hover:border-[#1B8E53]'
                 }`}
               >
                 {lbl}
@@ -204,7 +204,7 @@ export const MerchantDeliveryOverviewPage: React.FC = () => {
 
         {loading && !data ? (
           <div className="py-12 flex items-center justify-center gap-2 text-sm text-[#6E6A66]">
-            <Loader2 className="w-5 h-5 animate-spin text-[#D6450D]" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#1B8E53]" />
             <span>{t('جاري التحميل...', 'Loading...')}</span>
           </div>
         ) : error ? (
@@ -266,7 +266,7 @@ export const MerchantDeliveryOverviewPage: React.FC = () => {
                     </td>
                     <td className="py-3 px-2 text-xs">
                       {d.current_order ? (
-                        <span className="font-bold text-[#D6450D]">
+                        <span className="font-bold text-[#1B8E53]">
                           #{d.current_order.order_number}
                         </span>
                       ) : (
@@ -279,7 +279,7 @@ export const MerchantDeliveryOverviewPage: React.FC = () => {
                     <td className="py-3 px-2 text-end">
                       <Link
                         to="/merchant/delivery-management/personnel"
-                        className="text-xs font-bold text-[#D6450D] hover:underline"
+                        className="text-xs font-bold text-[#1B8E53] hover:underline"
                       >
                         {t('إدارة', 'Manage')}
                       </Link>

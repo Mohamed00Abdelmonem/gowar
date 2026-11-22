@@ -201,12 +201,12 @@ function loadInitialState(): PersistedState {
       if (parsed.merchants && parsed.products && parsed.orders) {
         const persistedLoc = parsed.customerLocation
           ? {
-              ...defaultLoc,
-              ...parsed.customerLocation,
-              searchRadiusKm: clampSearchRadiusKm(
-                parsed.customerLocation.searchRadiusKm ?? DEFAULT_SEARCH_RADIUS_KM
-              ),
-            }
+            ...defaultLoc,
+            ...parsed.customerLocation,
+            searchRadiusKm: clampSearchRadiusKm(
+              parsed.customerLocation.searchRadiusKm ?? DEFAULT_SEARCH_RADIUS_KM
+            ),
+          }
           : defaultLoc;
         return {
           language: parsed.language ?? 'ar',
@@ -643,9 +643,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ...(nextCart !== null ? { cart: nextCart } : {}),
           ...(nextCustomers !== null
             ? {
-                customers: nextCustomers,
-                activeCustomerId: nextCustomers[0]?.id ?? prev.activeCustomerId,
-              }
+              customers: nextCustomers,
+              activeCustomerId: nextCustomers[0]?.id ?? prev.activeCustomerId,
+            }
             : {}),
           ...(nextSettings !== null ? { settings: nextSettings } : {}),
           ...(nextNotifications !== null ? { notifications: nextNotifications } : {}),
@@ -801,22 +801,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       customerLocation: nextLoc,
       customers: input.selectedAddressId
         ? prev.customers.map((c) =>
-            c.id !== prev.activeCustomerId
-              ? c
-              : {
-                  ...c,
-                  addresses: c.addresses.map((a) => ({
-                    ...a,
-                    isDefault: a.id === input.selectedAddressId,
-                  })),
-                }
-          )
+          c.id !== prev.activeCustomerId
+            ? c
+            : {
+              ...c,
+              addresses: c.addresses.map((a) => ({
+                ...a,
+                isDefault: a.id === input.selectedAddressId,
+              })),
+            }
+        )
         : prev.customers,
     }));
 
     if (IS_BACKEND_API_ENABLED) {
       if (input.selectedAddressId && getStoredApiUser()?.role === 'customer') {
-        await marketplaceApi.setDefaultAddress(input.selectedAddressId).catch(() => {});
+        await marketplaceApi.setDefaultAddress(input.selectedAddressId).catch(() => { });
       }
       await refreshFromBackend(nextLoc);
     }
@@ -1299,12 +1299,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           delivery_address: input.addressId
             ? undefined
             : {
-                recipient_name: input.customerName,
-                phone_number: input.customerPhone,
-                formatted_address: input.deliveryAddressAr,
-                latitude: input.latitude ?? state.customerLocation.lat,
-                longitude: input.longitude ?? state.customerLocation.lng,
-              },
+              recipient_name: input.customerName,
+              phone_number: input.customerPhone,
+              formatted_address: input.deliveryAddressAr,
+              latitude: input.latitude ?? state.customerLocation.lat,
+              longitude: input.longitude ?? state.customerLocation.lng,
+            },
           payment_method: 'cod',
           customer_notes: input.notes ?? '',
           idempotency_key: idemKey,
@@ -1661,19 +1661,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }),
         ...(address.isDefault && coords
           ? {
-              selectedAreaId: address.areaId,
-              customerLocation: {
-                ...prev.customerLocation,
-                lat: coords.lat,
-                lng: coords.lng,
-                areaId: address.areaId,
-                formattedAddressAr: address.streetAr,
-                formattedAddressEn: address.streetEn,
-                selectedAddressId: newAddr.id,
-                source: 'saved',
-                updatedAt: new Date().toISOString(),
-              },
-            }
+            selectedAreaId: address.areaId,
+            customerLocation: {
+              ...prev.customerLocation,
+              lat: coords.lat,
+              lng: coords.lng,
+              areaId: address.areaId,
+              formattedAddressAr: address.streetAr,
+              formattedAddressEn: address.streetEn,
+              selectedAddressId: newAddr.id,
+              source: 'saved',
+              updatedAt: new Date().toISOString(),
+            },
+          }
           : {}),
       };
     });
@@ -1700,9 +1700,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         c.id !== activeCustomer.id
           ? c
           : {
-              ...c,
-              addresses: c.addresses.map((a) => (a.id === addressId ? { ...a, ...updates } : a)),
-            }
+            ...c,
+            addresses: c.addresses.map((a) => (a.id === addressId ? { ...a, ...updates } : a)),
+          }
       ),
     }));
     showToast(t('تم تحديث العنوان', 'Address updated'), 'success');
@@ -1742,16 +1742,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const coords = target?.coordinates;
         const nextLoc = coords
           ? {
-              ...state.customerLocation,
-              lat: coords.lat,
-              lng: coords.lng,
-              areaId: target.areaId || state.customerLocation.areaId,
-              formattedAddressAr: target.streetAr,
-              formattedAddressEn: target.streetEn,
-              selectedAddressId: target.id,
-              source: 'saved' as const,
-              updatedAt: new Date().toISOString(),
-            }
+            ...state.customerLocation,
+            lat: coords.lat,
+            lng: coords.lng,
+            areaId: target.areaId || state.customerLocation.areaId,
+            formattedAddressAr: target.streetAr,
+            formattedAddressEn: target.streetEn,
+            selectedAddressId: target.id,
+            source: 'saved' as const,
+            updatedAt: new Date().toISOString(),
+          }
           : state.customerLocation;
         setState((prev) => ({ ...prev, customerLocation: nextLoc }));
         await refreshFromBackend(nextLoc);
@@ -1771,25 +1771,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           c.id !== activeCustomer.id
             ? c
             : {
-                ...c,
-                addresses: c.addresses.map((a) => ({ ...a, isDefault: a.id === addressId })),
-              }
+              ...c,
+              addresses: c.addresses.map((a) => ({ ...a, isDefault: a.id === addressId })),
+            }
         ),
         ...(target && coords
           ? {
-              selectedAreaId: target.areaId,
-              customerLocation: {
-                ...prev.customerLocation,
-                lat: coords.lat,
-                lng: coords.lng,
-                areaId: target.areaId,
-                formattedAddressAr: target.streetAr,
-                formattedAddressEn: target.streetEn,
-                selectedAddressId: target.id,
-                source: 'saved',
-                updatedAt: new Date().toISOString(),
-              },
-            }
+            selectedAreaId: target.areaId,
+            customerLocation: {
+              ...prev.customerLocation,
+              lat: coords.lat,
+              lng: coords.lng,
+              areaId: target.areaId,
+              formattedAddressAr: target.streetAr,
+              formattedAddressEn: target.streetEn,
+              selectedAddressId: target.id,
+              source: 'saved',
+              updatedAt: new Date().toISOString(),
+            },
+          }
           : target
             ? { selectedAreaId: target.areaId }
             : {}),
@@ -1875,9 +1875,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ...(updates.areaId !== undefined ? { area: updates.areaId } : {}),
             ...(updates.coordinates !== undefined
               ? {
-                  latitude: Number(updates.coordinates.lat.toFixed(6)),
-                  longitude: Number(updates.coordinates.lng.toFixed(6)),
-                }
+                latitude: Number(updates.coordinates.lat.toFixed(6)),
+                longitude: Number(updates.coordinates.lng.toFixed(6)),
+              }
               : {}),
             ...(updates.workingHoursAr !== undefined
               ? { opening_hours: updates.workingHoursAr }
@@ -2060,10 +2060,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       products: prev.products.map((p) =>
         p.id === productId
           ? {
-              ...p,
-              stock: cleanStock,
-              isAvailable: cleanStock > 0 ? p.isAvailable : false,
-            }
+            ...p,
+            stock: cleanStock,
+            isAvailable: cleanStock > 0 ? p.isAvailable : false,
+          }
           : p
       ),
     }));
@@ -2085,7 +2085,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         nameAr: res.name,
         nameEn: res.name_en,
         icon: 'Tag',
-        color: res.color || '#D6450D',
+        color: res.color || '#1B8E53',
         isGlobal: false,
         merchantId: res.store,
       };
@@ -2099,7 +2099,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       nameAr,
       nameEn: nameEn || nameAr,
       icon: 'Tag',
-      color: '#D6450D',
+      color: '#1B8E53',
       isGlobal: false,
       merchantId,
     };
@@ -2180,10 +2180,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       merchants: prev.merchants.map((m) =>
         m.id === merchantId
           ? {
-              ...m,
-              status,
-              verified: status === 'approved' ? true : m.verified,
-            }
+            ...m,
+            status,
+            verified: status === 'approved' ? true : m.verified,
+          }
           : m
       ),
     }));
@@ -2353,7 +2353,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     merchantId?: string
   ) => {
     if (IS_BACKEND_API_ENABLED && getAccessToken()) {
-      void marketplaceApi.markNotificationsRead().catch(() => {});
+      void marketplaceApi.markNotificationsRead().catch(() => { });
     }
     setState((prev) => ({
       ...prev,

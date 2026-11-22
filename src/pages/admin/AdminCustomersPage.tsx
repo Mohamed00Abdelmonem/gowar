@@ -67,7 +67,7 @@ export const AdminCustomersPage: React.FC = () => {
                   <tr key={c.id} className="hover:bg-[#FAF9F7]/70">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center shrink-0">
                           <User className="w-4 h-4" />
                         </div>
                         <div>
@@ -80,14 +80,14 @@ export const AdminCustomersPage: React.FC = () => {
                     </td>
                     <td className="py-3 px-4 text-[#1C1917]">{c.phone}</td>
                     <td className="py-3 px-4 font-bold">{custOrders.length}</td>
-                    <td className="py-3 px-4 font-extrabold text-[#D6450D]">
+                    <td className="py-3 px-4 font-extrabold text-[#1B8E53]">
                       {formatEGP(spent, language)}
                     </td>
                     <td className="py-3 px-4">
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                           c.status === 'active'
-                            ? 'bg-[#FFF2EB] text-[#D6450D]'
+                            ? 'bg-[#E6F5EC] text-[#1B8E53]'
                             : 'bg-rose-50 text-rose-700'
                         }`}
                       >
@@ -99,7 +99,7 @@ export const AdminCustomersPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setSelectedCustomer(c)}
-                          className="px-2.5 py-1 rounded-lg border border-[#EAE6E1] font-bold hover:border-[#D6450D]"
+                          className="px-2.5 py-1 rounded-lg border border-[#EAE6E1] font-bold hover:border-[#1B8E53]"
                         >
                           {t('الملف', 'Profile')}
                         </button>
@@ -161,7 +161,7 @@ export const AdminCustomersPage: React.FC = () => {
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${sm.badgeClass}`}>
                           {sm.label}
                         </span>
-                        <strong className="text-[#D6450D]">{formatEGP(o.total, language)}</strong>
+                        <strong className="text-[#1B8E53]">{formatEGP(o.total, language)}</strong>
                       </div>
                     );
                   })}

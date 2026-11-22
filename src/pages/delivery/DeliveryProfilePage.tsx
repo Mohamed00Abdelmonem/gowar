@@ -16,7 +16,7 @@ export const DeliveryProfilePage: React.FC = () => {
     <div className="max-w-lg mx-auto space-y-4">
       <div className="bg-white rounded-2xl border border-[#EAE6E1] p-5 space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center">
             <User className="w-6 h-6" />
           </div>
           <div>

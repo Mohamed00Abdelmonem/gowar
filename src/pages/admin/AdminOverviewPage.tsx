@@ -90,7 +90,7 @@ export const AdminOverviewPage: React.FC = () => {
       label: t('إجمالي التجار', 'Total Merchants'),
       value: formatNumber(merchants.length, language),
       icon: Store,
-      tone: 'bg-[#FFF2EB] text-[#D6450D]',
+      tone: 'bg-[#E6F5EC] text-[#1B8E53]',
     },
     {
       label: t('المتاجر النشطة', 'Active Stores'),
@@ -126,7 +126,7 @@ export const AdminOverviewPage: React.FC = () => {
       label: t('حجم المبيعات (GMV)', 'GMV (Delivered)'),
       value: formatEGP(gmv, language),
       icon: Banknote,
-      tone: 'bg-[#FFF2EB] text-[#D6450D]',
+      tone: 'bg-[#E6F5EC] text-[#1B8E53]',
     },
     {
       label: t('إيرادات العمولات', 'Platform Revenue'),
@@ -221,7 +221,7 @@ export const AdminOverviewPage: React.FC = () => {
                 onClick={() => setPreset(p.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                   preset === p.id
-                    ? 'bg-[#D6450D] text-white'
+                    ? 'bg-[#1B8E53] text-white'
                     : 'text-[#6E6A66] hover:text-[#1C1917]'
                 }`}
               >
@@ -231,7 +231,7 @@ export const AdminOverviewPage: React.FC = () => {
           </div>
           {preset === 'custom' && (
             <div className="flex items-center gap-2 bg-white border border-[#EAE6E1] rounded-xl px-3 py-1.5 text-xs">
-              <Calendar className="w-3.5 h-3.5 text-[#D6450D]" />
+              <Calendar className="w-3.5 h-3.5 text-[#1B8E53]" />
               <input
                 type="date"
                 value={customFrom}
@@ -284,7 +284,7 @@ export const AdminOverviewPage: React.FC = () => {
                 {t('راجع بيانات المحل ووافق عليه ليظهر فوراً للعملاء', 'Review and approve stores so they go live')}
               </p>
             </div>
-            <Link to="/admin/merchants" className="text-xs font-bold text-[#D6450D] hover:underline">
+            <Link to="/admin/merchants" className="text-xs font-bold text-[#1B8E53] hover:underline">
               {t('عرض الكل', 'View all')}
             </Link>
           </div>
@@ -303,7 +303,7 @@ export const AdminOverviewPage: React.FC = () => {
                   <div>
                     <Link
                       to={`/admin/merchants/${m.id}`}
-                      className="text-sm font-bold text-[#1C1917] hover:text-[#D6450D]"
+                      className="text-sm font-bold text-[#1C1917] hover:text-[#1B8E53]"
                     >
                       {language === 'ar' ? m.nameAr : m.nameEn}
                     </Link>
@@ -316,7 +316,7 @@ export const AdminOverviewPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setMerchantStatus(m.id, 'approved')}
-                    className="px-3.5 py-1.5 rounded-lg bg-[#D6450D] text-white text-xs font-bold hover:bg-[#B33808]"
+                    className="px-3.5 py-1.5 rounded-lg bg-[#1B8E53] text-white text-xs font-bold hover:bg-[#147242]"
                   >
                     {t('موافقة وتفعيل', 'Approve')}
                   </button>
@@ -351,8 +351,8 @@ export const AdminOverviewPage: React.FC = () => {
                   type="monotone"
                   dataKey="sales"
                   name={t('GMV (جنيه)', 'GMV (EGP)')}
-                  stroke="#D6450D"
-                  fill="#FFF2EB"
+                  stroke="#1B8E53"
+                  fill="#E6F5EC"
                   strokeWidth={2.5}
                 />
               </AreaChart>
@@ -419,7 +419,7 @@ export const AdminOverviewPage: React.FC = () => {
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#6E6A66' }} />
                 <YAxis tick={{ fontSize: 11, fill: '#6E6A66' }} />
                 <Tooltip />
-                <Bar dataKey="gmv" name={t('المبيعات', 'GMV')} fill="#D6450D" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="gmv" name={t('المبيعات', 'GMV')} fill="#1B8E53" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -439,7 +439,7 @@ export const AdminOverviewPage: React.FC = () => {
                 <Bar
                   dataKey="merchants"
                   name={t('إجمالي التجار', 'Cumulative Merchants')}
-                  fill="#F47B20"
+                  fill="#22A863"
                   radius={[6, 6, 0, 0]}
                 />
               </BarChart>

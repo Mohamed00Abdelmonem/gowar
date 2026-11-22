@@ -173,7 +173,7 @@ export const AdminAnalyticsPage: React.FC = () => {
                 onClick={() => setPreset(p.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                   preset === p.id
-                    ? 'bg-[#D6450D] text-white'
+                    ? 'bg-[#1B8E53] text-white'
                     : 'text-[#6E6A66] hover:text-[#1C1917]'
                 }`}
               >
@@ -183,7 +183,7 @@ export const AdminAnalyticsPage: React.FC = () => {
           </div>
           {preset === 'custom' && (
             <div className="flex items-center gap-2 bg-white border border-[#EAE6E1] rounded-xl px-3 py-1.5 text-xs">
-              <Calendar className="w-3.5 h-3.5 text-[#D6450D]" />
+              <Calendar className="w-3.5 h-3.5 text-[#1B8E53]" />
               <input
                 type="date"
                 value={customFrom}
@@ -210,7 +210,7 @@ export const AdminAnalyticsPage: React.FC = () => {
             value: formatEGP(financialSummary.gmvDelivered, language),
             sub: `${formatNumber(financialSummary.deliveredCount, language)} ${t('طلب مكتمل', 'delivered')}`,
             icon: Banknote,
-            tone: 'bg-[#FFF2EB] text-[#D6450D]',
+            tone: 'bg-[#E6F5EC] text-[#1B8E53]',
           },
           {
             label: t('إيرادات المنصة (العمولات)', 'Platform Revenue (Earned)'),
@@ -275,7 +275,7 @@ export const AdminAnalyticsPage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div>
               <h3 className="text-sm font-extrabold text-[#1C1917] flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-[#D6450D]" />
+                <TrendingUp className="w-4 h-4 text-[#1B8E53]" />
                 <span>{t('الأداء المالي بمرور الوقت', 'Financial Performance Over Time')}</span>
               </h3>
               <p className="text-xs text-[#6E6A66]">
@@ -295,7 +295,7 @@ export const AdminAnalyticsPage: React.FC = () => {
                   type="button"
                   onClick={() => setGranularity(g)}
                   className={`px-2.5 py-1 rounded-lg ${
-                    granularity === g ? 'bg-[#D6450D] text-white' : 'text-[#6E6A66]'
+                    granularity === g ? 'bg-[#1B8E53] text-white' : 'text-[#6E6A66]'
                   }`}
                 >
                   {label}
@@ -315,7 +315,7 @@ export const AdminAnalyticsPage: React.FC = () => {
                   type="monotone"
                   dataKey="sales"
                   name={t('إجمالي المبيعات (GMV)', 'GMV (EGP)')}
-                  stroke="#D6450D"
+                  stroke="#1B8E53"
                   strokeWidth={3}
                   dot={{ r: 3 }}
                 />
@@ -354,7 +354,7 @@ export const AdminAnalyticsPage: React.FC = () => {
                 <Bar
                   dataKey="sales"
                   name={t('المبيعات (جنيه)', 'Sales (EGP)')}
-                  fill="#D6450D"
+                  fill="#1B8E53"
                   radius={[0, 6, 6, 0]}
                 />
               </BarChart>
@@ -412,7 +412,7 @@ export const AdminAnalyticsPage: React.FC = () => {
                   <td className="py-3 px-4">
                     <Link
                       to={`/admin/merchants/${row.id}`}
-                      className="font-extrabold text-[#1C1917] hover:text-[#D6450D] block"
+                      className="font-extrabold text-[#1C1917] hover:text-[#1B8E53] block"
                     >
                       {row.name}
                     </Link>
@@ -429,7 +429,7 @@ export const AdminAnalyticsPage: React.FC = () => {
                   <td className="py-3 px-4 font-extrabold text-emerald-700">
                     {formatEGP(row.commissionEarned, language)}
                   </td>
-                  <td className="py-3 px-4 font-extrabold text-[#D6450D]">
+                  <td className="py-3 px-4 font-extrabold text-[#1B8E53]">
                     {formatEGP(row.merchantNet, language)}
                   </td>
                   <td className="py-3 px-4 font-medium text-[#6E6A66]">

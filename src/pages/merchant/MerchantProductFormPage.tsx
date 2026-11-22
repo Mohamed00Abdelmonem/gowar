@@ -98,7 +98,7 @@ export const MerchantProductFormPage: React.FC = () => {
         <div>
           <Link
             to="/merchant/products"
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#D6450D] hover:underline mb-1"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#1B8E53] hover:underline mb-1"
           >
             <ArrowRight className="w-3.5 h-3.5" />
             <span>{t('العودة للمنتجات', 'Back to Products')}</span>
@@ -123,8 +123,8 @@ export const MerchantProductFormPage: React.FC = () => {
               <SafeImage src={image} alt={nameAr || 'Product'} className="w-full h-full object-cover" />
             </div>
 
-            <label className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl border border-[#EAE6E1] bg-[#FAF9F7] hover:bg-[#FFF2EB] text-xs font-bold text-[#1C1917] cursor-pointer">
-              <Upload className="w-4 h-4 text-[#D6450D]" />
+            <label className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl border border-[#EAE6E1] bg-[#FAF9F7] hover:bg-[#E6F5EC] text-xs font-bold text-[#1C1917] cursor-pointer">
+              <Upload className="w-4 h-4 text-[#1B8E53]" />
               <span>{t('رفع صورة من جهازك', 'Upload Image')}</span>
               <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
             </label>
@@ -143,7 +143,7 @@ export const MerchantProductFormPage: React.FC = () => {
                       setImage(p.url);
                     }}
                     className={`rounded-lg overflow-hidden border-2 aspect-square ${
-                      image === p.url ? 'border-[#D6450D]' : 'border-transparent'
+                      image === p.url ? 'border-[#1B8E53]' : 'border-transparent'
                     }`}
                     title={p.label}
                   >
@@ -167,7 +167,7 @@ export const MerchantProductFormPage: React.FC = () => {
                   value={nameAr}
                   onChange={(e) => setNameAr(e.target.value)}
                   placeholder={t('مثال: لبن جهينة ١ لتر', 'e.g. Juhayna Milk 1L')}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
                 />
               </div>
 
@@ -180,7 +180,7 @@ export const MerchantProductFormPage: React.FC = () => {
                   value={nameEn}
                   onChange={(e) => setNameEn(e.target.value)}
                   placeholder="Juhayna Milk 1L"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
                 />
               </div>
             </div>
@@ -194,7 +194,7 @@ export const MerchantProductFormPage: React.FC = () => {
                 value={descriptionAr}
                 onChange={(e) => setDescriptionAr(e.target.value)}
                 placeholder={t('اكتب وصفاً مختصراً للمنتج...', 'Brief product description...')}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
               />
             </div>
 
@@ -206,7 +206,7 @@ export const MerchantProductFormPage: React.FC = () => {
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53]"
                 >
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -225,7 +225,7 @@ export const MerchantProductFormPage: React.FC = () => {
                   value={unitAr}
                   onChange={(e) => setUnitAr(e.target.value)}
                   placeholder={t('مثال: ١ كجم / ٥٠٠ جم', 'e.g. 1 kg / 500g')}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D] focus:bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53] focus:bg-white"
                 />
               </div>
             </div>
@@ -291,7 +291,7 @@ export const MerchantProductFormPage: React.FC = () => {
                 type="checkbox"
                 checked={isAvailable}
                 onChange={(e) => setIsAvailable(e.target.checked)}
-                className="w-4 h-4 accent-[#D6450D]"
+                className="w-4 h-4 accent-[#1B8E53]"
               />
               <span className="text-sm font-bold text-[#1C1917]">
                 {t('المنتج متاح للعرض والطلب للعملاء', 'Available for customers to order')}
@@ -309,7 +309,7 @@ export const MerchantProductFormPage: React.FC = () => {
           </Link>
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
           >
             <Save className="w-4 h-4" />
             <span>{existing ? t('حفظ التعديلات', 'Save Changes') : t('إضافة المنتج', 'Save Product')}</span>

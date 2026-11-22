@@ -18,7 +18,7 @@ export const AdminCategoriesPage: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [nameAr, setNameAr] = useState('');
   const [nameEn, setNameEn] = useState('');
-  const [color, setColor] = useState('#D6450D');
+  const [color, setColor] = useState('#1B8E53');
 
   const globalCategories = categories.filter((c) => c.isGlobal);
 
@@ -26,7 +26,7 @@ export const AdminCategoriesPage: React.FC = () => {
     setEditingId(null);
     setNameAr('');
     setNameEn('');
-    setColor('#D6450D');
+    setColor('#1B8E53');
     setModalOpen(true);
   };
 
@@ -73,7 +73,7 @@ export const AdminCategoriesPage: React.FC = () => {
         <button
           type="button"
           onClick={openAdd}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
         >
           <Plus className="w-4 h-4" />
           <span>{t('إضافة قسم', 'Add Category')}</span>
@@ -158,7 +158,7 @@ export const AdminCategoriesPage: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full py-2.5 rounded-xl bg-[#D6450D] text-white text-sm font-bold"
+            className="w-full py-2.5 rounded-xl bg-[#1B8E53] text-white text-sm font-bold"
           >
             {t('حفظ', 'Save')}
           </button>

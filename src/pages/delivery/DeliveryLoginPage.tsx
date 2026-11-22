@@ -37,14 +37,14 @@ export const DeliveryLoginPage: React.FC = () => {
             onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
             className="h-9 px-3 rounded-xl border border-[#EAE6E1] bg-white text-xs font-bold text-[#1C1917] inline-flex items-center gap-1.5"
           >
-            <Globe className="w-3.5 h-3.5 text-[#D6450D]" />
+            <Globe className="w-3.5 h-3.5 text-[#1B8E53]" />
             <span>{language === 'ar' ? 'English' : 'العربية'}</span>
           </button>
         </div>
 
         <div className="bg-white rounded-3xl border border-[#EAE6E1] shadow-sm p-6 sm:p-7 space-y-5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#FFF2EB] text-[#D6450D] flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-[#E6F5EC] text-[#1B8E53] flex items-center justify-center shrink-0">
               <Truck className="w-6 h-6" />
             </div>
             <div>
@@ -83,7 +83,7 @@ export const DeliveryLoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="driver@gowar.com"
-                  className="w-full ps-10 pe-3.5 py-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D]"
+                  className="w-full ps-10 pe-3.5 py-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53]"
                 />
               </div>
             </div>
@@ -100,7 +100,7 @@ export const DeliveryLoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full ps-10 pe-3.5 py-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#D6450D]"
+                  className="w-full ps-10 pe-3.5 py-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53]"
                 />
               </div>
             </div>
@@ -108,7 +108,7 @@ export const DeliveryLoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3.5 px-5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-sm font-extrabold inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+              className="w-full py-3.5 px-5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-sm font-extrabold inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               <span>{t('تسجيل الدخول', 'Sign In')}</span>

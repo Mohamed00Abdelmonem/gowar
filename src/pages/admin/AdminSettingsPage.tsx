@@ -122,7 +122,7 @@ export const AdminSettingsPage: React.FC = () => {
               type="checkbox"
               checked={autoApprove}
               onChange={(e) => setAutoApprove(e.target.checked)}
-              className="w-4 h-4 accent-[#D6450D]"
+              className="w-4 h-4 accent-[#1B8E53]"
             />
             <span className="text-xs font-bold text-[#1C1917]">
               {t('اعتماد المتاجر الجديدة تلقائياً دون مراجعة يدوية', 'Auto-approve new merchant registrations')}
@@ -134,7 +134,7 @@ export const AdminSettingsPage: React.FC = () => {
               type="checkbox"
               checked={notifyNewOrder}
               onChange={(e) => setNotifyNewOrder(e.target.checked)}
-              className="w-4 h-4 accent-[#D6450D]"
+              className="w-4 h-4 accent-[#1B8E53]"
             />
             <span className="text-xs font-bold text-[#1C1917]">
               {t('تنبيه التجار فور وصول طلب جديد', 'Notify merchants immediately on new orders')}
@@ -146,7 +146,7 @@ export const AdminSettingsPage: React.FC = () => {
               type="checkbox"
               checked={notifyLowStock}
               onChange={(e) => setNotifyLowStock(e.target.checked)}
-              className="w-4 h-4 accent-[#D6450D]"
+              className="w-4 h-4 accent-[#1B8E53]"
             />
             <span className="text-xs font-bold text-[#1C1917]">
               {t('تفعيل تنبيهات نقص المخزون للتجار (≤ 5 قطع)', 'Enable low-stock alerts for merchants (≤ 5 units)')}
@@ -166,7 +166,7 @@ export const AdminSettingsPage: React.FC = () => {
 
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold"
           >
             <Save className="w-4 h-4" />
             <span>{t('حفظ الإعدادات', 'Save Settings')}</span>

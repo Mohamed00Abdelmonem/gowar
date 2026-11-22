@@ -10,6 +10,7 @@ import {
   LineChart,
   LogOut,
   MapPin,
+  Megaphone,
   Menu,
   Percent,
   Settings,
@@ -53,6 +54,7 @@ export const AdminLayout: React.FC = () => {
     { to: '/admin/analytics', icon: LineChart, label: t('التحليلات المالية', 'Analytics') },
     { to: '/admin/commissions', icon: Percent, label: t('العمولات', 'Commissions') },
     { to: '/admin/categories', icon: FolderTree, label: t('التصنيفات', 'Categories') },
+    { to: '/admin/promotions', icon: Megaphone, label: t('العروض والبانرات', 'Promotions') },
     { to: '/admin/areas', icon: MapPin, label: t('مناطق الخدمة', 'Service Areas') },
     { to: '/admin/reports', icon: BarChart3, label: t('التقارير', 'Reports') },
     { to: '/admin/settings', icon: Settings, label: t('الإعدادات', 'Settings') },
@@ -118,7 +120,7 @@ export const AdminLayout: React.FC = () => {
                   className={({ isActive }) =>
                     `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                       isActive
-                        ? 'bg-[#D6450D] text-white shadow-xs'
+                        ? 'bg-[#1B8E53] text-white shadow-xs'
                         : 'text-white/75 hover:bg-white/10 hover:text-white'
                     }`
                   }
@@ -180,7 +182,7 @@ export const AdminLayout: React.FC = () => {
                 className="w-9 h-9 rounded-xl border border-[#EAE6E1] flex items-center justify-center text-[#1C1917] hover:bg-[#FAF9F7]"
                 title={t('تغيير اللغة', 'Switch Language')}
               >
-                <Globe className="w-4 h-4 text-[#D6450D]" />
+                <Globe className="w-4 h-4 text-[#1B8E53]" />
               </button>
 
               <div className="relative">
@@ -220,7 +222,7 @@ export const AdminLayout: React.FC = () => {
                           key={n.id}
                           to={n.link || '/admin'}
                           onClick={() => setNotifOpen(false)}
-                          className="block p-2.5 rounded-xl bg-[#FAF9F7] hover:bg-[#FFF2EB]"
+                          className="block p-2.5 rounded-xl bg-[#FAF9F7] hover:bg-[#E6F5EC]"
                         >
                           <p className="text-xs font-bold text-[#1C1917]">
                             {language === 'ar' ? n.titleAr : n.titleEn}

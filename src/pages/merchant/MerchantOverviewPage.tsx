@@ -113,20 +113,20 @@ export const MerchantOverviewPage: React.FC = () => {
       <div
         className={`rounded-2xl border p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
           activeMerchant.isOpen
-            ? 'bg-[#FFF2EB] border-[#FBD8C5]'
+            ? 'bg-[#E6F5EC] border-[#C2E7D2]'
             : 'bg-rose-50 border-rose-200'
         }`}
       >
         <div className="flex items-start sm:items-center gap-3.5">
           <div
             className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${
-              activeMerchant.isOpen ? 'bg-[#D6450D] text-white' : 'bg-rose-600 text-white'
+              activeMerchant.isOpen ? 'bg-[#1B8E53] text-white' : 'bg-rose-600 text-white'
             }`}
           >
             <Power className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs font-extrabold text-[#D6450D]">
+            <p className="text-xs font-extrabold text-[#1B8E53]">
               {t(
                 `صباح الخير يا ${ownerDisplayName}، دي نظرة سريعة على أداء محلك.`,
                 `Good morning ${ownerDisplayName}, here is a quick snapshot of your store.`
@@ -146,7 +146,7 @@ export const MerchantOverviewPage: React.FC = () => {
           className={`px-5 py-2.5 rounded-xl text-xs font-extrabold text-white transition-colors shrink-0 ${
             activeMerchant.isOpen
               ? 'bg-rose-600 hover:bg-rose-700'
-              : 'bg-[#D6450D] hover:bg-[#B33808]'
+              : 'bg-[#1B8E53] hover:bg-[#147242]'
           }`}
         >
           {activeMerchant.isOpen
@@ -170,7 +170,7 @@ export const MerchantOverviewPage: React.FC = () => {
             </div>
             <Link
               to="/merchant/orders"
-              className="text-xs font-bold text-[#D6450D] hover:underline"
+              className="text-xs font-bold text-[#1B8E53] hover:underline"
             >
               {t('فتح لوحة الطلبات ←', 'Open Orders Pipeline →')}
             </Link>
@@ -182,20 +182,20 @@ export const MerchantOverviewPage: React.FC = () => {
                 className="bg-white rounded-xl border border-amber-200 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <span className="px-2.5 py-1 rounded-lg bg-[#FFF2EB] text-[#D6450D] font-extrabold">
+                  <span className="px-2.5 py-1 rounded-lg bg-[#E6F5EC] text-[#1B8E53] font-extrabold">
                     #{po.orderNumber}
                   </span>
                   <strong className="text-[#1C1917]">{po.customerName}</strong>
                   <span className="text-[#6E6A66]">
                     • {po.items.length} {t('منتجات', 'items')} •{' '}
-                    <strong className="text-[#D6450D]">{formatEGP(po.total, language)}</strong>
+                    <strong className="text-[#1B8E53]">{formatEGP(po.total, language)}</strong>
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => updateOrderStatus(po.id, 'accepted')}
-                    className="px-3.5 py-1.5 rounded-lg bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+                    className="px-3.5 py-1.5 rounded-lg bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
                   >
                     {t('قبول الطلب الآن', 'Accept Order')}
                   </button>
@@ -219,13 +219,13 @@ export const MerchantOverviewPage: React.FC = () => {
             label: t('مبيعات اليوم (مكتملة)', "Today's Delivered Sales"),
             value: formatEGP(todaySales, language),
             icon: Banknote,
-            color: 'text-[#D6450D] bg-[#FFF2EB]',
+            color: 'text-[#1B8E53] bg-[#E6F5EC]',
           },
           {
             label: t('طلبات اليوم', "Today's Orders"),
             value: formatNumber(todayOrders.length, language),
             icon: ClipboardList,
-            color: 'text-[#D6450D] bg-[#FFF2EB]',
+            color: 'text-[#1B8E53] bg-[#E6F5EC]',
           },
           {
             label: t('طلبات جديدة معلقة', 'Pending Orders'),
@@ -281,14 +281,14 @@ export const MerchantOverviewPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-2.5">
             <Link
               to="/merchant/products/new"
-              className="flex items-center gap-2 p-3 rounded-xl bg-[#D6450D] text-white text-xs font-bold hover:bg-[#B33808]"
+              className="flex items-center gap-2 p-3 rounded-xl bg-[#1B8E53] text-white text-xs font-bold hover:bg-[#147242]"
             >
               <Plus className="w-4 h-4" />
               <span>{t('إضافة منتج جديد', 'Add Product')}</span>
             </Link>
             <Link
               to="/merchant/orders"
-              className="flex items-center gap-2 p-3 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-bold hover:bg-[#FDE2D2]"
+              className="flex items-center gap-2 p-3 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-bold hover:bg-[#D5EFE0]"
             >
               <ClipboardList className="w-4 h-4" />
               <span>{t('متابعة الطلبات', 'Manage Orders')}</span>
@@ -297,14 +297,14 @@ export const MerchantOverviewPage: React.FC = () => {
               to="/merchant/inventory"
               className="flex items-center gap-2 p-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-[#1C1917] text-xs font-bold hover:bg-[#F3F0EC]"
             >
-              <Package className="w-4 h-4 text-[#D6450D]" />
+              <Package className="w-4 h-4 text-[#1B8E53]" />
               <span>{t('تحديث المخزون', 'Update Stock')}</span>
             </Link>
             <Link
               to="/merchant/delivery"
               className="flex items-center gap-2 p-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-[#1C1917] text-xs font-bold hover:bg-[#F3F0EC]"
             >
-              <Truck className="w-4 h-4 text-[#D6450D]" />
+              <Truck className="w-4 h-4 text-[#1B8E53]" />
               <span>{t('إعدادات التوصيل', 'Delivery Rules')}</span>
             </Link>
           </div>
@@ -318,7 +318,7 @@ export const MerchantOverviewPage: React.FC = () => {
             </h3>
             <Link
               to="/merchant/inventory"
-              className="text-xs font-bold text-[#D6450D] hover:underline"
+              className="text-xs font-bold text-[#1B8E53] hover:underline"
             >
               {t('إدارة المخزون ←', 'Inventory →')}
             </Link>
@@ -354,7 +354,7 @@ export const MerchantOverviewPage: React.FC = () => {
         <div className="lg:col-span-7 bg-white rounded-2xl border border-[#EAE6E1] p-5 shadow-2xs">
           <div className="mb-4">
             <h3 className="text-sm font-extrabold text-[#1C1917] flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#D6450D]" />
+              <TrendingUp className="w-4 h-4 text-[#1B8E53]" />
               <span>{t('المبيعات المحققة خلال آخر 7 أيام', 'Last 7 Days Realized Sales')}</span>
             </h3>
             <p className="text-xs text-[#6E6A66]">
@@ -375,8 +375,8 @@ export const MerchantOverviewPage: React.FC = () => {
                   type="monotone"
                   dataKey="sales"
                   name={t('المبيعات المكتملة (جنيه)', 'Delivered Sales (EGP)')}
-                  stroke="#D6450D"
-                  fill="#FFF2EB"
+                  stroke="#1B8E53"
+                  fill="#E6F5EC"
                   strokeWidth={2.5}
                 />
               </AreaChart>
@@ -405,15 +405,15 @@ export const MerchantOverviewPage: React.FC = () => {
                     return (
                       <div
                         key={item.name}
-                        className="rounded-xl bg-[#FAF9F7] border border-[#EAE6E1]/80 p-3 transition-colors hover:border-[#FBD8C5]"
+                        className="rounded-xl bg-[#FAF9F7] border border-[#EAE6E1]/80 p-3 transition-colors hover:border-[#C2E7D2]"
                       >
                         <div className="flex items-center justify-between gap-2 mb-2">
                           <div className="flex items-center gap-2 min-w-0">
                             <span
                               className={`w-6 h-6 rounded-lg text-[11px] font-extrabold flex items-center justify-center shrink-0 ${
                                 idx === 0
-                                  ? 'bg-[#D6450D] text-white shadow-2xs'
-                                  : 'bg-[#FFF2EB] text-[#D6450D]'
+                                  ? 'bg-[#1B8E53] text-white shadow-2xs'
+                                  : 'bg-[#E6F5EC] text-[#1B8E53]'
                               }`}
                             >
                               {idx + 1}
@@ -422,7 +422,7 @@ export const MerchantOverviewPage: React.FC = () => {
                               {item.name}
                             </span>
                           </div>
-                          <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#EAE6E1] text-[11px] font-extrabold text-[#D6450D] shrink-0">
+                          <span className="px-2.5 py-0.5 rounded-full bg-white border border-[#EAE6E1] text-[11px] font-extrabold text-[#1B8E53] shrink-0">
                             {item.sold} {t('وحدة', 'sold')}
                           </span>
                         </div>
@@ -430,8 +430,8 @@ export const MerchantOverviewPage: React.FC = () => {
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
                               idx === 0
-                                ? 'bg-gradient-to-r from-[#D6450D] to-[#F47B20]'
-                                : 'bg-[#F47B20]/85'
+                                ? 'bg-gradient-to-r from-[#1B8E53] to-[#22A863]'
+                                : 'bg-[#22A863]/85'
                             }`}
                             style={{ width: `${pct}%` }}
                           />
@@ -459,7 +459,7 @@ export const MerchantOverviewPage: React.FC = () => {
           </div>
           <Link
             to="/merchant/orders"
-            className="text-xs font-bold text-[#D6450D] hover:underline"
+            className="text-xs font-bold text-[#1B8E53] hover:underline"
           >
             {t('إدارة كل الطلبات', 'Manage all orders')}
           </Link>
@@ -483,7 +483,7 @@ export const MerchantOverviewPage: React.FC = () => {
                 return (
                   <tr key={order.id} className="hover:bg-[#FAF9F7]/70">
                     <td className="py-3 px-4 font-extrabold text-[#1C1917]">
-                      <Link to={`/merchant/orders/${order.id}`} className="hover:text-[#D6450D]">
+                      <Link to={`/merchant/orders/${order.id}`} className="hover:text-[#1B8E53]">
                         #{order.orderNumber}
                       </Link>
                       <span className="block text-[10px] text-[#6E6A66] font-normal">
@@ -497,7 +497,7 @@ export const MerchantOverviewPage: React.FC = () => {
                     <td className="py-3 px-4 text-[#6E6A66]">
                       {order.items.length} {t('منتجات', 'items')}
                     </td>
-                    <td className="py-3 px-4 font-extrabold text-[#D6450D]">
+                    <td className="py-3 px-4 font-extrabold text-[#1B8E53]">
                       {formatEGP(order.total, language)}
                     </td>
                     <td className="py-3 px-4">
@@ -512,14 +512,14 @@ export const MerchantOverviewPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => updateOrderStatus(order.id, 'accepted')}
-                          className="px-3 py-1.5 rounded-lg bg-[#D6450D] text-white font-bold hover:bg-[#B33808]"
+                          className="px-3 py-1.5 rounded-lg bg-[#1B8E53] text-white font-bold hover:bg-[#147242]"
                         >
                           {t('قبول الطلب', 'Accept')}
                         </button>
                       ) : (
                         <Link
                           to={`/merchant/orders/${order.id}`}
-                          className="text-[#D6450D] font-bold hover:underline"
+                          className="text-[#1B8E53] font-bold hover:underline"
                         >
                           {t('التفاصيل', 'Details')}
                         </Link>

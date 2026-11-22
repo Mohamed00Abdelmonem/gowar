@@ -82,7 +82,7 @@ const StoreSettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
           <button
             type="button"
             onClick={() => setPreviewOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FFF2EB] text-[#D6450D] text-xs font-bold hover:bg-[#FDE2D2]"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#E6F5EC] text-[#1B8E53] text-xs font-bold hover:bg-[#D5EFE0]"
           >
             <Eye className="w-4 h-4" />
             <span>{t('معاينة سريعة', 'Quick Preview')}</span>
@@ -105,7 +105,7 @@ const StoreSettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           <div className="absolute top-3 end-3 flex items-center gap-2">
             <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 text-[#1C1917] text-xs font-bold shadow-xs hover:bg-white">
-              <ImagePlus className="w-3.5 h-3.5 text-[#D6450D]" />
+              <ImagePlus className="w-3.5 h-3.5 text-[#1B8E53]" />
               <span>{t('تغيير الغلاف', 'Change Cover')}</span>
               <input
                 type="file"
@@ -124,7 +124,7 @@ const StoreSettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
               />
               <label
                 title={t('تغيير الشعار', 'Change Logo')}
-                className="cursor-pointer absolute -bottom-1.5 -end-1.5 w-7 h-7 rounded-full bg-[#D6450D] text-white flex items-center justify-center shadow-sm hover:bg-[#B33808]"
+                className="cursor-pointer absolute -bottom-1.5 -end-1.5 w-7 h-7 rounded-full bg-[#1B8E53] text-white flex items-center justify-center shadow-sm hover:bg-[#147242]"
               >
                 <Upload className="w-3.5 h-3.5" />
                 <input
@@ -148,7 +148,7 @@ const StoreSettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
           <div className="rounded-2xl border border-[#EAE6E1] bg-[#FAF9F7] p-4 flex items-center justify-between gap-3">
             <div>
               <div className="text-xs font-extrabold text-[#1C1917] flex items-center gap-1.5">
-                <Power className="w-4 h-4 text-[#D6450D]" />
+                <Power className="w-4 h-4 text-[#1B8E53]" />
                 <span>{t('حالة استقبال الطلبات', 'Store Availability')}</span>
               </div>
               <p className="text-[11px] text-[#6E6A66] mt-0.5">
@@ -161,7 +161,7 @@ const StoreSettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
               type="button"
               onClick={() => toggleMerchantOpen(merchant.id)}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold text-white shrink-0 ${
-                merchant.isOpen ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[#D6450D] hover:bg-[#B33808]'
+                merchant.isOpen ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[#1B8E53] hover:bg-[#147242]'
               }`}
             >
               {merchant.isOpen ? t('إغلاق مؤقت', 'Pause') : t('فتح المتجر', 'Open')}
@@ -171,7 +171,7 @@ const StoreSettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
           <div className="rounded-2xl border border-[#EAE6E1] bg-[#FAF9F7] p-4 flex items-center justify-between gap-3">
             <div>
               <div className="text-xs font-extrabold text-[#1C1917] flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-[#D6450D]" />
+                <Truck className="w-4 h-4 text-[#1B8E53]" />
                 <span>{t('ملخص إعدادات التوصيل', 'Delivery Summary')}</span>
               </div>
               <p className="text-[11px] text-[#6E6A66] mt-0.5">
@@ -188,7 +188,7 @@ const StoreSettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
             </div>
             <Link
               to="/merchant/delivery"
-              className="px-3.5 py-2 rounded-xl border border-[#EAE6E1] bg-white text-xs font-bold text-[#D6450D] shrink-0 hover:bg-[#FFF2EB]"
+              className="px-3.5 py-2 rounded-xl border border-[#EAE6E1] bg-white text-xs font-bold text-[#1B8E53] shrink-0 hover:bg-[#E6F5EC]"
             >
               {t('تعديل التوصيل', 'Edit Delivery')}
             </Link>
@@ -308,7 +308,7 @@ const StoreSettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
                     onClick={() => toggleCat(cat.id)}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                       active
-                        ? 'bg-[#D6450D] text-white border-[#D6450D]'
+                        ? 'bg-[#1B8E53] text-white border-[#1B8E53]'
                         : 'bg-[#FAF9F7] text-[#1C1917] border-[#EAE6E1]'
                     }`}
                   >
@@ -322,7 +322,7 @@ const StoreSettingsForm: React.FC<{ merchant: Merchant }> = ({ merchant }) => {
         <div className="flex justify-end pt-3 border-t border-[#EAE6E1]">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
           >
             <Save className="w-4 h-4" />
             <span>{t('حفظ بيانات المحل', 'Save Store Profile')}</span>

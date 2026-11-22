@@ -165,7 +165,7 @@ export const MerchantOrdersPage: React.FC = () => {
           <button
             type="button"
             onClick={() => updateOrderStatus(order.id, 'accepted')}
-            className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+            className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
           >
             <Check className="w-3.5 h-3.5" />
             <span>{t('قبول الطلب', 'Accept Order')}</span>
@@ -193,16 +193,16 @@ export const MerchantOrdersPage: React.FC = () => {
             <button
               type="button"
               onClick={() => void openAssignModal(order)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE6E1] bg-white hover:border-[#D6450D] text-xs font-bold text-[#1C1917]"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE6E1] bg-white hover:border-[#1B8E53] text-xs font-bold text-[#1C1917]"
             >
-              <UserCheck className="w-3.5 h-3.5 text-[#D6450D]" />
+              <UserCheck className="w-3.5 h-3.5 text-[#1B8E53]" />
               <span>{t('إسناد لمندوب', 'Assign Driver')}</span>
             </button>
           )}
           <button
             type="button"
             onClick={() => updateOrderStatus(order.id, nextAction.next)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
           >
             <Truck className="w-3.5 h-3.5" />
             <span>{nextAction.label}</span>
@@ -237,8 +237,8 @@ export const MerchantOrdersPage: React.FC = () => {
             onClick={() => setTab(item.id as typeof tab)}
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${
               tab === item.id
-                ? 'bg-[#D6450D] text-white'
-                : 'bg-white border border-[#EAE6E1] text-[#1C1917] hover:border-[#D6450D]'
+                ? 'bg-[#1B8E53] text-white'
+                : 'bg-white border border-[#EAE6E1] text-[#1C1917] hover:border-[#1B8E53]'
             }`}
           >
             <span>{item.label}</span>
@@ -289,7 +289,7 @@ export const MerchantOrdersPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => navigate(`/merchant/orders/${order.id}`)}
-                      className="text-[#D6450D] font-bold hover:underline"
+                      className="text-[#1B8E53] font-bold hover:underline"
                     >
                       {t('فتح التفاصيل', 'Inspect')}
                     </button>
@@ -300,11 +300,11 @@ export const MerchantOrdersPage: React.FC = () => {
                   <div className="md:col-span-4 space-y-1">
                     <div className="text-sm font-bold text-[#1C1917]">{order.customerName}</div>
                     <div className="text-xs text-[#6E6A66] inline-flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5 text-[#D6450D]" />
+                      <Phone className="w-3.5 h-3.5 text-[#1B8E53]" />
                       {order.customerPhone}
                     </div>
                     <div className="text-xs text-[#6E6A66] flex items-start gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#D6450D] shrink-0 mt-0.5" />
+                      <MapPin className="w-3.5 h-3.5 text-[#1B8E53] shrink-0 mt-0.5" />
                       <span className="line-clamp-2">
                         {language === 'ar' ? order.deliveryAddressAr : order.deliveryAddressEn}
                       </span>
@@ -317,7 +317,7 @@ export const MerchantOrdersPage: React.FC = () => {
                     </div>
                     {order.items.slice(0, 3).map((item) => (
                       <div key={item.productId} className="text-[#1C1917] truncate">
-                        <strong className="text-[#D6450D]">{item.quantity}×</strong>{' '}
+                        <strong className="text-[#1B8E53]">{item.quantity}×</strong>{' '}
                         {language === 'ar' ? item.nameAr : item.nameEn}
                       </div>
                     ))}
@@ -333,7 +333,7 @@ export const MerchantOrdersPage: React.FC = () => {
                       <span className="text-[11px] text-[#6E6A66] block">
                         {t('إجمالي الفاتورة', 'Order Total')}
                       </span>
-                      <span className="text-lg font-extrabold text-[#D6450D]">
+                      <span className="text-lg font-extrabold text-[#1B8E53]">
                         {formatEGP(order.total, language)}
                       </span>
                     </div>
@@ -352,12 +352,12 @@ export const MerchantOrdersPage: React.FC = () => {
                           <div key={step.key} className="space-y-1">
                             <div
                               className={`h-1.5 rounded-full transition-colors ${
-                                done ? 'bg-[#D6450D]' : 'bg-[#EAE6E1]'
+                                done ? 'bg-[#1B8E53]' : 'bg-[#EAE6E1]'
                               }`}
                             />
                             <span
                               className={`block text-[10px] font-bold text-center truncate ${
-                                done ? 'text-[#D6450D]' : 'text-[#6E6A66]'
+                                done ? 'text-[#1B8E53]' : 'text-[#6E6A66]'
                               }`}
                             >
                               {language === 'ar' ? step.ar : step.en}
@@ -441,7 +441,7 @@ export const MerchantOrdersPage: React.FC = () => {
                 <span>{t('رسوم التوصيل', 'Delivery Fee')}</span>
                 <span>{formatEGP(selectedOrder.deliveryFee, language)}</span>
               </div>
-              <div className="flex justify-between text-base font-extrabold text-[#D6450D] pt-1">
+              <div className="flex justify-between text-base font-extrabold text-[#1B8E53] pt-1">
                 <span>{t('الإجمالي', 'Total')}</span>
                 <span>{formatEGP(selectedOrder.total, language)}</span>
               </div>
@@ -613,7 +613,7 @@ export const MerchantOrdersPage: React.FC = () => {
                     type="button"
                     disabled={assigningDriverId === drv.id}
                     onClick={() => void handleAssignDriver(drv.id)}
-                    className="px-3.5 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-extrabold shrink-0 disabled:opacity-60"
+                    className="px-3.5 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-extrabold shrink-0 disabled:opacity-60"
                   >
                     {assigningDriverId === drv.id
                       ? t('جاري الإسناد...', 'Assigning...')

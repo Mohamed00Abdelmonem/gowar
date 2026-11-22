@@ -173,7 +173,7 @@ export const StoresPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setLocationModalOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D6450D] hover:underline mb-1 text-start"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1B8E53] hover:underline mb-1 text-start"
             >
               <MapPin className="w-3.5 h-3.5 shrink-0" />
               <span>{t('الموقع الحالي:', 'Location:')}</span>
@@ -208,7 +208,7 @@ export const StoresPage: React.FC = () => {
                 onClick={() => setViewMode('list')}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                   viewMode === 'list'
-                    ? 'bg-[#D6450D] text-white'
+                    ? 'bg-[#1B8E53] text-white'
                     : 'text-[#6E6A66] hover:text-[#1C1917]'
                 }`}
               >
@@ -220,7 +220,7 @@ export const StoresPage: React.FC = () => {
                 onClick={() => setViewMode('map')}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                   viewMode === 'map'
-                    ? 'bg-[#D6450D] text-white'
+                    ? 'bg-[#1B8E53] text-white'
                     : 'text-[#6E6A66] hover:text-[#1C1917]'
                 }`}
               >
@@ -239,7 +239,7 @@ export const StoresPage: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('بتدور على إيه؟ منتج أو محل', 'What are you looking for? Product or store')}
-            className="w-full ps-11 pe-4 py-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm sm:text-base focus:outline-none focus:border-[#D6450D] focus:bg-white"
+            className="w-full ps-11 pe-4 py-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm sm:text-base focus:outline-none focus:border-[#1B8E53] focus:bg-white"
           />
         </div>
 
@@ -255,8 +255,8 @@ export const StoresPage: React.FC = () => {
               onClick={() => setQuery(term)}
               className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap transition-colors shrink-0 ${
                 query.trim() === term
-                  ? 'bg-[#FFF2EB] border-[#D6450D] text-[#D6450D]'
-                  : 'bg-[#FAF9F7] border-[#EAE6E1] text-[#1C1917] hover:border-[#D6450D]'
+                  ? 'bg-[#E6F5EC] border-[#1B8E53] text-[#1B8E53]'
+                  : 'bg-[#FAF9F7] border-[#EAE6E1] text-[#1C1917] hover:border-[#1B8E53]'
               }`}
             >
               {term}
@@ -273,8 +273,8 @@ export const StoresPage: React.FC = () => {
               onClick={() => setActiveFilter(chip.id)}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors min-h-[38px] ${
                 activeFilter === chip.id
-                  ? 'bg-[#D6450D] text-white border-[#D6450D]'
-                  : 'bg-[#FAF9F7] text-[#1C1917] border-[#EAE6E1] hover:border-[#D6450D]'
+                  ? 'bg-[#1B8E53] text-white border-[#1B8E53]'
+                  : 'bg-[#FAF9F7] text-[#1C1917] border-[#EAE6E1] hover:border-[#1B8E53]'
               }`}
             >
               {chip.label}
@@ -326,7 +326,7 @@ export const StoresPage: React.FC = () => {
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm sm:text-base font-extrabold text-[#1C1917] group-hover:text-[#D6450D]">
+                          <span className="text-sm sm:text-base font-extrabold text-[#1C1917] group-hover:text-[#1B8E53]">
                             {language === 'ar' ? store.nameAr : store.nameEn}
                           </span>
                           <span
@@ -348,7 +348,7 @@ export const StoresPage: React.FC = () => {
                         </div>
                         <p className="text-xs text-[#6E6A66] mt-0.5">
                           {t('التوصيل:', 'Delivery:')}{' '}
-                          <strong className="text-[#D6450D]">
+                          <strong className="text-[#1B8E53]">
                             {isDeliverable
                               ? formatEGP(store.delivery.deliveryFee, language)
                               : t('غير متاح', 'Unavailable')}
@@ -361,7 +361,7 @@ export const StoresPage: React.FC = () => {
 
                     <Link
                       to={`/stores/${store.id}`}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FFF2EB] text-[#D6450D] hover:bg-[#D6450D] hover:text-white text-xs font-bold transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#E6F5EC] text-[#1B8E53] hover:bg-[#1B8E53] hover:text-white text-xs font-bold transition-colors"
                     >
                       <span>{t('شوف كل المحل', 'Open Store')}</span>
                       <ArrowIcon className="w-3.5 h-3.5" />
@@ -422,7 +422,7 @@ export const StoresPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSearchRadiusKm(expandedTargetKm)}
-                    className="px-5 py-2.5 rounded-xl bg-[#D6450D] text-white text-xs font-bold hover:bg-[#B33808]"
+                    className="px-5 py-2.5 rounded-xl bg-[#1B8E53] text-white text-xs font-bold hover:bg-[#147242]"
                   >
                     {t(
                       `زود نطاق البحث إلى ${expandedTargetKm} كم`,
@@ -442,7 +442,7 @@ export const StoresPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setLocationModalOpen(true)}
-                  className="px-4 py-2.5 rounded-xl border border-[#EAE6E1] bg-white text-[#D6450D] text-xs font-bold"
+                  className="px-4 py-2.5 rounded-xl border border-[#EAE6E1] bg-white text-[#1B8E53] text-xs font-bold"
                 >
                   {t('تغيير الموقع', 'Change Location')}
                 </button>

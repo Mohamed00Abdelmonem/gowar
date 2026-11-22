@@ -108,12 +108,12 @@ export const MerchantLayout: React.FC = () => {
           </div>
 
           {/* Authenticated Store Identity Card (Strictly Scoped) */}
-          <div className="p-3.5 border-b border-[#EAE6E1] bg-[#FFF2EB]/60">
+          <div className="p-3.5 border-b border-[#EAE6E1] bg-[#E6F5EC]/60">
             <div className="flex items-center gap-3">
               <SafeImage
                 src={activeMerchant.logo}
                 alt={activeMerchant.nameAr}
-                className="w-11 h-11 rounded-xl border border-[#FBD8C5] object-cover shrink-0 bg-white"
+                className="w-11 h-11 rounded-xl border border-[#C2E7D2] object-cover shrink-0 bg-white"
               />
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-extrabold text-[#1C1917] truncate">
@@ -127,7 +127,7 @@ export const MerchantLayout: React.FC = () => {
                     : activeMerchant.ownerNameAr}
                 </div>
                 {activeMerchant.merchantCode && (
-                  <span className="inline-block text-[10px] font-bold text-[#D6450D]">
+                  <span className="inline-block text-[10px] font-bold text-[#1B8E53]">
                     {activeMerchant.merchantCode}
                   </span>
                 )}
@@ -147,8 +147,8 @@ export const MerchantLayout: React.FC = () => {
                   className={({ isActive }) =>
                     `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                       isActive
-                        ? 'bg-[#D6450D] text-white shadow-xs'
-                        : 'text-[#1C1917] hover:bg-[#FFF2EB] hover:text-[#D6450D]'
+                        ? 'bg-[#1B8E53] text-white shadow-xs'
+                        : 'text-[#1C1917] hover:bg-[#E6F5EC] hover:text-[#1B8E53]'
                     }`
                   }
                 >
@@ -211,8 +211,8 @@ export const MerchantLayout: React.FC = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors ${
                         isActive
-                          ? 'bg-[#D6450D] text-white shadow-xs'
-                          : 'text-[#1C1917] hover:bg-[#FFF2EB] hover:text-[#D6450D]'
+                          ? 'bg-[#1B8E53] text-white shadow-xs'
+                          : 'text-[#1C1917] hover:bg-[#E6F5EC] hover:text-[#1B8E53]'
                       }`
                     }
                   >
@@ -229,7 +229,7 @@ export const MerchantLayout: React.FC = () => {
               to={`/stores/${activeMerchant.id}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-[#FFF2EB] text-[#D6450D] hover:bg-[#FDE2D2] text-xs font-bold transition-colors"
+              className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-[#E6F5EC] text-[#1B8E53] hover:bg-[#D5EFE0] text-xs font-bold transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               <span>{t('معاينة المحل في السوق', 'Preview Customer Store')}</span>
@@ -288,7 +288,7 @@ export const MerchantLayout: React.FC = () => {
 
               <Link
                 to="/merchant/products/new"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold transition-colors"
               >
                 <span>+ {t('منتج جديد', 'Add Product')}</span>
               </Link>
@@ -299,7 +299,7 @@ export const MerchantLayout: React.FC = () => {
                 className="w-9 h-9 rounded-xl border border-[#EAE6E1] flex items-center justify-center text-xs font-bold text-[#1C1917] hover:bg-[#FAF9F7]"
                 title={t('تغيير اللغة', 'Switch Language')}
               >
-                <Globe className="w-4 h-4 text-[#D6450D]" />
+                <Globe className="w-4 h-4 text-[#1B8E53]" />
               </button>
 
               <NotificationBell audience="merchant" merchantId={activeMerchant.id} />
