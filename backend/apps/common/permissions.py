@@ -29,12 +29,17 @@ class IsDelivery(BasePermission):
     message = "Delivery personnel account required."
 
     def has_permission(self, request, view):
-        return bool(
+        if not (
             request.user
             and request.user.is_authenticated
             and request.user.is_active
             and request.user.role == "delivery"
-        )
+        ):
+            return False
+        profile = getattr(request.user, "delivery_profile", None)
+        if profile is not None and (not profile.is_active or profile.is_archived):
+            return False
+        return True
 
 
 class IsApprovedMerchant(IsMerchant):

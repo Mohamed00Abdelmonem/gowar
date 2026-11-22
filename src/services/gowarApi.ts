@@ -12,7 +12,13 @@ import type {
   Category,
   Customer,
   CustomerAddress,
+  DeliveryShiftStatusResponse,
+  DriverVehicleType,
   Merchant,
+  MerchantDeliveryDriver,
+  MerchantDeliveryOverviewResponse,
+  MerchantDeliveryPerformanceResponse,
+  MerchantDeliveryTrackingResponse,
   MerchantStatus,
   Order,
   OrderStatus,
@@ -1047,6 +1053,166 @@ export const deliveryApi = {
     return apiRequest<BackendOrderPayload>(`/delivery/orders/${orderId}/transition/`, {
       method: 'POST',
       body: payload,
+    });
+  },
+
+  fetchShiftStatus() {
+    return apiRequest<DeliveryShiftStatusResponse>('/delivery/shift/');
+  },
+
+  startShift() {
+    return apiRequest<{ id: string; started_at: string; is_active: boolean }>(
+      '/delivery/shift/start/',
+      { method: 'POST', body: {} }
+    );
+  },
+
+  endShift() {
+    return apiRequest<{
+      id: string;
+      started_at: string;
+      ended_at: string | null;
+      duration_minutes: number;
+      is_active: boolean;
+    }>('/delivery/shift/end/', { method: 'POST', body: {} });
+  },
+
+  updateLocation(payload: {
+    latitude?: number | null;
+    longitude?: number | null;
+    accuracy_m?: number | null;
+    is_sharing: boolean;
+  }) {
+    return apiRequest<{
+      is_location_sharing: boolean;
+      last_latitude: number | null;
+      last_longitude: number | null;
+      last_location_at: string | null;
+    }>('/delivery/location/', {
+      method: 'POST',
+      body: payload,
+    });
+  },
+};
+
+export interface AssignableDriverOption {
+  id: string;
+  profile_id: string;
+  full_name: string;
+  phone_number: string;
+  email: string;
+  operational_status: string;
+  active_orders_count: number;
+  last_seen_at: string | null;
+}
+
+export const merchantDeliveryApi = {
+  fetchOverview() {
+    return apiRequest<MerchantDeliveryOverviewResponse>('/merchant/delivery-management/overview/');
+  },
+
+  listDrivers(params?: { search?: string; status?: string; include_archived?: boolean }) {
+    const qs = new URLSearchParams();
+    if (params?.search) qs.set('search', params.search);
+    if (params?.status && params.status !== 'all') qs.set('status', params.status);
+    if (params?.include_archived) qs.set('include_archived', 'true');
+    const query = qs.toString();
+    return apiRequest<MerchantDeliveryDriver[]>(
+      `/merchant/delivery-management/drivers/${query ? `?${query}` : ''}`
+    );
+  },
+
+  createDriver(payload: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name?: string;
+    phone_number: string;
+    vehicle_type: DriverVehicleType;
+    vehicle_plate?: string;
+    notes?: string;
+  }) {
+    return apiRequest<MerchantDeliveryDriver>('/merchant/delivery-management/drivers/', {
+      method: 'POST',
+      body: payload,
+    });
+  },
+
+  getDriverDetail(driverId: string) {
+    return apiRequest<{
+      driver: MerchantDeliveryDriver;
+      recent_orders: BackendOrderPayload[];
+      recent_shifts: Array<{
+        id: string;
+        started_at: string;
+        ended_at: string | null;
+        is_active: boolean;
+        duration_minutes: number;
+      }>;
+    }>(`/merchant/delivery-management/drivers/${driverId}/`);
+  },
+
+  updateDriver(
+    driverId: string,
+    payload: {
+      email?: string;
+      first_name?: string;
+      last_name?: string;
+      phone_number?: string;
+      vehicle_type?: DriverVehicleType;
+      vehicle_plate?: string;
+      notes?: string;
+    }
+  ) {
+    return apiRequest<MerchantDeliveryDriver>(
+      `/merchant/delivery-management/drivers/${driverId}/`,
+      {
+        method: 'PATCH',
+        body: payload,
+      }
+    );
+  },
+
+  toggleDriverActive(driverId: string, is_active: boolean, archive = false) {
+    return apiRequest<MerchantDeliveryDriver>(
+      `/merchant/delivery-management/drivers/${driverId}/toggle-active/`,
+      {
+        method: 'POST',
+        body: { is_active, archive },
+      }
+    );
+  },
+
+  resetDriverPassword(driverId: string, new_password: string) {
+    return apiRequest<{ detail: string }>(
+      `/merchant/delivery-management/drivers/${driverId}/reset-password/`,
+      {
+        method: 'POST',
+        body: { new_password },
+      }
+    );
+  },
+
+  fetchTracking() {
+    return apiRequest<MerchantDeliveryTrackingResponse>(
+      '/merchant/delivery-management/tracking/'
+    );
+  },
+
+  fetchPerformance() {
+    return apiRequest<MerchantDeliveryPerformanceResponse>(
+      '/merchant/delivery-management/performance/'
+    );
+  },
+
+  listAssignableDrivers() {
+    return apiRequest<AssignableDriverOption[]>('/merchant/delivery-drivers/');
+  },
+
+  assignOrder(orderId: string, deliveryUserId: string) {
+    return apiRequest<BackendOrderPayload>(`/merchant/orders/${orderId}/assign-delivery/`, {
+      method: 'POST',
+      body: { delivery_user_id: deliveryUserId },
     });
   },
 };

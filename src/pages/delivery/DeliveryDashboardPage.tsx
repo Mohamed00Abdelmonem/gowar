@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertCircle,
@@ -8,9 +8,12 @@ import {
   Clock,
   Loader2,
   MapPin,
+  Navigation,
   Package,
   Phone,
+  Play,
   RefreshCw,
+  Square,
   Store,
   Truck,
 } from 'lucide-react';
@@ -20,6 +23,7 @@ import {
   type BackendOrderPayload,
   type DeliverySummaryPayload,
 } from '../../services/gowarApi';
+import type { DeliveryShiftStatusResponse } from '../../types';
 import { formatDateTime, formatEGP } from '../../utils/i18n';
 
 interface DeliveryDashboardPageProps {
@@ -29,7 +33,7 @@ interface DeliveryDashboardPageProps {
 export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
   presetStatus = 'all',
 }) => {
-  const { language, t } = useApp();
+  const { language, t, showToast } = useApp();
 
   const [summary, setSummary] = useState<DeliverySummaryPayload>({
     new_assigned: 0,
@@ -49,6 +53,85 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Shift & Explicit Location Sharing state
+  const [shiftStatus, setShiftStatus] = useState<DeliveryShiftStatusResponse | null>(null);
+  const [shiftBusy, setShiftBusy] = useState(false);
+  const [sharingActive, setSharingActive] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const watchIdRef = useRef<number | null>(null);
+  const lastSentAtRef = useRef<number>(0);
+
+  const stopLocationWatch = useCallback(async (notifyServer = true) => {
+    if (watchIdRef.current !== null && typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    setSharingActive(false);
+    if (notifyServer) {
+      try {
+        await deliveryApi.updateLocation({ is_sharing: false });
+      } catch {
+        // Best-effort stop signal
+      }
+    }
+  }, []);
+
+  const startLocationSharing = useCallback(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setLocationError(
+        t('متصفحك لا يدعم تحديد الموقع الجغرافي', 'Geolocation is not supported on this device')
+      );
+      return;
+    }
+    setLocationError(null);
+    setSharingActive(true);
+    lastSentAtRef.current = 0;
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      async (pos) => {
+        const nowMs = Date.now();
+        if (nowMs - lastSentAtRef.current < 15000) return;
+        lastSentAtRef.current = nowMs;
+        try {
+          const res = await deliveryApi.updateLocation({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy_m: pos.coords.accuracy,
+            is_sharing: true,
+          });
+          setShiftStatus((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  is_location_sharing: res.is_location_sharing,
+                  last_location_at: res.last_location_at,
+                }
+              : prev
+          );
+        } catch {
+          // Ignore transient network hiccups during periodic updates
+        }
+      },
+      (geoErr) => {
+        const msg =
+          geoErr.code === geoErr.PERMISSION_DENIED
+            ? t('تم رفض صلاحية الموقع. فعّل إذن الموقع من المتصفح للمشاركة.', 'Location permission denied.')
+            : t('تعذر الحصول على إشارة GPS حالياً.', 'GPS location currently unavailable.');
+        setLocationError(msg);
+        void stopLocationWatch(true);
+      },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+    );
+  }, [stopLocationWatch, t]);
+
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null && typeof navigator !== 'undefined' && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     setStatusFilter(
       presetStatus === 'in_progress'
@@ -63,15 +146,17 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const [sumRes, ordersRes] = await Promise.all([
+      const [sumRes, ordersRes, shiftRes] = await Promise.all([
         deliveryApi.fetchSummary(),
         deliveryApi.fetchOrders({
           order_status: statusFilter !== 'all' ? statusFilter : undefined,
           date: dateFilter !== 'all' ? dateFilter : undefined,
         }),
+        deliveryApi.fetchShiftStatus().catch(() => null),
       ]);
       setSummary(sumRes);
       setOrders(ordersRes.results || []);
+      if (shiftRes) setShiftStatus(shiftRes);
     } catch (err) {
       setError(
         err instanceof Error
@@ -169,6 +254,115 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
           <span>{t('تحديث', 'Refresh')}</span>
         </button>
       </div>
+
+      {/* Shift & Explicit Live Location Sharing */}
+      {shiftStatus?.has_profile && (
+        <div className="bg-white rounded-2xl border border-[#EAE6E1] p-4 shadow-2xs space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="text-sm font-extrabold text-[#1C1917] flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[#D6450D]" />
+                <span>
+                  {shiftStatus.is_on_shift
+                    ? t('المناوبة نشطة الآن', 'Shift Active')
+                    : t('لم تبدأ المناوبة بعد', 'Off Shift')}
+                </span>
+                <span className="text-xs font-semibold text-[#6E6A66]">
+                  ({shiftStatus.working_minutes_today} {t('دقيقة اليوم', 'min today')})
+                </span>
+              </div>
+              {shiftStatus.last_location_at && (
+                <div className="text-[11px] text-[#6E6A66]">
+                  {t('آخر موقع مرسل:', 'Last location sent:')}{' '}
+                  {formatDateTime(shiftStatus.last_location_at, language)}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {!shiftStatus.is_on_shift ? (
+                <button
+                  type="button"
+                  disabled={shiftBusy}
+                  onClick={async () => {
+                    setShiftBusy(true);
+                    try {
+                      await deliveryApi.startShift();
+                      showToast(t('تم بدء المناوبة', 'Shift started'), 'success');
+                      await loadData();
+                    } catch (err) {
+                      showToast(
+                        err instanceof Error ? err.message : t('تعذر بدء المناوبة', 'Failed to start shift'),
+                        'error'
+                      );
+                    } finally {
+                      setShiftBusy(false);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold disabled:opacity-60"
+                >
+                  <Play className="w-3.5 h-3.5" />
+                  <span>{t('بدء المناوبة', 'Start Shift')}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={shiftBusy}
+                  onClick={async () => {
+                    setShiftBusy(true);
+                    try {
+                      await stopLocationWatch(false);
+                      await deliveryApi.endShift();
+                      showToast(t('تم إنهاء المناوبة وإيقاف مشاركة الموقع', 'Shift ended'), 'success');
+                      await loadData();
+                    } catch (err) {
+                      showToast(
+                        err instanceof Error ? err.message : t('تعذر إنهاء المناوبة', 'Failed to end shift'),
+                        'error'
+                      );
+                    } finally {
+                      setShiftBusy(false);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold disabled:opacity-60"
+                >
+                  <Square className="w-3.5 h-3.5" />
+                  <span>{t('إنهاء المناوبة', 'End Shift')}</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (sharingActive) {
+                    void stopLocationWatch(true);
+                  } else {
+                    startLocationSharing();
+                  }
+                }}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold border transition-colors ${
+                  sharingActive
+                    ? 'bg-[#FFF2EB] border-[#D6450D] text-[#D6450D]'
+                    : 'bg-[#FAF9F7] border-[#EAE6E1] text-[#1C1917] hover:border-[#D6450D]'
+                }`}
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                <span>
+                  {sharingActive
+                    ? t('إيقاف مشاركة الموقع', 'Stop Sharing GPS')
+                    : t('مشاركة الموقع المباشر', 'Share Live GPS')}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {locationError && (
+            <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+              {locationError}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

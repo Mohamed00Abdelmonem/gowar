@@ -53,6 +53,8 @@ LOCAL_APPS = [
     "apps.notifications",
     "apps.analytics",
     "apps.platform_settings",
+    "apps.delivery",
+    "apps.promotions",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -216,6 +218,7 @@ GOWAR_RANKING_WEIGHTS = {
 VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY", "").strip()
 VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY", "").strip()
 VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "mailto:admin@gowar.local").strip()
+
 
 
 

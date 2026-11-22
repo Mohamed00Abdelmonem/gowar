@@ -36,6 +36,10 @@ import { MerchantProductFormPage } from './pages/merchant/MerchantProductFormPag
 import { MerchantCategoriesPage } from './pages/merchant/MerchantCategoriesPage';
 import { MerchantInventoryPage } from './pages/merchant/MerchantInventoryPage';
 import { MerchantDeliveryPage } from './pages/merchant/MerchantDeliveryPage';
+import { MerchantDeliveryOverviewPage } from './pages/merchant/delivery/MerchantDeliveryOverviewPage';
+import { MerchantDeliveryPersonnelPage } from './pages/merchant/delivery/MerchantDeliveryPersonnelPage';
+import { MerchantDeliveryTrackingPage } from './pages/merchant/delivery/MerchantDeliveryTrackingPage';
+import { MerchantDeliveryPerformancePage } from './pages/merchant/delivery/MerchantDeliveryPerformancePage';
 import { MerchantStoreSettingsPage } from './pages/merchant/MerchantStoreSettingsPage';
 import { MerchantAnalyticsPage } from './pages/merchant/MerchantAnalyticsPage';
 import { MerchantCustomersPage } from './pages/merchant/MerchantCustomersPage';
@@ -59,6 +63,7 @@ import { AdminAreasPage } from './pages/admin/AdminAreasPage';
 import { AdminCommissionsPage } from './pages/admin/AdminCommissionsPage';
 import { AdminReportsPage } from './pages/admin/AdminReportsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
+import { AdminPromotionsPage } from './pages/admin/AdminPromotionsPage';
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -141,6 +146,10 @@ export function App() {
             <Route path="analytics" element={<MerchantAnalyticsPage />} />
             <Route path="customers" element={<MerchantCustomersPage />} />
             <Route path="delivery" element={<MerchantDeliveryPage />} />
+            <Route path="delivery-management" element={<MerchantDeliveryOverviewPage />} />
+            <Route path="delivery-management/personnel" element={<MerchantDeliveryPersonnelPage />} />
+            <Route path="delivery-management/tracking" element={<MerchantDeliveryTrackingPage />} />
+            <Route path="delivery-management/performance" element={<MerchantDeliveryPerformancePage />} />
             <Route path="settings" element={<MerchantStoreSettingsPage />} />
             <Route path="store-settings" element={<MerchantStoreSettingsPage />} />
           </Route>
@@ -162,6 +171,7 @@ export function App() {
             <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="commissions" element={<AdminCommissionsPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
+            <Route path="promotions" element={<AdminPromotionsPage />} />
             <Route path="areas" element={<AdminAreasPage />} />
             <Route path="reports" element={<AdminReportsPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />

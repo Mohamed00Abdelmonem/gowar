@@ -8,12 +8,15 @@ import {
   Phone,
   Play,
   Truck,
+  UserCheck,
   X,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { EmptyState } from '../../components/common/EmptyState';
 import { Modal } from '../../components/common/Modal';
 import { SafeImage } from '../../components/common/SafeImage';
+import { IS_BACKEND_API_ENABLED } from '../../services/apiClient';
+import { merchantDeliveryApi, type AssignableDriverOption } from '../../services/gowarApi';
 import { formatDateTime, formatEGP, getOrderStatusMeta } from '../../utils/i18n';
 import type { Order, OrderStatus } from '../../types';
 
@@ -42,12 +45,52 @@ export const MerchantOrdersPage: React.FC = () => {
     orders,
     updateOrderStatus,
     advanceOrderPipeline,
+    showToast,
   } = useApp();
 
   const [tab, setTab] = useState<'all' | 'pending' | 'accepted' | 'preparing' | 'out_for_delivery' | 'delivered' | 'cancelled'>('all');
   const [rejectModalOrder, setRejectModalOrder] = useState<Order | null>(null);
   const [rejectReason, setRejectReason] = useState(REJECT_REASONS_AR[0]);
   const [autoRunningOrderId, setAutoRunningOrderId] = useState<string | null>(null);
+  const [assignModalOrder, setAssignModalOrder] = useState<Order | null>(null);
+  const [assignableDrivers, setAssignableDrivers] = useState<AssignableDriverOption[]>([]);
+  const [driversLoading, setDriversLoading] = useState(false);
+  const [assigningDriverId, setAssigningDriverId] = useState<string | null>(null);
+
+  const openAssignModal = async (order: Order) => {
+    setAssignModalOrder(order);
+    if (!IS_BACKEND_API_ENABLED) return;
+    setDriversLoading(true);
+    try {
+      const list = await merchantDeliveryApi.listAssignableDrivers();
+      setAssignableDrivers(list);
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : t('تعذر تحميل قائمة المناديب', 'Failed to load drivers'),
+        'error'
+      );
+      setAssignableDrivers([]);
+    } finally {
+      setDriversLoading(false);
+    }
+  };
+
+  const handleAssignDriver = async (driverUserId: string) => {
+    if (!assignModalOrder) return;
+    setAssigningDriverId(driverUserId);
+    try {
+      await merchantDeliveryApi.assignOrder(assignModalOrder.id, driverUserId);
+      showToast(t('تم إسناد الطلب للمندوب بنجاح', 'Order assigned to driver'), 'success');
+      setAssignModalOrder(null);
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : t('تعذر إسناد الطلب', 'Failed to assign order'),
+        'error'
+      );
+    } finally {
+      setAssigningDriverId(null);
+    }
+  };
 
   const storeOrders = useMemo(
     () => orders.filter((o) => o.merchantId === activeMerchant.id),
@@ -145,14 +188,26 @@ export const MerchantOrdersPage: React.FC = () => {
     const nextAction = nextActionMap[order.status];
     if (nextAction) {
       return (
-        <button
-          type="button"
-          onClick={() => updateOrderStatus(order.id, nextAction.next)}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
-        >
-          <Truck className="w-3.5 h-3.5" />
-          <span>{nextAction.label}</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {IS_BACKEND_API_ENABLED && (
+            <button
+              type="button"
+              onClick={() => void openAssignModal(order)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE6E1] bg-white hover:border-[#D6450D] text-xs font-bold text-[#1C1917]"
+            >
+              <UserCheck className="w-3.5 h-3.5 text-[#D6450D]" />
+              <span>{t('إسناد لمندوب', 'Assign Driver')}</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => updateOrderStatus(order.id, nextAction.next)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-bold"
+          >
+            <Truck className="w-3.5 h-3.5" />
+            <span>{nextAction.label}</span>
+          </button>
+        </div>
       );
     }
 
@@ -503,6 +558,71 @@ export const MerchantOrdersPage: React.FC = () => {
               {t('تأكيد الرفض', 'Confirm Rejection')}
             </button>
           </div>
+        </div>
+      </Modal>
+
+      {/* Assign / Reassign Delivery Driver Modal */}
+      <Modal
+        open={Boolean(assignModalOrder)}
+        onClose={() => setAssignModalOrder(null)}
+        title={t('إسناد الطلب لمندوب توصيل', 'Assign Order to Delivery Driver')}
+        maxWidthClass="max-w-md"
+      >
+        <div className="space-y-3">
+          {assignModalOrder && (
+            <div className="p-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-xs">
+              <div className="font-bold text-[#1C1917]">
+                {t('طلب رقم:', 'Order #')} {assignModalOrder.orderNumber}
+              </div>
+              <div className="text-[#6E6A66] mt-0.5">
+                {language === 'ar'
+                  ? assignModalOrder.deliveryAddressAr
+                  : assignModalOrder.deliveryAddressEn}
+              </div>
+            </div>
+          )}
+
+          {driversLoading ? (
+            <div className="py-6 text-center text-xs text-[#6E6A66]">
+              {t('جاري تحميل مناديب متجرك...', 'Loading your delivery team...')}
+            </div>
+          ) : assignableDrivers.length === 0 ? (
+            <div className="py-6 text-center text-xs text-[#6E6A66]">
+              {t(
+                'لا يوجد مناديب نشطين في فريقك حالياً. أضف مندوباً من قسم إدارة التوصيل.',
+                'No active drivers in your team yet. Add a driver in Delivery Management.'
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-72 overflow-y-auto">
+              {assignableDrivers.map((drv) => (
+                <div
+                  key={drv.id}
+                  className="flex items-center justify-between gap-2 p-3 rounded-xl border border-[#EAE6E1] bg-white"
+                >
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold text-[#1C1917] truncate">
+                      {drv.full_name}
+                    </div>
+                    <div className="text-[11px] text-[#6E6A66]">
+                      {drv.phone_number} • {t('طلبات نشطة:', 'Active:')} {drv.active_orders_count} •{' '}
+                      <span className="font-semibold">{drv.operational_status}</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={assigningDriverId === drv.id}
+                    onClick={() => void handleAssignDriver(drv.id)}
+                    className="px-3.5 py-2 rounded-xl bg-[#D6450D] hover:bg-[#B33808] text-white text-xs font-extrabold shrink-0 disabled:opacity-60"
+                  >
+                    {assigningDriverId === drv.id
+                      ? t('جاري الإسناد...', 'Assigning...')
+                      : t('إسناد', 'Assign')}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </Modal>
     </div>

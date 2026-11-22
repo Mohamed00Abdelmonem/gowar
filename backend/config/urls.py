@@ -15,7 +15,9 @@ from rest_framework.views import APIView
 
 from apps.analytics import urls as analytics_urls
 from apps.catalog import urls as catalog_urls
+from apps.delivery import urls as delivery_urls
 from apps.orders import urls as orders_urls
+from apps.promotions import urls as promotions_urls
 from apps.stores import urls as stores_urls
 
 logger = logging.getLogger(__name__)
@@ -60,6 +62,7 @@ api_v1_patterns = [
     path("locations/", include("apps.locations.urls")),
     path("stores/", include(stores_urls.public_urlpatterns)),
     path("catalog/", include(catalog_urls.public_urlpatterns)),
+    path("promotions/", include(promotions_urls.public_urlpatterns)),
     path("cart/", include("apps.cart.urls")),
     path("orders/", include(orders_urls.customer_urlpatterns)),
     path("reviews/", include("apps.reviews.urls")),
@@ -71,11 +74,12 @@ api_v1_patterns = [
             + catalog_urls.merchant_urlpatterns
             + orders_urls.merchant_urlpatterns
             + analytics_urls.merchant_urlpatterns
+            + delivery_urls.merchant_urlpatterns
             + [path("", include("apps.inventory.urls"))]
         ),
     ),
-    path("admin/", include(analytics_urls.admin_urlpatterns)),
-    path("delivery/", include(orders_urls.delivery_urlpatterns)),
+    path("admin/", include(analytics_urls.admin_urlpatterns + promotions_urls.admin_urlpatterns)),
+    path("delivery/", include(orders_urls.delivery_urlpatterns + delivery_urls.delivery_urlpatterns)),
 ]
 
 urlpatterns = [

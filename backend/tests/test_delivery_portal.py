@@ -2,12 +2,14 @@ import pytest
 from django.utils import timezone
 
 from apps.accounts.models import User, UserRole
+from apps.delivery.models import DeliveryDriverProfile
 from apps.notifications.models import Notification
 from apps.orders.models import Order, OrderStatusChoices
 
 
 @pytest.fixture
-def delivery_users(db):
+def delivery_users(db, merchants_and_stores):
+    merchant = merchants_and_stores["s1"].merchant
     d1 = User.objects.create_user(
         email="driver1@gowar.test",
         password="DriverPassword123!",
@@ -17,6 +19,7 @@ def delivery_users(db):
         role=UserRole.DELIVERY,
         is_verified=True,
     )
+    DeliveryDriverProfile.objects.create(user=d1, merchant=merchant)
     d2 = User.objects.create_user(
         email="driver2@gowar.test",
         password="DriverPassword123!",
@@ -26,6 +29,7 @@ def delivery_users(db):
         role=UserRole.DELIVERY,
         is_verified=True,
     )
+    DeliveryDriverProfile.objects.create(user=d2, merchant=merchant)
     return {"d1": d1, "d2": d2}
 
 
@@ -116,7 +120,7 @@ def test_delivery_assignment_visibility_isolation_and_lifecycle_transitions(
         format="json",
     )
     assert assign_res.status_code == 200
-    assert assign_res.data["assigned_delivery_person"] == str(d1.id)
+    assert str(assign_res.data["assigned_delivery_person"]) == str(d1.id)
 
     # 3. d2 cannot view or transition d1's order
     api_client.force_authenticate(user=d2)
@@ -172,7 +176,7 @@ def test_delivery_assignment_visibility_isolation_and_lifecycle_transitions(
     assert done_res.status_code == 200
     assert done_res.data["order_status"] == OrderStatusChoices.DELIVERED
     assert done_res.data["payment_status"] == "paid"
-    assert done_res.data["delivered_by"] == str(d1.id)
+    assert str(done_res.data["delivered_by"]) == str(d1.id)
     assert done_res.data["delivered_at"] is not None
 
     order = Order.objects.get(pk=order_id)

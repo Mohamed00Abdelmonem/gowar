@@ -155,26 +155,36 @@ class MerchantDeliveryDriversListView(APIView):
     permission_classes = [IsMerchant]
 
     def get(self, request):
-        drivers = User.objects.filter(role=UserRole.DELIVERY, is_active=True).order_by(
-            "first_name", "last_name"
-        )
-        return Response(
-            [
-                {
-                    "id": str(d.id),
-                    "full_name": d.full_name or d.email,
-                    "phone_number": d.phone_number,
-                    "email": d.email,
-                }
-                for d in drivers
-            ]
-        )
+        from apps.delivery.services import build_merchant_drivers_snapshot
+
+        profile = getattr(request.user, "merchant_profile", None)
+        if not profile:
+            return Response([], status=status.HTTP_200_OK)
+
+        snapshot = build_merchant_drivers_snapshot(profile)
+        active_drivers = [
+            {
+                "id": d["user_id"],
+                "profile_id": d["id"],
+                "full_name": d["full_name"],
+                "phone_number": d["phone_number"],
+                "email": d["email"],
+                "operational_status": d["operational_status"],
+                "active_orders_count": d["active_orders_count"],
+                "last_seen_at": d["last_seen_at"],
+            }
+            for d in snapshot
+            if d["is_active"] and not d["is_archived"]
+        ]
+        return Response(active_drivers)
 
 
 class MerchantAssignDeliveryView(APIView):
     permission_classes = [IsMerchant]
 
     def post(self, request, pk):
+        from apps.delivery.models import DeliveryDriverProfile
+
         profile = getattr(request.user, "merchant_profile", None)
         order = Order.objects.filter(pk=pk).first()
         if not order:
@@ -198,6 +208,18 @@ class MerchantAssignDeliveryView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        driver_profile = DeliveryDriverProfile.objects.filter(
+            user=delivery_user,
+            merchant=profile,
+            is_active=True,
+            is_archived=False,
+        ).first()
+        if not driver_profile:
+            return Response(
+                {"detail": "Delivery person does not belong to your merchant team or is inactive."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         try:
             updated = assign_order_to_delivery(
                 order_id=order.id,
@@ -216,6 +238,9 @@ class DeliverySummaryView(APIView):
     permission_classes = [IsDelivery]
 
     def get(self, request):
+        from apps.delivery.services import touch_driver_activity
+
+        touch_driver_activity(request.user)
         base_qs = Order.objects.filter(assigned_delivery_person=request.user)
         return Response(
             {

@@ -8,11 +8,14 @@ import {
   Globe,
   LayoutDashboard,
   LogOut,
+  MapPin,
   Menu,
   Package,
   Power,
   Store,
+  TrendingUp,
   Truck,
+  UserCheck,
   Users,
   X,
 } from 'lucide-react';
@@ -167,6 +170,58 @@ export const MerchantLayout: React.FC = () => {
                 </NavLink>
               );
             })}
+
+            <div className="pt-3 mt-3 border-t border-[#EAE6E1]">
+              <div className="px-3.5 pb-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[#6E6A66]">
+                {t('إدارة التوصيل', 'Delivery Management')}
+              </div>
+              {[
+                {
+                  to: '/merchant/delivery-management',
+                  end: true,
+                  icon: Truck,
+                  label: t('نظرة عامة', 'Overview'),
+                },
+                {
+                  to: '/merchant/delivery-management/personnel',
+                  end: false,
+                  icon: UserCheck,
+                  label: t('مناديب التوصيل', 'Delivery Personnel'),
+                },
+                {
+                  to: '/merchant/delivery-management/tracking',
+                  end: false,
+                  icon: MapPin,
+                  label: t('التتبع المباشر', 'Live Tracking'),
+                },
+                {
+                  to: '/merchant/delivery-management/performance',
+                  end: false,
+                  icon: TrendingUp,
+                  label: t('الأداء اليومي', 'Performance'),
+                },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    onClick={() => setSidebarOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        isActive
+                          ? 'bg-[#D6450D] text-white shadow-xs'
+                          : 'text-[#1C1917] hover:bg-[#FFF2EB] hover:text-[#D6450D]'
+                      }`
+                    }
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{item.label}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
           </nav>
 
           <div className="p-3 border-t border-[#EAE6E1] space-y-2">
