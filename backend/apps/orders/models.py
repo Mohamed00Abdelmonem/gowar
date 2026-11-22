@@ -65,6 +65,7 @@ class Order(UUIDTimeStampedModel):
         indexes = [
             models.Index(fields=["store", "order_status", "created_at"]),
             models.Index(fields=["customer", "created_at"]),
+            models.Index(fields=["customer", "store", "order_status", "created_at"]),
             models.Index(fields=["order_status", "created_at"]),
         ]
 

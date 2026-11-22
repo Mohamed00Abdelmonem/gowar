@@ -249,3 +249,25 @@ test('Mansoura is inferred as active area, inactive areas are skipped, and unsup
   );
   assert.equal(aswanCoverage.isSupported, false);
 });
+
+test('filterNearbyStores boosts previously ordered open stores while preserving proximity fairness', () => {
+  const customer = { lat: 31.0409, lng: 31.3785 };
+  const storeA = makeMerchant({
+    id: 'store-prev-2km',
+    isOpen: true,
+    customerCompletedOrdersCount: 2,
+    coordinates: { lat: 31.054, lng: 31.392 }, // ~1.9 km away
+  });
+  const storeB = makeMerchant({
+    id: 'store-new-500m',
+    isOpen: true,
+    customerCompletedOrdersCount: 0,
+    coordinates: { lat: 31.0435, lng: 31.381 }, // ~0.37 km away
+  });
+
+  const ranked = filterNearbyStores([storeB, storeA], customer, 5, 'nearest');
+  assert.deepEqual(
+    ranked.map((r) => r.merchant.id),
+    ['store-prev-2km', 'store-new-500m']
+  );
+});

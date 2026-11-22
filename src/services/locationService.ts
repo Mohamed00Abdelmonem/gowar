@@ -143,6 +143,16 @@ export function filterNearbyStores(
         a.distanceKm - b.distanceKm
       );
     }
+    const aOrders = a.merchant.isOpen ? (a.merchant.customerCompletedOrdersCount ?? 0) : 0;
+    const bOrders = b.merchant.isOpen ? (b.merchant.customerCompletedOrdersCount ?? 0) : 0;
+    if (aOrders !== bOrders && (aOrders > 0 || bOrders > 0)) {
+      const score = (orders: number, distKm: number) => {
+        const proximity = Math.max(0, 1 - distKm / Math.max(1, searchRadiusKm)) * 40;
+        const rel = orders > 0 ? 25 + Math.min(20, (orders - 1) * 5) : 0;
+        return proximity + rel;
+      };
+      return score(bOrders, b.distanceKm) - score(aOrders, a.distanceKm) || a.distanceKm - b.distanceKm;
+    }
     return a.distanceKm - b.distanceKm;
   });
 }

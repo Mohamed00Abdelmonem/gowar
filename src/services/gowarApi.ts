@@ -190,6 +190,8 @@ export interface BackendStorePayload {
   distance_km?: number | null;
   delivery_available?: boolean;
   delivery_status?: string;
+  customer_completed_orders_count?: number;
+  is_previously_ordered?: boolean;
 }
 
 export function mapBackendStoreToMerchant(s: BackendStorePayload): Merchant {
@@ -215,6 +217,8 @@ export function mapBackendStoreToMerchant(s: BackendStorePayload): Merchant {
     status: s.approval_status ?? 'approved',
     verified: (s.approval_status ?? 'approved') === 'approved',
     commissionRate: Number(s.commission_rate ?? 5),
+    customerCompletedOrdersCount: Number(s.customer_completed_orders_count ?? 0),
+    isPreviouslyOrdered: Boolean(s.is_previously_ordered),
     createdAt: new Date().toISOString(),
     categoryIds: [],
     coordinates: {

@@ -72,6 +72,8 @@ export interface Merchant {
   status: MerchantStatus;
   verified: boolean;
   commissionRate: number; // percentage e.g. 8
+  customerCompletedOrdersCount?: number;
+  isPreviouslyOrdered?: boolean;
   createdAt: string;
   isRecentlyAdded?: boolean;
   isPopular?: boolean;

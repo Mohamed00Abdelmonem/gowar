@@ -10,6 +10,8 @@ class StorePublicSerializer(serializers.ModelSerializer):
     delivery_available = serializers.SerializerMethodField()
     delivery_status = serializers.SerializerMethodField()
     distance_type = serializers.SerializerMethodField()
+    customer_completed_orders_count = serializers.SerializerMethodField()
+    is_previously_ordered = serializers.SerializerMethodField()
 
     class Meta:
         model = Store
@@ -48,6 +50,8 @@ class StorePublicSerializer(serializers.ModelSerializer):
             "delivery_available",
             "delivery_status",
             "distance_type",
+            "customer_completed_orders_count",
+            "is_previously_ordered",
         ]
 
     def _dist_m(self, obj: Store) -> int | None:
@@ -83,6 +87,12 @@ class StorePublicSerializer(serializers.ModelSerializer):
 
     def get_distance_type(self, obj: Store) -> str:
         return "straight_line_approximate"
+
+    def get_customer_completed_orders_count(self, obj: Store) -> int:
+        return int(getattr(obj, "customer_completed_orders", 0) or 0)
+
+    def get_is_previously_ordered(self, obj: Store) -> bool:
+        return self.get_customer_completed_orders_count(obj) > 0
 
 
 class MerchantStoreSettingsSerializer(serializers.ModelSerializer):

@@ -201,7 +201,21 @@ GOWAR_DEFAULT_SEARCH_RADIUS_KM = 3
 GOWAR_MIN_SEARCH_RADIUS_KM = 1
 GOWAR_MAX_SEARCH_RADIUS_KM = 20
 
+# Personalized nearby store ranking weights (configurable via environment)
+GOWAR_RANKING_WEIGHTS = {
+    "previous_relationship": float(os.environ.get("RANKING_WEIGHT_RELATIONSHIP", "25")),
+    "repeat_orders_max": float(os.environ.get("RANKING_WEIGHT_REPEAT_MAX", "20")),
+    "repeat_orders_step": float(os.environ.get("RANKING_WEIGHT_REPEAT_STEP", "5")),
+    "recency_max": float(os.environ.get("RANKING_WEIGHT_RECENCY_MAX", "15")),
+    "recency_window_days": int(os.environ.get("RANKING_RECENCY_WINDOW_DAYS", "30")),
+    "proximity_max": float(os.environ.get("RANKING_WEIGHT_PROXIMITY_MAX", "40")),
+    "max_eligible_distance_km": float(os.environ.get("RANKING_MAX_ELIGIBLE_KM", "20")),
+}
+
 # Web Push (VAPID) configuration
 VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY", "").strip()
 VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY", "").strip()
 VAPID_CLAIMS_EMAIL = os.environ.get("VAPID_CLAIMS_EMAIL", "mailto:admin@gowar.local").strip()
+
+
+

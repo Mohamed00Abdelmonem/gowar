@@ -59,6 +59,16 @@ export const StoreCard: React.FC<StoreCardProps> = ({
           <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/95 text-[#1C1917] shadow-xs">
             {getStoreTypeLabel(merchant.type, language)}
           </span>
+          {(merchant.customerCompletedOrdersCount ?? 0) > 0 && (
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#FFF2EB] text-[#D6450D] border border-[#FBD8C5] shadow-xs">
+              {(merchant.customerCompletedOrdersCount ?? 0) > 1
+                ? t(
+                    `طلبت منه ${merchant.customerCompletedOrdersCount} مرات`,
+                    `Ordered ${merchant.customerCompletedOrdersCount} times`
+                  )
+                : t('طلبت منه قبل كده', 'Your Previous Store')}
+            </span>
+          )}
           {availability.deliveryStatus === 'outside_delivery_area' && (
             <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 shadow-xs">
               {t('خارج نطاق التوصيل', 'Outside delivery area')}

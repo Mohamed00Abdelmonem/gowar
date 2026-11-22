@@ -54,6 +54,7 @@ class NearbyStoresListView(generics.ListAPIView):
             category_id=category_id,
             search=search,
             sort=sort,
+            customer=request.user,
         )
         page = self.paginate_queryset(queryset)
         if page is not None:
