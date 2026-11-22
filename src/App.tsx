@@ -63,6 +63,7 @@ import { AdminAreasPage } from './pages/admin/AdminAreasPage';
 import { AdminCommissionsPage } from './pages/admin/AdminCommissionsPage';
 import { AdminReportsPage } from './pages/admin/AdminReportsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
+import { AdminPromotionsPage } from './pages/admin/AdminPromotionsPage';
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -170,6 +171,7 @@ export function App() {
             <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="commissions" element={<AdminCommissionsPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
+            <Route path="promotions" element={<AdminPromotionsPage />} />
             <Route path="areas" element={<AdminAreasPage />} />
             <Route path="reports" element={<AdminReportsPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
