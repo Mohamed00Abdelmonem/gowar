@@ -687,15 +687,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Poll live notifications & orders every 8s when authenticated in Backend mode
+  // Poll live notifications & orders every 1.5s when visible (plus instant refresh on push/focus)
   useEffect(() => {
     if (!IS_BACKEND_API_ENABLED) return;
+    let inFlight = false;
     const poll = async () => {
+      if (inFlight) return;
       if (!getAccessToken()) return;
       const apiUser = getStoredApiUser();
       const role = authSession?.role ?? apiUser?.role;
       if (role !== 'customer' && role !== 'merchant') return;
 
+      inFlight = true;
       try {
         const res = await marketplaceApi.fetchNotifications();
         const mapped = res.results.map((n) => mapBackendNotification(n, role));
@@ -728,13 +731,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setState((prev) => ({ ...prev, notifications: mapped }));
       } catch {
         // Ignore transient polling failures
+      } finally {
+        inFlight = false;
       }
     };
 
     const id = window.setInterval(() => {
-      void poll();
-    }, 8000);
-    return () => window.clearInterval(id);
+      if (document.visibilityState === 'visible') {
+        void poll();
+      }
+    }, 1500);
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        void poll();
+      }
+    };
+    const handleSwMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'GOWAR_PUSH_RECEIVED') {
+        void poll();
+      }
+    };
+
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    navigator.serviceWorker?.addEventListener?.('message', handleSwMessage);
+
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      navigator.serviceWorker?.removeEventListener?.('message', handleSwMessage);
+    };
   }, [authSession?.role, showToast, state.language]);
 
   const setLanguage = (language: Language) => setState((prev) => ({ ...prev, language }));

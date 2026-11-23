@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gowar-pwa-v2';
+const CACHE_NAME = 'gowar-pwa-v3';
 const APP_SHELL_URLS = [
   '/',
   '/index.html',
@@ -118,7 +118,19 @@ self.addEventListener('push', (event) => {
     data: { url: targetUrl },
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(title, options),
+      self.clients
+        .matchAll({ type: 'window', includeUncontrolled: true })
+        .then((clientList) => {
+          for (const client of clientList) {
+            client.postMessage({ type: 'GOWAR_PUSH_RECEIVED', payload });
+          }
+        })
+        .catch(() => undefined),
+    ])
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {

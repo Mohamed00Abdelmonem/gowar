@@ -53,6 +53,8 @@ def _send_single_push(subscription_id: str, payload_ar: dict, payload_en: dict) 
             vapid_private_key=vapid_private_key,
             vapid_claims=claims,
             ttl=3600,
+            headers={"Urgency": "high"},
+            timeout=5,
         )
         PushSubscription.objects.filter(pk=sub.pk).update(last_used_at=timezone.now())
     except WebPushException as exc:
@@ -116,17 +118,19 @@ def dispatch_push_to_user(
         "tag": tag or "gowar-notification",
     }
 
-    def _run_all():
+    # Run synchronously during pytest / explicit sync mode, and in parallel daemon threads in production
+    # so order creation/transition API responses are never delayed and slow endpoints don't block other devices.
+    if os.environ.get("PYTEST_CURRENT_TEST") or getattr(settings, "WEB_PUSH_SYNC", False):
         for sid in sub_ids:
             _send_single_push(str(sid), payload_ar, payload_en)
-
-    # Run synchronously during pytest / explicit sync mode, and in a daemon thread in production
-    # so order creation/transition API responses are never delayed by external push providers.
-    if os.environ.get("PYTEST_CURRENT_TEST") or getattr(settings, "WEB_PUSH_SYNC", False):
-        _run_all()
     else:
-        thread = threading.Thread(target=_run_all, daemon=True)
-        thread.start()
+        for sid in sub_ids:
+            thread = threading.Thread(
+                target=_send_single_push,
+                args=(str(sid), payload_ar, payload_en),
+                daemon=True,
+            )
+            thread.start()
 
 
 def create_and_dispatch_notification(
