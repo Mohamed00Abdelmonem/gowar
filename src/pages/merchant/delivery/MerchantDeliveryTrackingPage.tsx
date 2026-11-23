@@ -10,6 +10,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
+import { addStreetTileLayer } from '../../../utils/leafletTiles';
 import { merchantDeliveryApi } from '../../../services/gowarApi';
 import type { MerchantDeliveryDriver } from '../../../types';
 import {
@@ -60,9 +61,7 @@ export const MerchantDeliveryTrackingPage: React.FC = () => {
     const centerLat = activeMerchant?.coordinates?.lat ?? 31.0409;
     const centerLng = activeMerchant?.coordinates?.lng ?? 31.3785;
     const map = L.map(mapContainerRef.current).setView([centerLat, centerLng], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-    }).addTo(map);
+    addStreetTileLayer(map);
     const layer = L.layerGroup().addTo(map);
     mapRef.current = map;
     markersLayerRef.current = layer;

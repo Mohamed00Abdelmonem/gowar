@@ -15,6 +15,7 @@ import {
   Truck,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { addStreetTileLayer } from '../../utils/leafletTiles';
 import { Modal } from '../../components/common/Modal';
 import { deliveryApi, type BackendOrderPayload } from '../../services/gowarApi';
 import { buildGoogleMapsDirectionsUrl } from '../../services/locationService';
@@ -73,10 +74,7 @@ export const DeliveryOrderDetailPage: React.FC = () => {
       zoom: 16,
       zoomControl: true,
     });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 19,
-    }).addTo(map);
+    addStreetTileLayer(map);
     L.circleMarker([numericLat, numericLng], {
       radius: 9,
       color: '#FFFFFF',

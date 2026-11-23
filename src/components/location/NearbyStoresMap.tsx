@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
 import { useApp } from '../../context/AppContext';
+import { addStreetTileLayer } from '../../utils/leafletTiles';
 import {
   formatDistanceAway,
   type EvaluatedStore,
@@ -53,10 +54,7 @@ export const NearbyStoresMap: React.FC<NearbyStoresMapProps> = ({ stores }) => {
       zoomControl: true,
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 19,
-    }).addTo(map);
+    addStreetTileLayer(map);
 
     const group = L.layerGroup().addTo(map);
     mapRef.current = map;

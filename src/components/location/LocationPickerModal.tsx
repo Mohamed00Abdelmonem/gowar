@@ -10,6 +10,7 @@ import {
   Search,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { addStreetTileLayer } from '../../utils/leafletTiles';
 import { Modal } from '../common/Modal';
 import {
   evaluateCoverageSupport,
@@ -160,10 +161,7 @@ export const LocationPickerModal: React.FC<LocationPickerModalProps> = ({
       zoomControl: true,
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap',
-      maxZoom: 19,
-    }).addTo(map);
+    addStreetTileLayer(map);
 
     const marker = L.marker([customerLocation.lat, customerLocation.lng], {
       draggable: true,

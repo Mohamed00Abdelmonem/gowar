@@ -10,6 +10,7 @@ import {
   X,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { addStreetTileLayer } from '../../utils/leafletTiles';
 import {
   reverseGeocodeCoordinates,
   searchEgyptAddresses,
@@ -77,6 +78,7 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
   editingRef.current = editing;
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const preEditCoordsRef = useRef(coordinates);
 
   useEffect(() => {
     setDraft({ lat: coordinates.lat, lng: coordinates.lng });
@@ -117,10 +119,7 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
       zoomControl: true,
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19,
-    }).addTo(map);
+    addStreetTileLayer(map);
 
     const circle = L.circle([coordinates.lat, coordinates.lng], {
       radius: Math.max(500, deliveryRadiusKm * 1000),
@@ -152,9 +151,17 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
     circleRef.current = circle;
 
     const timer = window.setTimeout(() => map.invalidateSize(), 120);
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined' && containerRef.current
+        ? new ResizeObserver(() => map.invalidateSize())
+        : null;
+    if (resizeObserver && containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
 
     return () => {
       window.clearTimeout(timer);
+      resizeObserver?.disconnect();
       reverseAbortRef.current?.abort();
       searchAbortRef.current?.abort();
       map.remove();
@@ -182,6 +189,7 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
     }
     circle.setLatLng(nextLatLng);
     circle.setRadius(Math.max(500, deliveryRadiusKm * 1000));
+    map.invalidateSize();
     map.panTo(nextLatLng, { animate: true });
   }, [draft.lat, draft.lng, storeName, editing, deliveryRadiusKm]);
 
@@ -250,12 +258,13 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
   };
 
   const handleCancel = () => {
-    setDraft(coordinates);
+    const restored = preEditCoordsRef.current;
+    setDraft(restored);
     setResolvedAddress(undefined);
     setSuggestions([]);
     setSearchQuery('');
     setStatusNote(null);
-    onChange(coordinates);
+    onChange(restored);
     setEditing(false);
   };
 
@@ -276,7 +285,10 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
           {!editing ? (
             <button
               type="button"
-              onClick={() => setEditing(true)}
+              onClick={() => {
+                preEditCoordsRef.current = draft;
+                setEditing(true);
+              }}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#E6F5EC] hover:bg-[#D5EFE0] text-[#1B8E53] text-xs font-extrabold border border-[#C2E7D2]"
             >
               <Pencil className="w-3.5 h-3.5" />
