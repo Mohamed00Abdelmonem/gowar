@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createSvgFallback } from '../../utils/visuals';
 
 interface SafeImageProps {
@@ -18,10 +18,21 @@ export const SafeImage: React.FC<SafeImageProps> = ({
 }) => {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
     setFailed(false);
-    setLoaded(false);
+    const img = imgRef.current;
+    if (img && img.complete) {
+      if (img.naturalWidth > 0) {
+        setLoaded(true);
+      } else if (src) {
+        setFailed(true);
+        setLoaded(true);
+      }
+    } else {
+      setLoaded(false);
+    }
   }, [src]);
 
   const isFallback = failed || !src;
@@ -36,6 +47,7 @@ export const SafeImage: React.FC<SafeImageProps> = ({
         />
       )}
       <img
+        ref={imgRef}
         src={resolvedSrc}
         alt={alt}
         loading={priority ? 'eager' : 'lazy'}

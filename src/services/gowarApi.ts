@@ -272,6 +272,8 @@ export interface BackendProductPayload {
   is_offer: boolean;
 }
 
+import { normalizeImageUrl } from './imageUtils';
+
 export function mapBackendProduct(p: BackendProductPayload): Product {
   const effective = Number(p.effective_price || p.price);
   const reg = Number(p.price);
@@ -283,7 +285,7 @@ export function mapBackendProduct(p: BackendProductPayload): Product {
     nameEn: p.name_en || p.name,
     descriptionAr: p.description || '',
     descriptionEn: p.description_en || p.description || '',
-    image: p.image || p.image_url || '',
+    image: normalizeImageUrl(p.image || p.image_url),
     price: effective,
     oldPrice: p.discounted_price && effective < reg ? reg : undefined,
     stock: p.stock_quantity,

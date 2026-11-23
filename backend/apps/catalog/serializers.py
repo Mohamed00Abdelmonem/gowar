@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from django.conf import settings
 from django.templatetags.static import static
 from django.utils.text import slugify
@@ -118,6 +120,27 @@ class ProductSerializer(serializers.ModelSerializer):
         validate_uploaded_product_image(value)
         return value
 
+    def to_internal_value(self, data):
+        if hasattr(data, "copy"):
+            mutable = data.copy()
+            if mutable.get("discounted_price") == "":
+                mutable["discounted_price"] = None
+            data = mutable
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get("request")
+        raw_url = data.get("image_url") or ""
+        if raw_url and request:
+            parsed = urlparse(raw_url)
+            if parsed.scheme == "http" and (
+                parsed.path.startswith(settings.MEDIA_URL)
+                or parsed.path.startswith(settings.STATIC_URL)
+            ):
+                data["image_url"] = request.build_absolute_uri(parsed.path)
+        return data
+
     def validate(self, attrs):
         price = attrs.get("price", getattr(self.instance, "price", None))
         discounted = attrs.get(
@@ -128,6 +151,15 @@ class ProductSerializer(serializers.ModelSerializer):
                 {"discounted_price": "Discounted price must be lower than regular price."}
             )
         return attrs
+
+    def update(self, instance, validated_data):
+        new_image = validated_data.get("image")
+        new_image_url = validated_data.get("image_url")
+        if new_image:
+            validated_data["image_url"] = ""
+        elif new_image_url:
+            instance.image = None
+        return super().update(instance, validated_data)
 
 
 class CatalogLibraryCategorySerializer(serializers.ModelSerializer):

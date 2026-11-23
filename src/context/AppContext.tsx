@@ -2024,15 +2024,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (IS_BACKEND_API_ENABLED) {
       try {
         let updatedPayload;
+        const hasDiscount = Boolean(
+          updates.oldPrice && updates.price !== undefined && updates.oldPrice > updates.price
+        );
+        const regularPrice =
+          updates.price !== undefined
+            ? hasDiscount && updates.oldPrice
+              ? updates.oldPrice
+              : updates.price
+            : undefined;
+        const discountedPrice =
+          updates.price !== undefined ? (hasDiscount ? updates.price : null) : undefined;
+
         if (updates.imageFile) {
           const fd = new FormData();
           if (updates.nameAr) fd.append('name', updates.nameAr);
           if (updates.nameEn) fd.append('name_en', updates.nameEn);
           if (updates.categoryId) fd.append('category', updates.categoryId);
-          if (updates.descriptionAr) fd.append('description', updates.descriptionAr);
-          if (updates.price !== undefined) fd.append('price', updates.price.toFixed(2));
+          if (updates.descriptionAr !== undefined) fd.append('description', updates.descriptionAr);
+          if (regularPrice !== undefined) {
+            fd.append('price', regularPrice.toFixed(2));
+            fd.append(
+              'discounted_price',
+              discountedPrice !== null && discountedPrice !== undefined
+                ? discountedPrice.toFixed(2)
+                : ''
+            );
+            fd.append('is_offer', String(hasDiscount));
+          }
           if (updates.stock !== undefined) fd.append('stock_quantity', String(updates.stock));
           if (updates.sku !== undefined) fd.append('sku', updates.sku);
+          if (updates.barcode !== undefined) fd.append('barcode', updates.barcode);
+          if (updates.unitAr !== undefined) fd.append('unit', updates.unitAr);
+          if (updates.unitEn !== undefined) fd.append('unit_en', updates.unitEn);
           if (updates.isAvailable !== undefined) fd.append('is_available', String(updates.isAvailable));
           fd.append('image', updates.imageFile);
           updatedPayload = await marketplaceApi.updateMerchantProduct(productId, fd);
@@ -2042,12 +2066,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ...(updates.nameEn !== undefined ? { name_en: updates.nameEn } : {}),
             ...(updates.categoryId !== undefined ? { category: updates.categoryId } : {}),
             ...(updates.descriptionAr !== undefined ? { description: updates.descriptionAr } : {}),
-            ...(updates.price !== undefined ? { price: updates.price.toFixed(2) } : {}),
+            ...(regularPrice !== undefined
+              ? {
+                  price: regularPrice.toFixed(2),
+                  discounted_price:
+                    discountedPrice !== null && discountedPrice !== undefined
+                      ? discountedPrice.toFixed(2)
+                      : null,
+                  is_offer: hasDiscount,
+                }
+              : {}),
             ...(updates.stock !== undefined ? { stock_quantity: updates.stock } : {}),
             ...(updates.sku !== undefined ? { sku: updates.sku } : {}),
             ...(updates.barcode !== undefined ? { barcode: updates.barcode } : {}),
+            ...(updates.unitAr !== undefined ? { unit: updates.unitAr } : {}),
+            ...(updates.unitEn !== undefined ? { unit_en: updates.unitEn } : {}),
             ...(updates.isAvailable !== undefined ? { is_available: updates.isAvailable } : {}),
-            ...(updates.image && updates.image.startsWith('http')
+            ...(updates.image && (updates.image.startsWith('http') || updates.image.startsWith('/'))
               ? { image_url: updates.image }
               : {}),
           });
@@ -2060,6 +2095,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         showToast(t('تم تحديث بيانات المنتج', 'Product updated'), 'success');
       } catch (err) {
         handleApiError(err, 'تعذر تحديث المنتج', 'Failed to update product');
+        throw err;
       }
       return;
     }

@@ -135,3 +135,133 @@ def test_redis_shared_cache_shares_counters(settings):
     assert cache.get("audit:shared-counter") == 1
     assert cache.incr("audit:shared-counter") == 2
     cache.delete("audit:shared-counter")
+
+
+@pytest.mark.django_db
+def test_merchant_product_edit_discount_lifecycle_and_validation(sample_catalog):
+    product = Product.objects.select_related("store__merchant__user").first()
+    assert product is not None
+    merchant_user = product.store.merchant.user
+    product.price = "88.00"
+    product.discounted_price = "80.00"
+    product.is_offer = True
+    product.save()
+
+    client = APIClient()
+    client.force_authenticate(user=merchant_user)
+
+    # 1. Remove discount while keeping selling price at 80.00 (JSON null)
+    res_remove = client.patch(
+        f"/api/v1/merchant/products/{product.id}/",
+        {"price": "80.00", "discounted_price": None, "is_offer": False},
+        format="json",
+    )
+    assert res_remove.status_code == 200
+    assert res_remove.data["price"] == "80.00"
+    assert res_remove.data["discounted_price"] is None
+
+    # 2. Add/update discount to valid lower price
+    res_add = client.patch(
+        f"/api/v1/merchant/products/{product.id}/",
+        {"price": "90.00", "discounted_price": "75.00", "is_offer": True},
+        format="json",
+    )
+    assert res_add.status_code == 200
+    assert res_add.data["effective_price"] == "75.00"
+
+    # 3. Remove discount via multipart empty string
+    res_multipart = client.patch(
+        f"/api/v1/merchant/products/{product.id}/",
+        {"price": "75.00", "discounted_price": "", "is_offer": "false"},
+        format="multipart",
+    )
+    assert res_multipart.status_code == 200
+    assert res_multipart.data["discounted_price"] is None
+
+    # 4. Invalid discount >= regular price must still be rejected
+    res_invalid = client.patch(
+        f"/api/v1/merchant/products/{product.id}/",
+        {"price": "75.00", "discounted_price": "80.00"},
+        format="json",
+    )
+    assert res_invalid.status_code == 400
+
+
+@pytest.mark.django_db
+def test_product_serializer_normalizes_http_static_and_media_urls(api_client, sample_catalog):
+    product = Product.objects.first()
+    assert product is not None
+    product.image_url = "http://91.90.83.126/static/catalog_library/nescafe.webp"
+    product.save(update_fields=["image_url"])
+
+    res = api_client.get(
+        f"/api/v1/catalog/products/{product.id}/",
+        HTTP_X_FORWARDED_PROTO="https",
+        secure=True,
+    )
+    assert res.status_code == 200
+    assert res.data["image_url"] == "https://testserver/static/catalog_library/nescafe.webp"
+
+
+@pytest.mark.django_db
+def test_product_edit_image_replacement_and_decimal_price_persistence(sample_catalog):
+    import io
+    from PIL import Image
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    product = Product.objects.select_related("store__merchant__user").first()
+    assert product is not None
+    merchant_user = product.store.merchant.user
+
+    client = APIClient()
+    client.force_authenticate(user=merchant_user)
+
+    # 1. Upload initial file image + decimal price + discount
+    buf = io.BytesIO()
+    Image.new("RGB", (20, 20), color="green").save(buf, format="PNG")
+    uploaded_1 = SimpleUploadedFile("first.png", buf.getvalue(), content_type="image/png")
+
+    r1 = client.patch(
+        f"/api/v1/merchant/products/{product.id}/",
+        {
+            "name": "حليب محدث",
+            "price": "45.75",
+            "discounted_price": "39.50",
+            "is_offer": "true",
+            "image": uploaded_1,
+        },
+        format="multipart",
+    )
+    assert r1.status_code == 200
+    assert r1.data["image"] is not None
+    assert r1.data["image_url"] == ""
+    assert r1.data["price"] == "45.75"
+    assert r1.data["effective_price"] == "39.50"
+
+    # 2. Replace uploaded file image with a new image_url (like ProductImagePicker upload/library)
+    #    Old ImageField must be cleared so it does not shadow the new image_url!
+    r2 = client.patch(
+        f"/api/v1/merchant/products/{product.id}/",
+        {
+            "image_url": "https://gowar.shop/media/products/uploads/new-pic.webp",
+            "price": "42.25",
+            "discounted_price": None,
+            "is_offer": False,
+        },
+        format="json",
+    )
+    assert r2.status_code == 200
+    assert r2.data["image"] is None
+    assert r2.data["image_url"] == "https://gowar.shop/media/products/uploads/new-pic.webp"
+    assert r2.data["price"] == "42.25"
+    assert r2.data["effective_price"] == "42.25"
+
+    # 3. Verify persistence via fresh GET (simulating page refresh)
+    r_get = client.get(f"/api/v1/merchant/products/{product.id}/")
+    assert r_get.status_code == 200
+    assert r_get.data["name"] == "حليب محدث"
+    assert r_get.data["image"] is None
+    assert r_get.data["image_url"] == "https://gowar.shop/media/products/uploads/new-pic.webp"
+    assert r_get.data["price"] == "42.25"
+    assert r_get.data["discounted_price"] is None
+

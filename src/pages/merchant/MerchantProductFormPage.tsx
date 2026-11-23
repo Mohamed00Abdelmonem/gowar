@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowRight, Save } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -30,6 +30,25 @@ export const MerchantProductFormPage: React.FC = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageAttribution, setImageAttribution] = useState<string>('');
   const [isAvailable, setIsAvailable] = useState(existing?.isAvailable ?? true);
+  const hydratedIdRef = useRef<string | null>(existing?.id ?? null);
+
+  useEffect(() => {
+    if (!existing || hydratedIdRef.current === existing.id) return;
+    hydratedIdRef.current = existing.id;
+    setNameAr(existing.nameAr ?? '');
+    setNameEn(existing.nameEn ?? '');
+    setDescriptionAr(existing.descriptionAr ?? '');
+    setCategoryId(existing.categoryId ?? categories[0]?.id ?? '');
+    setPrice(existing.price ? String(existing.price) : '');
+    setOldPrice(existing.oldPrice ? String(existing.oldPrice) : '');
+    setStock(String(existing.stock ?? 20));
+    setSku(existing.sku ?? '');
+    setBarcode(existing.barcode ?? '');
+    setUnitAr(existing.unitAr ?? '١ قطعة');
+    setImage(existing.image ?? PRODUCT_IMAGES.milk);
+    setImageFile(null);
+    setIsAvailable(existing.isAvailable ?? true);
+  }, [existing, categories]);
 
   const handleApplyImported = (imported: ImportedProductPayload) => {
     const patch = buildImportedFormPatch(imported, categoryId || categories[0]?.id || '');
@@ -61,11 +80,25 @@ export const MerchantProductFormPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const numericPrice = Number(price);
-    const numericOldPrice = oldPrice ? Number(oldPrice) : undefined;
+    const trimmedOldPrice = oldPrice.trim();
+    const numericOldPrice = trimmedOldPrice ? Number(trimmedOldPrice) : undefined;
     const numericStock = Math.max(0, Number(stock) || 0);
 
-    if (!nameAr.trim() || !numericPrice || numericPrice <= 0) {
+    if (!nameAr.trim() || !Number.isFinite(numericPrice) || numericPrice <= 0) {
       showToast(t('برجاء إدخال اسم المنتج والسعر الصحيح', 'Please enter product name and valid price'), 'error');
+      return;
+    }
+    if (
+      numericOldPrice !== undefined &&
+      (!Number.isFinite(numericOldPrice) || numericOldPrice <= numericPrice)
+    ) {
+      showToast(
+        t(
+          'السعر قبل الخصم يجب أن يكون أكبر من سعر البيع الحالي',
+          'Original price before discount must be greater than selling price'
+        ),
+        'error'
+      );
       return;
     }
 
