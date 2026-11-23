@@ -27,6 +27,10 @@ class CustomerOrderListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsCustomer]
     serializer_class = OrderSerializer
 
+    def get_throttles(self):
+        self.throttle_scope = "checkout" if self.request.method == "POST" else "user"
+        return super().get_throttles()
+
     def get_queryset(self):
         return (
             Order.objects.select_related("store", "customer")
@@ -68,6 +72,7 @@ class CustomerOrderDetailView(generics.RetrieveAPIView):
 
 class CustomerOrderCancelView(APIView):
     permission_classes = [IsCustomer]
+    throttle_scope = "checkout"
 
     def post(self, request, pk):
         order = Order.objects.filter(pk=pk, customer=request.user).first()

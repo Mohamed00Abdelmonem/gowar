@@ -168,7 +168,7 @@ class DeliveryLoginView(BaseLoginView):
 
 
 class ThrottledTokenRefreshView(TokenRefreshView):
-    throttle_scope = "login"
+    throttle_scope = "token_refresh"
 
 
 class LogoutView(APIView):
@@ -179,6 +179,11 @@ class LogoutView(APIView):
         if refresh_token:
             try:
                 token = RefreshToken(refresh_token)
+                if str(token.get("user_id")) != str(request.user.id):
+                    return Response(
+                        {"detail": "Refresh token does not belong to the authenticated user."},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
                 token.blacklist()
             except Exception:
                 return Response(

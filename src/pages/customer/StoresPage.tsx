@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useDeferredValue, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -63,6 +63,7 @@ export const StoresPage: React.FC = () => {
   const initialCat = searchParams.get('category') ?? 'all';
 
   const [query, setQuery] = useState(initialQuery);
+  const deferredQuery = useDeferredValue(query);
   const [selectedCategory, setSelectedCategory] = useState(initialCat);
   const [activeFilter, setActiveFilter] = useState<SimpleFilter>('nearest');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
@@ -82,7 +83,7 @@ export const StoresPage: React.FC = () => {
   );
 
   const filteredStores = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     return storesInRadius.filter(({ merchant: m }) => {
       if (activeFilter === 'open_now' && !m.isOpen) return false;
       if (activeFilter === 'supermarket' && m.type !== 'supermarket') return false;
@@ -109,11 +110,11 @@ export const StoresPage: React.FC = () => {
       );
       return storeMatches || hasMatchingProduct || catMatches;
     });
-  }, [storesInRadius, query, activeFilter, selectedCategory, products, categories]);
+  }, [storesInRadius, deferredQuery, activeFilter, selectedCategory, products, categories]);
 
   // Group matching products strictly by store so customers never confuse single-store carts
   const groupedProductsByStore = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     if (!q && selectedCategory === 'all') return [];
 
     return filteredStores
@@ -136,7 +137,7 @@ export const StoresPage: React.FC = () => {
         return { evaluated, items };
       })
       .filter((group) => group.items.length > 0);
-  }, [query, selectedCategory, filteredStores, products, categories]);
+  }, [deferredQuery, selectedCategory, filteredStores, products, categories]);
 
   const clearAll = () => {
     setQuery('');

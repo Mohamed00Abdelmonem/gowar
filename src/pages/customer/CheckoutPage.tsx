@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -64,6 +64,7 @@ export const CheckoutPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const idempotencyRef = useRef<{ signature: string; key: string } | null>(null);
   const [backendQuote, setBackendQuote] = useState<{
     actualDistanceKm: number;
     billableKm: number;
@@ -217,6 +218,22 @@ export const CheckoutPage: React.FC = () => {
         ? customStreet
         : `${customerLocation.formattedAddressEn}${addressDetailsNote.trim() ? `, ${addressDetailsNote.trim()}` : ''}`;
 
+    if (submitting) return;
+    const checkoutSignature = JSON.stringify({
+      merchantId: cart.merchantId,
+      items: cart.items,
+      addressId: chosenAddr?.id ?? null,
+      deliveryAddressAr,
+      paymentMethod,
+      notes: notes.trim(),
+    });
+    if (!idempotencyRef.current || idempotencyRef.current.signature !== checkoutSignature) {
+      const nextKey =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? `ord-${crypto.randomUUID()}`
+          : `ord-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      idempotencyRef.current = { signature: checkoutSignature, key: nextKey };
+    }
     setSubmitting(true);
     try {
       const order = await placeOrder({
@@ -231,8 +248,10 @@ export const CheckoutPage: React.FC = () => {
         paymentMethod,
         notes: notes.trim() || undefined,
         discount,
+        idempotencyKey: idempotencyRef.current.key,
       });
       if (order) {
+        idempotencyRef.current = null;
         navigate(`/orders/${order.id}`);
       }
     } finally {

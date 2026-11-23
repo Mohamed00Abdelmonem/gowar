@@ -13,6 +13,38 @@
 #   - Neither PostgreSQL nor Gunicorn exposes a public port.
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: gowar-redis
+    restart: unless-stopped
+    command:
+      [
+        "redis-server",
+        "--save",
+        "",
+        "--appendonly",
+        "no",
+        "--maxmemory",
+        "128mb",
+        "--maxmemory-policy",
+        "allkeys-lru",
+      ]
+    networks:
+      - gowar_app_net
+    mem_limit: 256m
+    cpus: 0.5
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
   backend:
     image: ${GOWAR_BACKEND_IMAGE:-gowar-backend:latest}
     build:
@@ -20,12 +52,16 @@ services:
       dockerfile: Dockerfile.backend
     container_name: gowar-backend
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
     env_file:
       - ${GOWAR_ENV_FILE:-/opt/gowar/.env}
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
       POSTGRES_HOST: ${POSTGRES_HOST:-gowar-db}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/1}
     expose:
       - "8000"
     volumes:

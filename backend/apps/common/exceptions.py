@@ -29,5 +29,8 @@ def custom_exception_handler(exc, context):
         "detail": _extract_detail(response.data),
         "errors": response.data,
     }
+    wait = getattr(exc, "wait", None)
+    if response.status_code == 429 and wait is not None:
+        payload["retry_after"] = max(1, int(round(wait)))
     response.data = payload
     return response

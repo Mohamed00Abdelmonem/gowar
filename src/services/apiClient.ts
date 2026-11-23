@@ -47,14 +47,65 @@ export class ApiClientError extends Error {
   status: number;
   code?: string;
   errors?: unknown;
+  retryAfterSeconds?: number;
 
-  constructor(message: string, status: number, code?: string, errors?: unknown) {
+  constructor(
+    message: string,
+    status: number,
+    code?: string,
+    errors?: unknown,
+    retryAfterSeconds?: number
+  ) {
     super(message);
     this.name = 'ApiClientError';
     this.status = status;
     this.code = code;
     this.errors = errors;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
+}
+
+export function formatApiErrorMessage(
+  err: unknown,
+  language: 'ar' | 'en',
+  fallbackAr: string,
+  fallbackEn: string
+): string {
+  const isAr = language === 'ar';
+  if (!(err instanceof ApiClientError)) {
+    return isAr ? fallbackAr : fallbackEn;
+  }
+  if (err.code === 'NETWORK_ERROR' || err.status === 0) {
+    return isAr
+      ? 'في مشكلة في الاتصال بالإنترنت. راجع اتصالك وحاول تاني.'
+      : 'Connection issue. Please check your internet and try again.';
+  }
+  if (err.status === 429 || err.code === 'RATE_LIMITED') {
+    if (err.retryAfterSeconds && err.retryAfterSeconds > 0) {
+      return isAr
+        ? `أنت بتستخدم الخدمة بسرعة. استنى ${err.retryAfterSeconds} ثانية وجرب تاني.`
+        : `You are making requests too quickly. Please wait ${err.retryAfterSeconds}s and try again.`;
+    }
+    return isAr
+      ? 'أنت بتستخدم الخدمة بسرعة. استنى لحظات وجرب تاني.'
+      : 'Too many requests. Please wait a moment and try again.';
+  }
+  if (err.status === 401 || err.code === 'SESSION_EXPIRED') {
+    return isAr
+      ? 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى.'
+      : 'Your session expired. Please sign in again.';
+  }
+  if (err.status === 403 || err.code === 'FORBIDDEN') {
+    return isAr
+      ? 'ليس لديك صلاحية لتنفيذ هذا الإجراء.'
+      : 'You do not have permission to perform this action.';
+  }
+  if (err.status >= 500 || err.code === 'SERVER_ERROR') {
+    return isAr
+      ? 'حصلت مشكلة مؤقتة. حاول مرة تانية.'
+      : 'A temporary server issue occurred. Please try again.';
+  }
+  return err.message || (isAr ? fallbackAr : fallbackEn);
 }
 
 export function getAccessToken(): string | null {
@@ -227,7 +278,7 @@ export async function apiRequest<T>(
     });
   } catch (err) {
     throw new ApiClientError(
-      'تعذر الاتصال بالخادم. تأكد من اتصالك أو تشغيل الخادم الخلفي.',
+      'في مشكلة في الاتصال بالإنترنت. راجع اتصالك وحاول تاني.',
       0,
       'NETWORK_ERROR',
       err
@@ -254,19 +305,40 @@ export async function apiRequest<T>(
   }
 
   if (!response.ok) {
+    const retryAfterHeader = response.headers.get('Retry-After');
+    const retryAfterBody =
+      data && typeof data === 'object' && 'retry_after' in data
+        ? Number((data as { retry_after: unknown }).retry_after)
+        : NaN;
+    const parsedRetry = retryAfterHeader ? Number(retryAfterHeader) : retryAfterBody;
+    const retryAfterSeconds =
+      Number.isFinite(parsedRetry) && parsedRetry > 0 ? Math.ceil(parsedRetry) : undefined;
+
     const code =
       data && typeof data === 'object' && 'code' in data
         ? String((data as { code: unknown }).code)
+        : response.status === 429
+          ? 'RATE_LIMITED'
+          : response.status === 403
+            ? 'FORBIDDEN'
+            : response.status >= 500
+              ? 'SERVER_ERROR'
+              : undefined;
+
+    const fallbackMsg =
+      response.status === 429
+        ? 'أنت بتستخدم الخدمة بسرعة. استنى لحظات وجرب تاني.'
         : response.status === 403
-          ? 'FORBIDDEN'
-          : undefined;
-    const message = extractErrorMessage(
-      data,
-      response.status === 403
-        ? 'ليس لديك صلاحية لتنفيذ هذا الإجراء.'
-        : `HTTP Error ${response.status}`
-    );
-    throw new ApiClientError(message, response.status, code, data);
+          ? 'ليس لديك صلاحية لتنفيذ هذا الإجراء.'
+          : response.status >= 500
+            ? 'حصلت مشكلة مؤقتة. حاول مرة تانية.'
+            : `HTTP Error ${response.status}`;
+
+    const message =
+      response.status === 429 || response.status >= 500
+        ? fallbackMsg
+        : extractErrorMessage(data, fallbackMsg);
+    throw new ApiClientError(message, response.status, code, data, retryAfterSeconds);
   }
 
   return data as T;

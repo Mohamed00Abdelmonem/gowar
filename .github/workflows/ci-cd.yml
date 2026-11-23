@@ -1,6 +1,7 @@
 name: Gowar CI/CD (Test, Build & Deploy)
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main

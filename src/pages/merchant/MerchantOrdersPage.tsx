@@ -56,6 +56,17 @@ export const MerchantOrdersPage: React.FC = () => {
   const [assignableDrivers, setAssignableDrivers] = useState<AssignableDriverOption[]>([]);
   const [driversLoading, setDriversLoading] = useState(false);
   const [assigningDriverId, setAssigningDriverId] = useState<string | null>(null);
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+
+  const handleStatusChange = async (orderId: string, nextStatus: OrderStatus) => {
+    if (updatingOrderId === orderId) return;
+    setUpdatingOrderId(orderId);
+    try {
+      await updateOrderStatus(orderId, nextStatus);
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
 
   const openAssignModal = async (order: Order) => {
     setAssignModalOrder(order);
@@ -159,24 +170,28 @@ export const MerchantOrdersPage: React.FC = () => {
       out_for_delivery: { next: 'delivered', label: t('تم التسليم للعميل', 'Mark Delivered') },
     };
 
+    const isUpdating = updatingOrderId === order.id;
+
     if (order.status === 'pending') {
       return (
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => updateOrderStatus(order.id, 'accepted')}
-            className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
+            disabled={isUpdating}
+            onClick={() => void handleStatusChange(order.id, 'accepted')}
+            className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold"
           >
             <Check className="w-3.5 h-3.5" />
-            <span>{t('قبول الطلب', 'Accept Order')}</span>
+            <span>{isUpdating ? t('جاري التنفيذ...', 'Updating...') : t('قبول الطلب', 'Accept Order')}</span>
           </button>
           <button
             type="button"
+            disabled={isUpdating}
             onClick={() => {
               setRejectModalOrder(order);
               setRejectReason(REJECT_REASONS_AR[0]);
             }}
-            className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold"
+            className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 text-rose-700 text-xs font-bold"
           >
             <X className="w-3.5 h-3.5" />
             <span>{t('رفض', 'Reject')}</span>
@@ -192,8 +207,9 @@ export const MerchantOrdersPage: React.FC = () => {
           {IS_BACKEND_API_ENABLED && (
             <button
               type="button"
+              disabled={isUpdating}
               onClick={() => void openAssignModal(order)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE6E1] bg-white hover:border-[#1B8E53] text-xs font-bold text-[#1C1917]"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE6E1] bg-white hover:border-[#1B8E53] disabled:opacity-50 text-xs font-bold text-[#1C1917]"
             >
               <UserCheck className="w-3.5 h-3.5 text-[#1B8E53]" />
               <span>{t('إسناد لمندوب', 'Assign Driver')}</span>
@@ -201,11 +217,12 @@ export const MerchantOrdersPage: React.FC = () => {
           )}
           <button
             type="button"
-            onClick={() => updateOrderStatus(order.id, nextAction.next)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold"
+            disabled={isUpdating}
+            onClick={() => void handleStatusChange(order.id, nextAction.next)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold"
           >
             <Truck className="w-3.5 h-3.5" />
-            <span>{nextAction.label}</span>
+            <span>{isUpdating ? t('جاري التحديث...', 'Updating...') : nextAction.label}</span>
           </button>
         </div>
       );

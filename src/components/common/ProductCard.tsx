@@ -22,11 +22,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     addToCart,
     updateCartQuantity,
     getCartItemQty,
+    isCartItemPending,
     cart,
   } = useApp();
 
   const store = merchants.find((m) => m.id === product.merchantId);
   const qtyInCart = cart.merchantId === product.merchantId ? getCartItemQty(product.id) : 0;
+  const cartPending = isCartItemPending(product.id);
   const outOfStock = !product.isAvailable || product.stock <= 0;
   const productName = language === 'ar' ? product.nameAr : product.nameEn;
   const discountPct =
@@ -120,8 +122,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           >
             <button
               type="button"
+              disabled={cartPending}
               onClick={() => updateCartQuantity(product.id, qtyInCart - 1)}
-              className="w-8 h-8 rounded-lg bg-white text-emerald-700 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-colors shadow-2xs"
+              className="w-8 h-8 rounded-lg bg-white text-emerald-700 flex items-center justify-center hover:bg-emerald-600 hover:text-white disabled:opacity-40 transition-colors shadow-2xs"
               aria-label={t('تقليل الكمية', 'Decrease quantity')}
             >
               <Minus className="w-4 h-4" />
@@ -131,7 +134,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </span>
             <button
               type="button"
-              disabled={qtyInCart >= product.stock}
+              disabled={cartPending || qtyInCart >= product.stock}
               onClick={() => updateCartQuantity(product.id, qtyInCart + 1)}
               className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700 disabled:opacity-40 transition-colors"
               aria-label={t('زيادة الكمية', 'Increase quantity')}
@@ -142,7 +145,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         ) : (
           <button
             type="button"
-            disabled={outOfStock}
+            disabled={outOfStock || cartPending}
             onClick={() => addToCart(product.id, 1)}
             className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white flex items-center justify-center transition-colors shadow-2xs shrink-0"
             aria-label={t(`أضف ${productName}`, `Add ${productName}`)}

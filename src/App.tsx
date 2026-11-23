@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { ToastContainer } from './components/common/ToastContainer';
@@ -7,63 +7,71 @@ import { PwaInstallModal } from './components/pwa/PwaInstallModal';
 import { PushNotificationPrompt } from './components/notifications/PushNotificationPrompt';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
-// Layouts
+// Eagerly loaded customer shell + home for fast initial mobile paint
 import { CustomerLayout } from './layouts/CustomerLayout';
-import { MerchantLayout } from './layouts/MerchantLayout';
-import { AdminLayout } from './layouts/AdminLayout';
-import { DeliveryLayout } from './layouts/DeliveryLayout';
-
-// Customer Pages
 import { CustomerHomePage } from './pages/customer/CustomerHomePage';
-import { StoresPage } from './pages/customer/StoresPage';
-import { StoreDetailsPage } from './pages/customer/StoreDetailsPage';
-import { ProductDetailsPage } from './pages/customer/ProductDetailsPage';
-import { CartPage } from './pages/customer/CartPage';
-import { CheckoutPage } from './pages/customer/CheckoutPage';
-import { OrdersPage } from './pages/customer/OrdersPage';
-import { OrderTrackingPage } from './pages/customer/OrderTrackingPage';
-import { ProfilePage } from './pages/customer/ProfilePage';
-import { AddressesPage } from './pages/customer/AddressesPage';
-import { FavoritesPage } from './pages/customer/FavoritesPage';
-import { CustomerAuthPage } from './pages/customer/CustomerAuthPage';
 
-// Merchant Pages
-import { MerchantLoginPage } from './pages/merchant/MerchantLoginPage';
-import { MerchantOverviewPage } from './pages/merchant/MerchantOverviewPage';
-import { MerchantOrdersPage } from './pages/merchant/MerchantOrdersPage';
-import { MerchantProductsPage } from './pages/merchant/MerchantProductsPage';
-import { MerchantProductFormPage } from './pages/merchant/MerchantProductFormPage';
-import { MerchantCategoriesPage } from './pages/merchant/MerchantCategoriesPage';
-import { MerchantInventoryPage } from './pages/merchant/MerchantInventoryPage';
-import { MerchantDeliveryPage } from './pages/merchant/MerchantDeliveryPage';
-import { MerchantDeliveryOverviewPage } from './pages/merchant/delivery/MerchantDeliveryOverviewPage';
-import { MerchantDeliveryPersonnelPage } from './pages/merchant/delivery/MerchantDeliveryPersonnelPage';
-import { MerchantDeliveryTrackingPage } from './pages/merchant/delivery/MerchantDeliveryTrackingPage';
-import { MerchantDeliveryPerformancePage } from './pages/merchant/delivery/MerchantDeliveryPerformancePage';
-import { MerchantStoreSettingsPage } from './pages/merchant/MerchantStoreSettingsPage';
-import { MerchantAnalyticsPage } from './pages/merchant/MerchantAnalyticsPage';
-import { MerchantCustomersPage } from './pages/merchant/MerchantCustomersPage';
+// Lazy-loaded Layouts
+const MerchantLayout = lazy(() => import('./layouts/MerchantLayout').then((m) => ({ default: m.MerchantLayout })));
+const AdminLayout = lazy(() => import('./layouts/AdminLayout').then((m) => ({ default: m.AdminLayout })));
+const DeliveryLayout = lazy(() => import('./layouts/DeliveryLayout').then((m) => ({ default: m.DeliveryLayout })));
 
-// Admin Pages
-import { AdminLoginPage } from './pages/admin/AdminLoginPage';
+// Lazy-loaded Customer Pages
+const StoresPage = lazy(() => import('./pages/customer/StoresPage').then((m) => ({ default: m.StoresPage })));
+const StoreDetailsPage = lazy(() => import('./pages/customer/StoreDetailsPage').then((m) => ({ default: m.StoreDetailsPage })));
+const ProductDetailsPage = lazy(() => import('./pages/customer/ProductDetailsPage').then((m) => ({ default: m.ProductDetailsPage })));
+const CartPage = lazy(() => import('./pages/customer/CartPage').then((m) => ({ default: m.CartPage })));
+const CheckoutPage = lazy(() => import('./pages/customer/CheckoutPage').then((m) => ({ default: m.CheckoutPage })));
+const OrdersPage = lazy(() => import('./pages/customer/OrdersPage').then((m) => ({ default: m.OrdersPage })));
+const OrderTrackingPage = lazy(() => import('./pages/customer/OrderTrackingPage').then((m) => ({ default: m.OrderTrackingPage })));
+const ProfilePage = lazy(() => import('./pages/customer/ProfilePage').then((m) => ({ default: m.ProfilePage })));
+const AddressesPage = lazy(() => import('./pages/customer/AddressesPage').then((m) => ({ default: m.AddressesPage })));
+const FavoritesPage = lazy(() => import('./pages/customer/FavoritesPage').then((m) => ({ default: m.FavoritesPage })));
+const CustomerAuthPage = lazy(() => import('./pages/customer/CustomerAuthPage').then((m) => ({ default: m.CustomerAuthPage })));
 
-// Delivery Pages
-import { DeliveryLoginPage } from './pages/delivery/DeliveryLoginPage';
-import { DeliveryDashboardPage } from './pages/delivery/DeliveryDashboardPage';
-import { DeliveryOrderDetailPage } from './pages/delivery/DeliveryOrderDetailPage';
-import { DeliveryProfilePage } from './pages/delivery/DeliveryProfilePage';
-import { AdminOverviewPage } from './pages/admin/AdminOverviewPage';
-import { AdminMerchantsPage } from './pages/admin/AdminMerchantsPage';
-import { AdminMerchantDetailPage } from './pages/admin/AdminMerchantDetailPage';
-import { AdminCustomersPage } from './pages/admin/AdminCustomersPage';
-import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
-import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
-import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage';
-import { AdminAreasPage } from './pages/admin/AdminAreasPage';
-import { AdminCommissionsPage } from './pages/admin/AdminCommissionsPage';
-import { AdminReportsPage } from './pages/admin/AdminReportsPage';
-import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
-import { AdminPromotionsPage } from './pages/admin/AdminPromotionsPage';
+// Lazy-loaded Merchant Pages
+const MerchantLoginPage = lazy(() => import('./pages/merchant/MerchantLoginPage').then((m) => ({ default: m.MerchantLoginPage })));
+const MerchantOverviewPage = lazy(() => import('./pages/merchant/MerchantOverviewPage').then((m) => ({ default: m.MerchantOverviewPage })));
+const MerchantOrdersPage = lazy(() => import('./pages/merchant/MerchantOrdersPage').then((m) => ({ default: m.MerchantOrdersPage })));
+const MerchantProductsPage = lazy(() => import('./pages/merchant/MerchantProductsPage').then((m) => ({ default: m.MerchantProductsPage })));
+const MerchantProductFormPage = lazy(() => import('./pages/merchant/MerchantProductFormPage').then((m) => ({ default: m.MerchantProductFormPage })));
+const MerchantCategoriesPage = lazy(() => import('./pages/merchant/MerchantCategoriesPage').then((m) => ({ default: m.MerchantCategoriesPage })));
+const MerchantInventoryPage = lazy(() => import('./pages/merchant/MerchantInventoryPage').then((m) => ({ default: m.MerchantInventoryPage })));
+const MerchantDeliveryPage = lazy(() => import('./pages/merchant/MerchantDeliveryPage').then((m) => ({ default: m.MerchantDeliveryPage })));
+const MerchantDeliveryOverviewPage = lazy(() => import('./pages/merchant/delivery/MerchantDeliveryOverviewPage').then((m) => ({ default: m.MerchantDeliveryOverviewPage })));
+const MerchantDeliveryPersonnelPage = lazy(() => import('./pages/merchant/delivery/MerchantDeliveryPersonnelPage').then((m) => ({ default: m.MerchantDeliveryPersonnelPage })));
+const MerchantDeliveryTrackingPage = lazy(() => import('./pages/merchant/delivery/MerchantDeliveryTrackingPage').then((m) => ({ default: m.MerchantDeliveryTrackingPage })));
+const MerchantDeliveryPerformancePage = lazy(() => import('./pages/merchant/delivery/MerchantDeliveryPerformancePage').then((m) => ({ default: m.MerchantDeliveryPerformancePage })));
+const MerchantStoreSettingsPage = lazy(() => import('./pages/merchant/MerchantStoreSettingsPage').then((m) => ({ default: m.MerchantStoreSettingsPage })));
+const MerchantAnalyticsPage = lazy(() => import('./pages/merchant/MerchantAnalyticsPage').then((m) => ({ default: m.MerchantAnalyticsPage })));
+const MerchantCustomersPage = lazy(() => import('./pages/merchant/MerchantCustomersPage').then((m) => ({ default: m.MerchantCustomersPage })));
+
+// Lazy-loaded Delivery Pages
+const DeliveryLoginPage = lazy(() => import('./pages/delivery/DeliveryLoginPage').then((m) => ({ default: m.DeliveryLoginPage })));
+const DeliveryDashboardPage = lazy(() => import('./pages/delivery/DeliveryDashboardPage').then((m) => ({ default: m.DeliveryDashboardPage })));
+const DeliveryOrderDetailPage = lazy(() => import('./pages/delivery/DeliveryOrderDetailPage').then((m) => ({ default: m.DeliveryOrderDetailPage })));
+const DeliveryProfilePage = lazy(() => import('./pages/delivery/DeliveryProfilePage').then((m) => ({ default: m.DeliveryProfilePage })));
+
+// Lazy-loaded Admin Pages
+const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage').then((m) => ({ default: m.AdminLoginPage })));
+const AdminOverviewPage = lazy(() => import('./pages/admin/AdminOverviewPage').then((m) => ({ default: m.AdminOverviewPage })));
+const AdminMerchantsPage = lazy(() => import('./pages/admin/AdminMerchantsPage').then((m) => ({ default: m.AdminMerchantsPage })));
+const AdminMerchantDetailPage = lazy(() => import('./pages/admin/AdminMerchantDetailPage').then((m) => ({ default: m.AdminMerchantDetailPage })));
+const AdminCustomersPage = lazy(() => import('./pages/admin/AdminCustomersPage').then((m) => ({ default: m.AdminCustomersPage })));
+const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage').then((m) => ({ default: m.AdminOrdersPage })));
+const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage').then((m) => ({ default: m.AdminAnalyticsPage })));
+const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage').then((m) => ({ default: m.AdminCategoriesPage })));
+const AdminAreasPage = lazy(() => import('./pages/admin/AdminAreasPage').then((m) => ({ default: m.AdminAreasPage })));
+const AdminCommissionsPage = lazy(() => import('./pages/admin/AdminCommissionsPage').then((m) => ({ default: m.AdminCommissionsPage })));
+const AdminReportsPage = lazy(() => import('./pages/admin/AdminReportsPage').then((m) => ({ default: m.AdminReportsPage })));
+const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })));
+const AdminPromotionsPage = lazy(() => import('./pages/admin/AdminPromotionsPage').then((m) => ({ default: m.AdminPromotionsPage })));
+
+const RouteFallback: React.FC = () => (
+  <div className="min-h-[45vh] flex items-center justify-center p-6">
+    <div className="w-8 h-8 rounded-full border-2 border-[#1B8E53] border-t-transparent animate-spin" />
+  </div>
+);
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -82,6 +90,7 @@ export function App() {
     <AppProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <Suspense fallback={<RouteFallback />}>
         <Routes>
           {isDeliverySubdomain && (
             <Route path="/" element={<Navigate to="/delivery" replace />} />
@@ -180,6 +189,7 @@ export function App() {
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
 
         <CartConflictModal />
         <PwaInstallModal />

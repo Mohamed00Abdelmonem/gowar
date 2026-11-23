@@ -147,14 +147,40 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.ScopedRateThrottle",
     ),
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "60/minute",
+        "anon": "180/minute",
         "user": "300/minute",
         "login": "10/minute",
+        "token_refresh": "30/minute",
         "password_reset": "5/minute",
+        "checkout": "20/minute",
+        "upload": "30/minute",
+        "external_search": "30/minute",
     },
+    **(
+        {"NUM_PROXIES": int(os.environ["DRF_NUM_PROXIES"])}
+        if os.environ.get("DRF_NUM_PROXIES", "").strip().isdigit()
+        else {}
+    ),
     "EXCEPTION_HANDLER": "apps.common.exceptions.custom_exception_handler",
     "COERCE_DECIMAL_TO_STRING": True,
 }
+
+REDIS_URL = os.environ.get("REDIS_URL", "").strip()
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+            "KEY_PREFIX": "gowar",
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "gowar-default-locmem",
+        }
+    }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.environ.get("JWT_ACCESS_TOKEN_MINUTES", "30"))),

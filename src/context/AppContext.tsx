@@ -42,6 +42,7 @@ import {
   ApiClientError,
   IS_BACKEND_API_ENABLED,
   clearAuthTokens,
+  formatApiErrorMessage,
   getAccessToken,
   getStoredApiUser,
 } from '../services/apiClient';
@@ -268,6 +269,7 @@ interface PlaceOrderInput {
   paymentMethod: PaymentMethod;
   notes?: string;
   discount?: number;
+  idempotencyKey?: string;
 }
 
 export type ProductPayloadInput = Omit<Product, 'id'> & { imageFile?: File | null };
@@ -341,6 +343,7 @@ interface AppContextValue {
   confirmReplaceCart: () => Promise<void> | void;
   cancelReplaceCart: () => void;
   getCartItemQty: (productId: string) => number;
+  isCartItemPending: (productId: string) => boolean;
 
   // Customer actions
   placeOrder: (input: PlaceOrderInput) => Promise<Order | null> | Order | null;
@@ -434,6 +437,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [merchantProfileMap, setMerchantProfileMap] = useState<Record<string, string>>({});
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [pendingCartConflict, setPendingCartConflict] = useState<PendingCartConflict | null>(null);
+  const [pendingCartProductIds, setPendingCartProductIds] = useState<Record<string, boolean>>({});
+  const pendingCartRef = useRef<Set<string>>(new Set());
   const seenNotifIdsRef = useRef<Set<string>>(new Set());
   const notifsHydratedRef = useRef(false);
 
@@ -498,10 +503,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const handleApiError = useCallback(
     (err: unknown, fallbackAr: string, fallbackEn: string) => {
-      const msg =
-        err instanceof ApiClientError
-          ? err.message
-          : pickLang(state.language, fallbackAr, fallbackEn);
+      const msg = formatApiErrorMessage(err, state.language, fallbackAr, fallbackEn);
       showToast(msg, 'error');
       return msg;
     },
@@ -1137,6 +1139,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         );
         return;
       }
+      if (pendingCartRef.current.has(productId)) return;
+      pendingCartRef.current.add(productId);
+      setPendingCartProductIds((prev) => ({ ...prev, [productId]: true }));
       try {
         const res = await marketplaceApi.addCartItem(productId, quantity, false);
         setState((prev) => ({
@@ -1159,6 +1164,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return;
         }
         handleApiError(err, 'تعذر إضافة المنتج للسلة', 'Could not add item to cart');
+      } finally {
+        pendingCartRef.current.delete(productId);
+        setPendingCartProductIds((prev) => {
+          const next = { ...prev };
+          delete next[productId];
+          return next;
+        });
       }
       return;
     }
@@ -1273,6 +1285,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     if (IS_BACKEND_API_ENABLED) {
+      if (pendingCartRef.current.has(productId)) return;
+      pendingCartRef.current.add(productId);
+      setPendingCartProductIds((prev) => ({ ...prev, [productId]: true }));
       try {
         const res = await marketplaceApi.updateCartItem(productId, quantity);
         setState((prev) => ({
@@ -1284,6 +1299,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }));
       } catch (err) {
         handleApiError(err, 'تعذر تعديل الكمية', 'Could not update quantity');
+      } finally {
+        pendingCartRef.current.delete(productId);
+        setPendingCartProductIds((prev) => {
+          const next = { ...prev };
+          delete next[productId];
+          return next;
+        });
       }
       return;
     }
@@ -1315,13 +1337,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const getCartItemQty = (productId: string) =>
     state.cart.items.find((i) => i.productId === productId)?.quantity ?? 0;
 
+  const isCartItemPending = (productId: string) => Boolean(pendingCartProductIds[productId]);
+
   // ==================== CHECKOUT & ORDERS ====================
   const placeOrder = async (input: PlaceOrderInput): Promise<Order | null> => {
     if (!state.cart.merchantId || state.cart.items.length === 0) return null;
 
     if (IS_BACKEND_API_ENABLED) {
       try {
-        const idemKey = `ord-${activeCustomer.id}-${Date.now()}`;
+        const idemKey = input.idempotencyKey || `ord-${activeCustomer.id}-${Date.now()}`;
         const created = await marketplaceApi.createOrder({
           address_id: input.addressId || null,
           delivery_address: input.addressId
@@ -2439,6 +2463,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         confirmReplaceCart,
         cancelReplaceCart,
         getCartItemQty,
+        isCartItemPending,
         placeOrder,
         cancelCustomerOrder,
         toggleFavoriteMerchant,

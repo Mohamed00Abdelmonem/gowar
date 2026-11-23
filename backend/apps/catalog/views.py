@@ -47,6 +47,7 @@ class PublicProductListView(generics.ListAPIView):
     def get_queryset(self):
         return (
             Product.objects.select_related("store", "category")
+            .prefetch_related("images")
             .filter(
                 is_active=True,
                 store__is_active=True,
@@ -61,10 +62,14 @@ class PublicProductDetailView(generics.RetrieveAPIView):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        return Product.objects.select_related("store", "category").filter(
-            is_active=True,
-            store__is_active=True,
-            store__approval_status=ApprovalStatus.APPROVED,
+        return (
+            Product.objects.select_related("store", "category")
+            .prefetch_related("images")
+            .filter(
+                is_active=True,
+                store__is_active=True,
+                store__approval_status=ApprovalStatus.APPROVED,
+            )
         )
 
 
@@ -82,7 +87,11 @@ class MerchantProductListCreateView(generics.ListCreateAPIView):
         store = self._get_store()
         if not store:
             return Product.objects.none()
-        return Product.objects.select_related("category", "store").filter(store=store)
+        return (
+            Product.objects.select_related("category", "store")
+            .prefetch_related("images")
+            .filter(store=store)
+        )
 
     def perform_create(self, serializer):
         store = self._get_store()
@@ -103,8 +112,10 @@ class MerchantProductDetailView(generics.RetrieveUpdateDestroyAPIView):
         profile = getattr(self.request.user, "merchant_profile", None)
         if not profile:
             return Product.objects.none()
-        return Product.objects.select_related("category", "store").filter(
-            store__merchant=profile
+        return (
+            Product.objects.select_related("category", "store")
+            .prefetch_related("images")
+            .filter(store__merchant=profile)
         )
 
 
@@ -195,6 +206,7 @@ class MerchantCatalogLibraryItemListView(generics.ListAPIView):
 class MerchantProductImageUploadView(APIView):
     permission_classes = [IsMerchant]
     parser_classes = [MultiPartParser, FormParser]
+    throttle_scope = "upload"
 
     def post(self, request):
         uploaded = request.FILES.get("image")
@@ -225,6 +237,7 @@ class MerchantProductImageUploadView(APIView):
 
 class MerchantExternalImageSearchView(APIView):
     permission_classes = [IsMerchant]
+    throttle_scope = "external_search"
 
     def get(self, request):
         q = request.query_params.get("q", "")
@@ -237,6 +250,7 @@ class MerchantExternalImageSearchView(APIView):
 
 class MerchantBarcodeImportView(APIView):
     permission_classes = [IsMerchant]
+    throttle_scope = "external_search"
 
     def get(self, request, barcode):
         clean_code = (barcode or "").strip()
@@ -280,6 +294,7 @@ class MerchantBarcodeImportView(APIView):
 
 class MerchantProductDatabaseSearchView(APIView):
     permission_classes = [IsMerchant]
+    throttle_scope = "external_search"
 
     def get(self, request):
         q = (request.query_params.get("q") or "").strip()

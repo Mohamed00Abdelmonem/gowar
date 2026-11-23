@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardList, Heart, LogIn, LogOut, MapPin, Save, User } from 'lucide-react';
+import { ClipboardList, Heart, LayoutDashboard, LogIn, LogOut, MapPin, Save, User } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   IS_BACKEND_API_ENABLED,
@@ -12,6 +12,7 @@ export const ProfilePage: React.FC = () => {
   const {
     language,
     t,
+    authSession,
     activeCustomer,
     updateCustomerProfile,
     orders,
@@ -21,7 +22,13 @@ export const ProfilePage: React.FC = () => {
   } = useApp();
 
   const apiUser = getStoredApiUser();
+  const effectiveRole = authSession?.role ?? apiUser?.role ?? null;
   const isBackendCustomer = IS_BACKEND_API_ENABLED && apiUser?.role === 'customer';
+  const isMerchantUser = effectiveRole === 'merchant';
+  const isApprovedMerchant =
+    !IS_BACKEND_API_ENABLED ||
+    !apiUser?.merchant_approval_status ||
+    apiUser.merchant_approval_status === 'approved';
 
   const [nameAr, setNameAr] = useState(activeCustomer.nameAr);
   const [nameEn, setNameEn] = useState(activeCustomer.nameEn);
@@ -47,28 +54,46 @@ export const ProfilePage: React.FC = () => {
           </p>
         </div>
 
-        {isBackendCustomer ? (
-          <button
-            type="button"
-            onClick={async () => {
-              await authApi.logout();
-              await refreshFromBackend();
-              showToast(t('تم تسجيل الخروج', 'Signed out'), 'info');
-            }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>{t('تسجيل الخروج', 'Sign Out')}</span>
-          </button>
-        ) : (
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#E6F5EC] border border-[#C2E7D2] text-[#1B8E53] text-xs font-bold"
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>{t('تسجيل الدخول / إنشاء حساب', 'Sign In / Register')}</span>
-          </Link>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {isMerchantUser && isApprovedMerchant && (
+            <Link
+              to="/merchant"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold transition-colors shadow-2xs"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>{t('لوحة تحكم التاجر', 'Merchant Dashboard')}</span>
+            </Link>
+          )}
+          {isMerchantUser && !isApprovedMerchant && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>{t('حساب التاجر قيد المراجعة', 'Merchant Pending Approval')}</span>
+            </span>
+          )}
+
+          {isBackendCustomer ? (
+            <button
+              type="button"
+              onClick={async () => {
+                await authApi.logout();
+                await refreshFromBackend();
+                showToast(t('تم تسجيل الخروج', 'Signed out'), 'info');
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-bold"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>{t('تسجيل الخروج', 'Sign Out')}</span>
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#E6F5EC] border border-[#C2E7D2] text-[#1B8E53] text-xs font-bold"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>{t('تسجيل الدخول / إنشاء حساب', 'Sign In / Register')}</span>
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Quick Nav Cards */}
