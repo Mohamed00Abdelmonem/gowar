@@ -385,21 +385,27 @@ export const StoreMapPicker: React.FC<StoreMapPickerProps> = ({
           )}
 
           {statusNote && <p className="text-[11px] font-bold text-amber-700">{statusNote}</p>}
-          <p className="text-[11px] text-[#6E6A66]">
-            {t(
-              'اضغط في أي مكان على الخريطة أو اسحب الدبوس لتحديث موقع المحل بدقة.',
-              'Click anywhere on the map or drag the pin to reposition your store.'
-            )}
-          </p>
         </div>
       )}
 
       <div
-        ref={containerRef}
-        className={`w-full ${heightClass} rounded-2xl border ${
+        className={`relative rounded-2xl overflow-hidden border bg-[#F5F2EE] ${
           editing ? 'border-[#1B8E53] ring-2 ring-[#1B8E53]/15' : 'border-[#EAE6E1]'
-        } overflow-hidden z-0`}
-      />
+        }`}
+      >
+        <div ref={containerRef} className={`w-full ${heightClass} z-0`} />
+        {editing && (
+          <div className="pointer-events-none absolute top-2.5 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 z-[400] px-3 py-1 rounded-full bg-white/95 border border-[#EAE6E1] shadow-sm text-[11px] font-bold text-[#1C1917] whitespace-nowrap flex items-center gap-1.5">
+            <Navigation className="w-3 h-3 text-[#1B8E53]" />
+            <span>
+              {t(
+                'حرّك العلامة لتحديد موقع المحل أو اضغط على الخريطة',
+                'Drag the marker or tap anywhere on the map'
+              )}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
