@@ -28,7 +28,7 @@ export const SafeImage: React.FC<SafeImageProps> = ({
   const resolvedSrc = isFallback ? createSvgFallback(fallbackText || alt) : src;
 
   return (
-    <div className="relative w-full h-full">
+    <div className={`relative overflow-hidden ${className || 'w-full h-full'}`}>
       {!loaded && !isFallback && (
         <div
           aria-hidden="true"
@@ -46,7 +46,7 @@ export const SafeImage: React.FC<SafeImageProps> = ({
           if (!failed) setFailed(true);
           setLoaded(true);
         }}
-        className={`${className} transition-opacity duration-200 ${
+        className={`w-full h-full object-cover transition-opacity duration-200 ${
           loaded || isFallback ? 'opacity-100' : 'opacity-0'
         }`}
       />
