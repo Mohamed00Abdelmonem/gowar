@@ -166,3 +166,25 @@ test('portal manifest selection and standalone launch routing preserve merchant 
     null
   );
 });
+
+test('install, dismissal, and session tracking are independent per portal (customer, merchant, delivery)', () => {
+  const local = createMemoryStorage();
+  const session = createMemoryStorage();
+  const now = 1_700_000_000_000;
+
+  markAppInstalled(local, 'customer');
+  recordInstallDismissal(now, local, 'customer');
+
+  assert.equal(isAppMarkedInstalled(local, 'customer'), true);
+  assert.equal(isAppMarkedInstalled(local, 'merchant'), false);
+  assert.equal(isAppMarkedInstalled(local, 'delivery'), false);
+
+  assert.equal(isInstallDismissedRecently(now + 1000, local, 'customer'), true);
+  assert.equal(isInstallDismissedRecently(now + 1000, local, 'merchant'), false);
+  assert.equal(isInstallDismissedRecently(now + 1000, local, 'delivery'), false);
+
+  markAppInstalled(local, 'delivery');
+  assert.equal(isAppMarkedInstalled(local, 'delivery'), true);
+  assert.equal(isAppMarkedInstalled(local, 'merchant'), false);
+  assert.equal(session.getItem('gowar_pwa_session_shown_v1_merchant'), null);
+});

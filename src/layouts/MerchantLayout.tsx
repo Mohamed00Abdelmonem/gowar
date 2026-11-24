@@ -303,7 +303,7 @@ export const MerchantLayout: React.FC = () => {
                   title={t('تثبيت التطبيق', 'Install App')}
                 >
                   <Download className="w-3.5 h-3.5 shrink-0" />
-                  <span className="hidden md:inline">{t('تثبيت التطبيق', 'Install App')}</span>
+                  <span>{t('تثبيت التطبيق', 'Install App')}</span>
                 </button>
               )}
 

@@ -90,8 +90,8 @@ export const DeliveryLayout: React.FC = () => {
                 className="h-9 px-2.5 rounded-xl border border-[#C2E7D2] bg-[#E6F5EC] hover:bg-[#D5EFE0] text-xs font-bold text-[#1B8E53] inline-flex items-center gap-1"
                 title={t('تثبيت التطبيق', 'Install App')}
               >
-                <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{t('تثبيت', 'Install')}</span>
+                <Download className="w-3.5 h-3.5 shrink-0" />
+                <span>{t('تثبيت التطبيق', 'Install App')}</span>
               </button>
             )}
             <button

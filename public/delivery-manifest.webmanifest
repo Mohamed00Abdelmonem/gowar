@@ -1,9 +1,10 @@
 {
+  "id": "/delivery",
   "name": "Gowar Delivery",
   "short_name": "Gowar Delivery",
   "description": "Manage and deliver your assigned Gowar neighborhood orders.",
   "start_url": "/delivery",
-  "scope": "/",
+  "scope": "/delivery",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#166534",

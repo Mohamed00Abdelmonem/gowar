@@ -42,8 +42,9 @@ export const PwaInstallModal: React.FC = () => {
     };
 
     const handleAppInstalled = () => {
-      markAppInstalled();
-      recordInstalledPortal(getPwaPortalForPath(window.location.pathname));
+      const activePortal = getPwaPortalForPath(window.location.pathname);
+      markAppInstalled(undefined, activePortal);
+      recordInstalledPortal(activePortal);
       setDeferredPrompt(null);
       setInstallState('installed');
       window.setTimeout(() => {
@@ -72,12 +73,13 @@ export const PwaInstallModal: React.FC = () => {
   useEffect(() => {
     if (open) return;
 
+    const portal = getPwaPortalForPath(pathname);
     const eligible = shouldShowInstallModal({
       pathname,
       standalone: isStandaloneMode(),
-      installed: isAppMarkedInstalled(),
-      dismissedRecently: isInstallDismissedRecently(),
-      shownThisSession: wasShownInSession(),
+      installed: isAppMarkedInstalled(undefined, portal),
+      dismissedRecently: isInstallDismissedRecently(undefined, undefined, portal),
+      shownThisSession: wasShownInSession(undefined, portal),
       hasNativePrompt: deferredPrompt !== null,
       iosSafari: iosSafariMode,
     });
@@ -85,18 +87,19 @@ export const PwaInstallModal: React.FC = () => {
     if (!eligible) return;
 
     const timerId = window.setTimeout(() => {
+      const currentPortal = getPwaPortalForPath(pathname);
       const stillEligible = shouldShowInstallModal({
         pathname,
         standalone: isStandaloneMode(),
-        installed: isAppMarkedInstalled(),
-        dismissedRecently: isInstallDismissedRecently(),
-        shownThisSession: wasShownInSession(),
+        installed: isAppMarkedInstalled(undefined, currentPortal),
+        dismissedRecently: isInstallDismissedRecently(undefined, undefined, currentPortal),
+        shownThisSession: wasShownInSession(undefined, currentPortal),
         hasNativePrompt: deferredPrompt !== null,
         iosSafari: iosSafariMode,
       });
       if (!stillEligible) return;
 
-      markShownInSession();
+      markShownInSession(undefined, currentPortal);
       setInstallState('prompt');
       setOpen(true);
     }, PWA_SHOW_DELAY_MS);
@@ -105,13 +108,14 @@ export const PwaInstallModal: React.FC = () => {
   }, [pathname, deferredPrompt, iosSafariMode, open]);
 
   const handleDismiss = useCallback(() => {
-    recordInstallDismissal();
+    recordInstallDismissal(undefined, undefined, getPwaPortalForPath(pathname));
     setOpen(false);
-  }, []);
+  }, [pathname]);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt || installState !== 'prompt') return;
 
+    const portal = getPwaPortalForPath(pathname);
     setInstallState('installing');
     try {
       await deferredPrompt.prompt();
@@ -119,17 +123,17 @@ export const PwaInstallModal: React.FC = () => {
       setDeferredPrompt(null);
 
       if (outcome === 'dismissed') {
-        recordInstallDismissal();
+        recordInstallDismissal(undefined, undefined, portal);
         setInstallState('prompt');
         setOpen(false);
       }
       // When outcome === 'accepted', wait for confirmed `appinstalled` event.
       // If browser doesn't fire `appinstalled` within 4s, close cleanly without falsely claiming installed.
       if (outcome === 'accepted') {
-        recordInstalledPortal(getPwaPortalForPath(pathname));
+        recordInstalledPortal(portal);
         window.setTimeout(() => {
           setOpen((currentlyOpen) => {
-            if (currentlyOpen && !isAppMarkedInstalled()) {
+            if (currentlyOpen && !isAppMarkedInstalled(undefined, portal)) {
               return false;
             }
             return currentlyOpen;

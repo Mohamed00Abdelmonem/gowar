@@ -144,13 +144,18 @@ export function requestPwaInstallModal(): void {
   window.dispatchEvent(new CustomEvent(PWA_OPEN_EVENT));
 }
 
+function getPortalStorageKey(baseKey: string, portal: PwaPortal = 'customer'): string {
+  return portal === 'customer' ? baseKey : `${baseKey}_${portal}`;
+}
+
 export function isInstallDismissedRecently(
   nowMs = Date.now(),
-  storage: StorageLike | null = getSafeStorage('local')
+  storage: StorageLike | null = getSafeStorage('local'),
+  portal: PwaPortal = 'customer'
 ): boolean {
   if (!storage) return false;
   try {
-    const raw = storage.getItem(PWA_DISMISSED_AT_KEY);
+    const raw = storage.getItem(getPortalStorageKey(PWA_DISMISSED_AT_KEY, portal));
     if (!raw) return false;
     const dismissedAt = Number(raw);
     if (!Number.isFinite(dismissedAt) || dismissedAt <= 0) return false;
@@ -162,55 +167,60 @@ export function isInstallDismissedRecently(
 
 export function recordInstallDismissal(
   nowMs = Date.now(),
-  storage: StorageLike | null = getSafeStorage('local')
+  storage: StorageLike | null = getSafeStorage('local'),
+  portal: PwaPortal = 'customer'
 ): void {
   if (!storage) return;
   try {
-    storage.setItem(PWA_DISMISSED_AT_KEY, String(nowMs));
+    storage.setItem(getPortalStorageKey(PWA_DISMISSED_AT_KEY, portal), String(nowMs));
   } catch {
     // Ignore storage quota errors
   }
 }
 
 export function isAppMarkedInstalled(
-  storage: StorageLike | null = getSafeStorage('local')
+  storage: StorageLike | null = getSafeStorage('local'),
+  portal: PwaPortal = 'customer'
 ): boolean {
   if (!storage) return false;
   try {
-    return storage.getItem(PWA_INSTALLED_KEY) === 'true';
+    return storage.getItem(getPortalStorageKey(PWA_INSTALLED_KEY, portal)) === 'true';
   } catch {
     return false;
   }
 }
 
 export function markAppInstalled(
-  storage: StorageLike | null = getSafeStorage('local')
+  storage: StorageLike | null = getSafeStorage('local'),
+  portal: PwaPortal = 'customer'
 ): void {
   if (!storage) return;
   try {
-    storage.setItem(PWA_INSTALLED_KEY, 'true');
+    storage.setItem(getPortalStorageKey(PWA_INSTALLED_KEY, portal), 'true');
   } catch {
     // Ignore storage quota errors
   }
 }
 
 export function wasShownInSession(
-  storage: StorageLike | null = getSafeStorage('session')
+  storage: StorageLike | null = getSafeStorage('session'),
+  portal: PwaPortal = 'customer'
 ): boolean {
   if (!storage) return false;
   try {
-    return storage.getItem(PWA_SESSION_SHOWN_KEY) === 'true';
+    return storage.getItem(getPortalStorageKey(PWA_SESSION_SHOWN_KEY, portal)) === 'true';
   } catch {
     return false;
   }
 }
 
 export function markShownInSession(
-  storage: StorageLike | null = getSafeStorage('session')
+  storage: StorageLike | null = getSafeStorage('session'),
+  portal: PwaPortal = 'customer'
 ): void {
   if (!storage) return;
   try {
-    storage.setItem(PWA_SESSION_SHOWN_KEY, 'true');
+    storage.setItem(getPortalStorageKey(PWA_SESSION_SHOWN_KEY, portal), 'true');
   } catch {
     // Ignore
   }
