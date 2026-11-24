@@ -82,6 +82,7 @@ class ProductSerializer(serializers.ModelSerializer):
     category_name_en = serializers.CharField(source="category.name_en", read_only=True)
     store_name = serializers.CharField(source="store.name", read_only=True)
     gallery_images = ProductImageSerializer(source="images", many=True, read_only=True)
+    image_url = serializers.CharField(required=False, allow_blank=True, max_length=500)
 
     class Meta:
         model = Product
@@ -119,6 +120,14 @@ class ProductSerializer(serializers.ModelSerializer):
     def validate_image(self, value):
         validate_uploaded_product_image(value)
         return value
+
+    def validate_image_url(self, value):
+        val = (value or "").strip()
+        if not val:
+            return ""
+        if val.startswith(("/", "http://", "https://")):
+            return val
+        raise serializers.ValidationError("Enter a valid image URL or path.")
 
     def to_internal_value(self, data):
         if hasattr(data, "copy"):

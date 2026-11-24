@@ -120,7 +120,7 @@ def test_order_lifecycle_dispatches_web_push_and_cleans_up_expired_410(
         api_client.force_authenticate(user=customer_user)
         api_client.post(
             "/api/v1/cart/items/",
-            {"product_id": str(product.id), "quantity": 1},
+            {"product_id": str(product.id), "quantity": 2},
             format="json",
         )
         with django_capture_on_commit_callbacks(execute=True):
