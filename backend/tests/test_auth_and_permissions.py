@@ -190,7 +190,10 @@ def test_phone_normalization_optional_email_and_duplicate_rejection(api_client):
     assert dup_res.status_code == status.HTTP_400_BAD_REQUEST
 
     # Login succeeds with 002011... and Arabic-Indic digits
+    from django.core.cache import cache
+
     for variant in ("+201123456789", "00201123456789", "٠١١٢٣٤٥٦٧٨٩"):
+        cache.clear()
         login_res = api_client.post(
             "/api/v1/auth/customer/login/",
             {"phone_number": variant, "password": "StrongPassword123!"},
@@ -199,6 +202,7 @@ def test_phone_normalization_optional_email_and_duplicate_rejection(api_client):
         assert login_res.status_code == status.HTTP_200_OK
 
     # Email-only login is rejected
+    cache.clear()
     email_login = api_client.post(
         "/api/v1/auth/customer/login/",
         {"email": "nonexistent@gowar.test", "password": "StrongPassword123!"},
@@ -216,7 +220,7 @@ def test_legacy_user_complete_phone_and_password_reset_request(api_client):
         email="legacy@gowar.test",
         password="LegacyPassword123!",
         first_name="Legacy",
-        role=User.Role.CUSTOMER,
+        role="customer",
     )
     assert legacy.phone_number is None
 
