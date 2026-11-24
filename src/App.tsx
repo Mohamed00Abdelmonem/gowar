@@ -11,7 +11,6 @@ import {
 import { ToastContainer } from './components/common/ToastContainer';
 import { CartConflictModal } from './components/common/CartConflictModal';
 import { PwaInstallModal } from './components/pwa/PwaInstallModal';
-import { PwaLaunchSplash } from './components/pwa/PwaLaunchSplash';
 import { PushNotificationPrompt } from './components/notifications/PushNotificationPrompt';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
@@ -232,7 +231,6 @@ export function App() {
         <PwaInstallModal />
         <PushNotificationPrompt />
         <ToastContainer />
-        <PwaLaunchSplash />
       </BrowserRouter>
     </AppProvider>
   );
