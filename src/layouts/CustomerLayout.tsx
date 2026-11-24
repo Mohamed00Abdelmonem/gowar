@@ -212,7 +212,13 @@ export const CustomerLayout: React.FC = () => {
 
       {/* Clean Minimal Footer */}
       <footer className="bg-white border-t border-[#EAE6E1] mt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div
+          className={`max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 gap-6 ${
+            authSession?.role === 'merchant' || authSession?.role === 'delivery'
+              ? 'md:grid-cols-3'
+              : 'md:grid-cols-2'
+          }`}
+        >
           <div className="space-y-2.5">
             <BrandLogo />
             <p className="text-xs sm:text-sm text-[#6E6A66] max-w-sm leading-relaxed">
@@ -244,27 +250,33 @@ export const CustomerLayout: React.FC = () => {
                 ))}
             </div>
           </div>
-          <div>
-            <h4 className="text-sm font-bold text-[#1C1917] mb-2.5">
-              {t('بوابات الشركاء', 'Partner Portals')}
-            </h4>
-            <div className="flex flex-col sm:flex-row md:flex-col gap-2">
-              <Link
-                to={authSession?.role === 'merchant' ? '/merchant' : '/merchant/login'}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] hover:border-[#1B8E53] hover:bg-[#E6F5EC]/60 text-xs font-bold text-[#1C1917] transition-colors"
-              >
-                <Store className="w-4 h-4 text-[#1B8E53] shrink-0" />
-                <span>{t('لوحة تحكم التاجر', 'Merchant Dashboard')}</span>
-              </Link>
-              <Link
-                to={authSession?.role === 'delivery' ? '/delivery' : '/delivery/login'}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] hover:border-[#1B8E53] hover:bg-[#E6F5EC]/60 text-xs font-bold text-[#1C1917] transition-colors"
-              >
-                <Truck className="w-4 h-4 text-[#1B8E53] shrink-0" />
-                <span>{t('لوحة تحكم المندوب', 'Delivery Dashboard')}</span>
-              </Link>
+          {(authSession?.role === 'merchant' || authSession?.role === 'delivery') && (
+            <div>
+              <h4 className="text-sm font-bold text-[#1C1917] mb-2.5">
+                {t('لوحة التحكم', 'Dashboard')}
+              </h4>
+              <div className="flex flex-col sm:flex-row md:flex-col gap-2">
+                {authSession.role === 'merchant' && (
+                  <Link
+                    to="/merchant"
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] hover:border-[#1B8E53] hover:bg-[#E6F5EC]/60 text-xs font-bold text-[#1C1917] transition-colors"
+                  >
+                    <Store className="w-4 h-4 text-[#1B8E53] shrink-0" />
+                    <span>{t('لوحة تحكم التاجر', 'Merchant Dashboard')}</span>
+                  </Link>
+                )}
+                {authSession.role === 'delivery' && (
+                  <Link
+                    to="/delivery"
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] hover:border-[#1B8E53] hover:bg-[#E6F5EC]/60 text-xs font-bold text-[#1C1917] transition-colors"
+                  >
+                    <Truck className="w-4 h-4 text-[#1B8E53] shrink-0" />
+                    <span>{t('لوحة تحكم المندوب', 'Delivery Dashboard')}</span>
+                  </Link>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <div className="border-t border-[#EAE6E1] py-3.5 text-center text-xs text-[#6E6A66]">
           {t('© ٢٠٢٦ جوار (Gowar)', '© 2026 Gowar Marketplace')}
