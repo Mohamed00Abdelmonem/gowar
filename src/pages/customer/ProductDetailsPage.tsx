@@ -57,14 +57,22 @@ export const ProductDetailsPage: React.FC = () => {
   const outOfStock = !product.isAvailable || product.stock <= 0;
   const qtyInCart = cart.merchantId === product.merchantId ? getCartItemQty(product.id) : 0;
 
-  const similarFromOtherStores = products
+  const recommendedFromSameStore = products
     .filter(
       (p) =>
         p.id !== product.id &&
-        p.merchantId !== product.merchantId &&
-        p.categoryId === product.categoryId &&
-        p.isAvailable
+        p.merchantId === product.merchantId &&
+        p.isAvailable &&
+        p.stock > 0
     )
+    .sort((a, b) => {
+      const aSameCat = a.categoryId === product.categoryId ? 1 : 0;
+      const bSameCat = b.categoryId === product.categoryId ? 1 : 0;
+      if (aSameCat !== bSameCat) return bSameCat - aSameCat;
+      const aPromo = a.isOffer || a.isBestSeller ? 1 : 0;
+      const bPromo = b.isOffer || b.isBestSeller ? 1 : 0;
+      return bPromo - aPromo;
+    })
     .slice(0, 3);
 
   return (
@@ -223,40 +231,39 @@ export const ProductDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      {similarFromOtherStores.length > 0 && (
+      {recommendedFromSameStore.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-base font-extrabold text-[#1C1917] inline-flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-[#1B8E53]" />
-            <span>{t('نفس القسم في محلات تانية قريبة', 'Same Category in Other Nearby Stores')}</span>
+            <span>
+              {t(`منتجات تانية من ${store.nameAr}`, `More from ${store.nameEn}`)}
+            </span>
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {similarFromOtherStores.map((sp) => {
-              const spStore = merchants.find((m) => m.id === sp.merchantId);
-              return (
-                <Link
-                  key={sp.id}
-                  to={`/product/${sp.id}`}
-                  className="bg-white rounded-2xl border border-[#EAE6E1] p-3 flex items-center gap-3 hover:border-[#1B8E53] transition-colors"
-                >
-                  <SafeImage
-                    src={sp.image}
-                    alt={sp.nameAr}
-                    className="w-14 h-14 rounded-xl object-cover shrink-0 bg-[#FAF9F7]"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[11px] font-bold text-[#1B8E53] block truncate">
-                      {spStore ? (language === 'ar' ? spStore.nameAr : spStore.nameEn) : ''}
-                    </span>
-                    <span className="text-sm font-bold text-[#1C1917] block truncate">
-                      {language === 'ar' ? sp.nameAr : sp.nameEn}
-                    </span>
-                    <span className="text-sm font-extrabold text-[#1C1917]">
-                      {formatEGP(sp.price, language)}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+            {recommendedFromSameStore.map((sp) => (
+              <Link
+                key={sp.id}
+                to={`/product/${sp.id}`}
+                className="bg-white rounded-2xl border border-[#EAE6E1] p-3 flex items-center gap-3 hover:border-[#1B8E53] transition-colors"
+              >
+                <SafeImage
+                  src={sp.image}
+                  alt={sp.nameAr}
+                  className="w-14 h-14 rounded-xl object-cover shrink-0 bg-[#FAF9F7]"
+                />
+                <div className="min-w-0 flex-1">
+                  <span className="text-[11px] font-bold text-[#1B8E53] block truncate">
+                    {language === 'ar' ? store.nameAr : store.nameEn}
+                  </span>
+                  <span className="text-sm font-bold text-[#1C1917] block truncate">
+                    {language === 'ar' ? sp.nameAr : sp.nameEn}
+                  </span>
+                  <span className="text-sm font-extrabold text-[#1C1917]">
+                    {formatEGP(sp.price, language)}
+                  </span>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
       )}
