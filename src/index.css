@@ -137,11 +137,45 @@
   animation: pwa-cta-attention 2.8s ease-in-out infinite;
 }
 
+@keyframes gowar-splash-drop {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -54px, 0) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes gowar-splash-wordmark {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.gowar-splash-logo-drop {
+  animation: gowar-splash-drop 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.gowar-splash-wordmark {
+  animation: gowar-splash-wordmark 340ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both;
+  will-change: transform, opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pwa-overlay-animate,
   .pwa-modal-animate,
   .pwa-icon-float,
-  .pwa-cta-attention {
+  .pwa-cta-attention,
+  .gowar-splash-logo-drop,
+  .gowar-splash-wordmark {
     animation: none !important;
   }
 }
