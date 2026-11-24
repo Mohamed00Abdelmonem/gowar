@@ -42,7 +42,7 @@ def test_delivery_auth_and_role_isolation(
     # Delivery user logs in via delivery login endpoint
     login_res = api_client.post(
         "/api/v1/auth/delivery/login/",
-        {"email": d1.email, "password": "DriverPassword123!"},
+        {"phone_number": d1.phone_number, "password": "DriverPassword123!"},
         format="json",
     )
     assert login_res.status_code == 200
@@ -52,7 +52,7 @@ def test_delivery_auth_and_role_isolation(
     # Customer cannot log in via delivery login
     bad_cust = api_client.post(
         "/api/v1/auth/delivery/login/",
-        {"email": customer_user.email, "password": "CustPassword123!"},
+        {"phone_number": customer_user.phone_number, "password": "CustPassword123!"},
         format="json",
     )
     assert bad_cust.status_code == 400

@@ -8,6 +8,7 @@ from django.db.models import Avg, Count, DurationField, ExpressionWrapper, F, Q
 from django.utils import timezone
 
 from apps.accounts.models import User, UserRole
+from apps.accounts.phone import normalize_phone_number
 from apps.locations.validators import validate_coordinates
 from apps.merchants.models import MerchantProfile
 from apps.orders.models import Order, OrderStatusChoices
@@ -80,13 +81,16 @@ def create_merchant_driver(
     vehicle_plate: str = "",
     notes: str = "",
 ) -> DeliveryDriverProfile:
-    normalized_email = email.strip().lower()
-    normalized_phone = phone_number.strip()
+    normalized_email = email.strip().lower() if email and email.strip() else None
+    try:
+        normalized_phone = normalize_phone_number(phone_number)
+    except ValueError as exc:
+        raise ValidationError({"phone_number": str(exc)}) from exc
 
-    if User.objects.filter(email=normalized_email).exists():
+    if normalized_email and User.objects.filter(email=normalized_email).exists():
         raise ValidationError({"email": "A user with this email already exists."})
-    if normalized_phone and User.objects.filter(phone_number=normalized_phone).exists():
-        raise ValidationError({"phone_number": "A user with this phone number already exists."})
+    if User.objects.filter(phone_number=normalized_phone).exists():
+        raise ValidationError({"phone_number": "يوجد حساب مسجل بالفعل برقم الموبايل هذا."})
 
     user = User.objects.create_user(
         email=normalized_email,

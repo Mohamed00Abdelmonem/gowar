@@ -23,14 +23,14 @@ def test_customer_registration_login_refresh_and_logout(api_client):
 
     bad_login = api_client.post(
         "/api/v1/auth/customer/login/",
-        {"email": "newcust@gowar.test", "password": "WrongPassword"},
+        {"phone_number": "01055555555", "password": "WrongPassword"},
         format="json",
     )
     assert bad_login.status_code == status.HTTP_400_BAD_REQUEST
 
     good_login = api_client.post(
         "/api/v1/auth/customer/login/",
-        {"email": "newcust@gowar.test", "password": "StrongPassword123!"},
+        {"phone_number": "+201055555555", "password": "StrongPassword123!"},
         format="json",
     )
     assert good_login.status_code == status.HTTP_200_OK
@@ -72,7 +72,7 @@ def test_role_isolation_and_object_level_permissions(
     # Customer cannot login at merchant login endpoint
     res = api_client.post(
         "/api/v1/auth/merchant/login/",
-        {"email": customer_user.email, "password": "CustPassword123!"},
+        {"phone_number": customer_user.phone_number, "password": "CustPassword123!"},
         format="json",
     )
     assert res.status_code == status.HTTP_400_BAD_REQUEST
@@ -129,7 +129,7 @@ def test_merchant_registration_pending_until_admin_approves(api_client, admin_us
     # Pending merchant cannot sign in until approved by admin
     blocked_login = api_client.post(
         "/api/v1/auth/merchant/login/",
-        {"email": "pendingstore@gowar.test", "password": "StrongMerchantPassword123!"},
+        {"phone_number": "01099887766", "password": "StrongMerchantPassword123!"},
         format="json",
     )
     assert blocked_login.status_code == status.HTTP_400_BAD_REQUEST
@@ -153,9 +153,96 @@ def test_merchant_registration_pending_until_admin_approves(api_client, admin_us
     # Now the merchant can log in with the same credentials
     ok_login = api_client.post(
         "/api/v1/auth/merchant/login/",
-        {"email": "pendingstore@gowar.test", "password": "StrongMerchantPassword123!"},
+        {"phone_number": "01099887766", "password": "StrongMerchantPassword123!"},
         format="json",
     )
     assert ok_login.status_code == status.HTTP_200_OK
     assert ok_login.data["user"]["role"] == "merchant"
     assert ok_login.data["user"]["merchant_approval_status"] == "approved"
+
+
+@pytest.mark.django_db
+def test_phone_normalization_optional_email_and_duplicate_rejection(api_client):
+    # Register customer without email using local Egyptian format
+    reg_res = api_client.post(
+        "/api/v1/auth/register/",
+        {
+            "phone_number": "011 2345-6789",
+            "password": "StrongPassword123!",
+            "first_name": "سارة",
+        },
+        format="json",
+    )
+    assert reg_res.status_code == status.HTTP_201_CREATED
+    assert reg_res.data["user"]["phone_number"] == "+201123456789"
+    assert reg_res.data["user"]["needs_phone_completion"] is False
+
+    # Equivalent international format cannot register again
+    dup_res = api_client.post(
+        "/api/v1/auth/register/",
+        {
+            "phone_number": "+201123456789",
+            "password": "StrongPassword123!",
+            "first_name": "سارة",
+        },
+        format="json",
+    )
+    assert dup_res.status_code == status.HTTP_400_BAD_REQUEST
+
+    # Login succeeds with 002011... and Arabic-Indic digits
+    for variant in ("+201123456789", "00201123456789", "٠١١٢٣٤٥٦٧٨٩"):
+        login_res = api_client.post(
+            "/api/v1/auth/customer/login/",
+            {"phone_number": variant, "password": "StrongPassword123!"},
+            format="json",
+        )
+        assert login_res.status_code == status.HTTP_200_OK
+
+    # Email-only login is rejected
+    email_login = api_client.post(
+        "/api/v1/auth/customer/login/",
+        {"email": "nonexistent@gowar.test", "password": "StrongPassword123!"},
+        format="json",
+    )
+    assert email_login.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+def test_legacy_user_complete_phone_and_password_reset_request(api_client):
+    from django.contrib.auth import get_user_model
+
+    User = get_user_model()
+    legacy = User.objects.create_user(
+        email="legacy@gowar.test",
+        password="LegacyPassword123!",
+        first_name="Legacy",
+        role=User.Role.CUSTOMER,
+    )
+    assert legacy.phone_number is None
+
+    client = auth_client_for(legacy)
+    res = client.post(
+        "/api/v1/auth/complete-phone/",
+        {"phone_number": "01234567890"},
+        format="json",
+    )
+    assert res.status_code == status.HTTP_200_OK
+    assert res.data["user"]["phone_number"] == "+201234567890"
+    assert res.data["user"]["needs_phone_completion"] is False
+
+    # Now legacy user can log in with the completed phone number & original password
+    login_res = api_client.post(
+        "/api/v1/auth/customer/login/",
+        {"phone_number": "01234567890", "password": "LegacyPassword123!"},
+        format="json",
+    )
+    assert login_res.status_code == status.HTTP_200_OK
+
+    # Password reset request returns generic 200 for both registered and unregistered numbers
+    for phone in ("01234567890", "01599999999"):
+        reset_res = api_client.post(
+            "/api/v1/auth/password/reset/request/",
+            {"phone_number": phone},
+            format="json",
+        )
+        assert reset_res.status_code == status.HTTP_200_OK

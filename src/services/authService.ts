@@ -1,4 +1,5 @@
 import type { AuthSession, DemoRole } from '../types';
+import { normalizeEgyptPhone } from '../utils/phone';
 
 /**
  * FRONTEND-ONLY DEMO AUTHENTICATION SERVICE
@@ -14,6 +15,7 @@ const REGISTERED_MERCHANTS_KEY = 'gowar_demo_registered_merchants_v1';
 export interface DemoCredentialAccount {
   id: string;
   role: DemoRole;
+  phone: string;
   email: string;
   password: string;
   nameAr: string;
@@ -28,6 +30,7 @@ export const DEMO_ACCOUNTS: DemoCredentialAccount[] = [
   {
     id: 'usr-merchant-001',
     role: 'merchant',
+    phone: '+201011111111',
     email: 'ahmed@gowar.demo',
     password: 'Gowar@123',
     nameAr: 'أحمد عبد الرحمن',
@@ -40,6 +43,7 @@ export const DEMO_ACCOUNTS: DemoCredentialAccount[] = [
   {
     id: 'usr-merchant-002',
     role: 'merchant',
+    phone: '+201022222222',
     email: 'nour@gowar.demo',
     password: 'Gowar@123',
     nameAr: 'محمود النور',
@@ -52,6 +56,7 @@ export const DEMO_ACCOUNTS: DemoCredentialAccount[] = [
   {
     id: 'usr-admin-001',
     role: 'admin',
+    phone: '+201000000001',
     email: 'admin@gowar.demo',
     password: 'Admin@123',
     nameAr: 'مدير منصة جوار',
@@ -92,20 +97,24 @@ export function getDemoSession(): AuthSession | null {
 }
 
 export function loginWithDemoCredentials(
-  email: string,
+  phoneOrEmail: string,
   password: string,
   expectedRole: DemoRole
 ): { ok: true; session: AuthSession } | { ok: false; errorAr: string; errorEn: string } {
-  const cleanEmail = email.trim().toLowerCase();
+  const normalizedPhone = normalizeEgyptPhone(phoneOrEmail);
+  const cleanEmail = phoneOrEmail.trim().toLowerCase();
   const match = [...DEMO_ACCOUNTS, ...getRegisteredDemoAccounts()].find(
-    (acc) => acc.email.toLowerCase() === cleanEmail && acc.password === password
+    (acc) =>
+      ((normalizedPhone.ok && acc.phone === normalizedPhone.value) ||
+        acc.email.toLowerCase() === cleanEmail) &&
+      acc.password === password
   );
 
   if (!match) {
     return {
       ok: false,
-      errorAr: 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
-      errorEn: 'Invalid email or password.',
+      errorAr: 'رقم الموبايل أو كلمة المرور غير صحيحة.',
+      errorEn: 'Invalid mobile number or password.',
     };
   }
 

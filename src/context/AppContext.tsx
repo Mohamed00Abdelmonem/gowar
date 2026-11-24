@@ -1025,7 +1025,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const res = await authApi.registerMerchant(payload);
         const msg = pickLang(
           state.language,
-          'تم إرسال طلب تسجيل المتجر للإدارة بنجاح. بمجرد الموافقة يمكنك الدخول بنفس البريد وكلمة المرور.',
+          'تم إرسال طلب تسجيل المتجر للإدارة بنجاح. بمجرد الموافقة يمكنك الدخول بنفس رقم الموبايل وكلمة المرور.',
           res.detail || 'Merchant application submitted and awaiting platform admin approval.'
         );
         showToast(msg, 'success');
@@ -1083,7 +1083,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     registerDemoMerchantAccount({
       id: `usr-${Date.now()}`,
       role: 'merchant',
-      email: payload.email.trim().toLowerCase(),
+      phone: payload.phone_number,
+      email: (payload.email || '').trim().toLowerCase(),
       password: payload.password,
       nameAr: fullName,
       nameEn: fullName,
@@ -1098,7 +1099,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
     const msg = pickLang(
       state.language,
-      'تم إرسال طلب تسجيل المتجر للإدارة بنجاح. بمجرد الموافقة يمكنك الدخول بنفس البريد وكلمة المرور.',
+      'تم إرسال طلب تسجيل المتجر للإدارة بنجاح. بمجرد الموافقة يمكنك الدخول بنفس رقم الموبايل وكلمة المرور.',
       'Merchant application submitted and awaiting platform admin approval.'
     );
     showToast(msg, 'success');

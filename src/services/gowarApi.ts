@@ -36,7 +36,7 @@ export interface AuthTokenResponse {
 }
 
 export interface MerchantRegisterPayload {
-  email: string;
+  email?: string;
   password: string;
   phone_number: string;
   first_name: string;
@@ -96,11 +96,11 @@ export interface PaginatedResponse<T> {
 
 export const authApi = {
   async registerCustomer(payload: {
-    email: string;
+    phone_number: string;
     password: string;
     first_name: string;
     last_name?: string;
-    phone_number?: string;
+    email?: string;
   }): Promise<AuthTokenResponse> {
     const res = await apiRequest<AuthTokenResponse>('/auth/register/', {
       method: 'POST',
@@ -124,12 +124,12 @@ export const authApi = {
 
   async loginRole(
     role: 'customer' | 'merchant' | 'delivery' | 'admin',
-    email: string,
+    phone_number: string,
     password: string
   ): Promise<AuthTokenResponse> {
     const res = await apiRequest<AuthTokenResponse>(`/auth/${role}/login/`, {
       method: 'POST',
-      body: { email, password },
+      body: { phone_number, password },
       skipAuth: true,
     });
     setAuthTokens(res.access, res.refresh, res.user);

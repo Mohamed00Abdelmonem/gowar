@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AlertCircle, Download, Globe, Loader2, Lock, Mail, Truck } from 'lucide-react';
+import { AlertCircle, Download, Eye, EyeOff, Globe, Loader2, Lock, Phone, Truck } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { BrandLogo } from '../../components/common/BrandLogo';
 import { isStandaloneMode, requestPwaInstallModal } from '../../services/pwaInstall';
+import { normalizeEgyptPhone } from '../../utils/phone';
 
 export const DeliveryLoginPage: React.FC = () => {
   const { language, setLanguage, t, authSession, loginPortal } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -31,8 +33,13 @@ export const DeliveryLoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    const normalized = normalizeEgyptPhone(phone);
+    if (!normalized.ok) {
+      setError(language === 'ar' ? normalized.errorAr : normalized.errorEn);
+      return;
+    }
     setSubmitting(true);
-    const res = await loginPortal(email, password, 'delivery');
+    const res = await loginPortal(normalized.value, password, 'delivery');
     setSubmitting(false);
 
     if (!res.ok) {
@@ -102,16 +109,19 @@ export const DeliveryLoginPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-[#6E6A66] mb-1.5">
-                {t('البريد الإلكتروني', 'Email Address')}
+                {t('رقم الموبايل', 'Mobile Number')}
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-[#6E6A66] absolute start-3.5 top-1/2 -translate-y-1/2" />
+                <Phone className="w-4 h-4 text-[#6E6A66] absolute start-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="email"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="driver@gowar.com"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="01XXXXXXXXX"
+                  dir="ltr"
                   className="w-full ps-10 pe-3.5 py-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53]"
                 />
               </div>
@@ -124,13 +134,23 @@ export const DeliveryLoginPage: React.FC = () => {
               <div className="relative">
                 <Lock className="w-4 h-4 text-[#6E6A66] absolute start-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full ps-10 pe-3.5 py-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53]"
+                  dir="ltr"
+                  className="w-full ps-10 pe-10 py-3 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm focus:outline-none focus:border-[#1B8E53]"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? t('إخفاء كلمة المرور', 'Hide password') : t('إظهار كلمة المرور', 'Show password')}
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6E6A66] hover:text-[#1C1917]"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 

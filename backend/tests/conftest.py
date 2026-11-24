@@ -50,6 +50,7 @@ def cairo_areas(db):
 def admin_user(db):
     return User.objects.create_superuser(
         email="admin@gowar.test",
+        phone_number="01000000001",
         password="AdminPassword123!",
         first_name="Admin",
         last_name="User",

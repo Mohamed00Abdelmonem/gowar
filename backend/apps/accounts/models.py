@@ -5,6 +5,8 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.utils import timezone
 
+from .phone import try_normalize_phone_number
+
 
 class UserRole(models.TextChoices):
     CUSTOMER = "customer", "Customer"
@@ -16,35 +18,45 @@ class UserRole(models.TextChoices):
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, email: str, password: str | None, **extra_fields):
-        if not email:
-            raise ValueError("Email address must be provided.")
-        email = self.normalize_email(email).lower()
-        user = self.model(email=email, **extra_fields)
+    def _create_user(self, email: str | None = None, password: str | None = None, **extra_fields):
+        raw_phone = extra_fields.pop("phone_number", None)
+        normalized_phone = None
+        if raw_phone:
+            normalized_phone = try_normalize_phone_number(raw_phone) or raw_phone.strip()
+
+        normalized_email = self.normalize_email(email).lower() if email else None
+        if not normalized_email and not normalized_phone:
+            raise ValueError("Either phone_number or email must be provided.")
+
+        user = self.model(
+            email=normalized_email,
+            phone_number=normalized_phone,
+            **extra_fields,
+        )
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, email: str, password: str | None = None, **extra_fields):
+    def create_user(self, email: str | None = None, password: str | None = None, **extra_fields):
         extra_fields.setdefault("role", UserRole.CUSTOMER)
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
-        return self._create_user(email, password, **extra_fields)
+        return self._create_user(email=email, password=password, **extra_fields)
 
-    def create_superuser(self, email: str, password: str, **extra_fields):
+    def create_superuser(self, email: str | None = None, password: str | None = None, **extra_fields):
         extra_fields.setdefault("role", UserRole.ADMIN)
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_verified", True)
         if not extra_fields.get("is_staff") or not extra_fields.get("is_superuser"):
             raise ValueError("Superuser must have is_staff=True and is_superuser=True.")
-        return self._create_user(email, password, **extra_fields)
+        return self._create_user(email=email, password=password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True, db_index=True)
-    phone_number = models.CharField(max_length=24, blank=True, db_index=True)
+    email = models.EmailField(unique=True, null=True, blank=True, db_index=True)
+    phone_number = models.CharField(max_length=24, unique=True, null=True, blank=True, db_index=True)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     role = models.CharField(
@@ -72,10 +84,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def full_name(self) -> str:
         full = f"{self.first_name} {self.last_name}".strip()
-        return full or self.email
+        return full or self.phone_number or self.email or str(self.id)
 
     def __str__(self):
-        return f"{self.email} ({self.role})"
+        return f"{self.phone_number or self.email} ({self.role})"
 
 
 class PasswordResetToken(models.Model):

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { AlertCircle, Lock, Mail, Phone, User, UserPlus } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, Lock, Mail, Phone, User, UserPlus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ApiClientError, IS_BACKEND_API_ENABLED } from '../../services/apiClient';
 import { authApi, marketplaceApi } from '../../services/gowarApi';
+import { normalizeEgyptPhone } from '../../utils/phone';
 
 interface CustomerAuthPageProps {
   initialMode?: 'login' | 'register';
@@ -22,17 +23,24 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
   const returnTo = rawFrom.startsWith('/') && !rawFrom.startsWith('//') ? rawFrom : '/';
 
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const normalized = normalizeEgyptPhone(phone);
+    if (!normalized.ok) {
+      setError(t(normalized.errorAr, normalized.errorEn));
+      return;
+    }
 
     if (!IS_BACKEND_API_ENABLED) {
       showToast(
@@ -50,15 +58,15 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
     try {
       if (mode === 'register') {
         await authApi.registerCustomer({
-          email,
+          phone_number: normalized.value,
           password,
           first_name: firstName,
           last_name: lastName,
-          phone_number: phone,
+          ...(email.trim() ? { email: email.trim() } : {}),
         });
         showToast(t('تم إنشاء حسابك وتسجيل الدخول بنجاح', 'Account created and signed in'), 'success');
       } else {
-        await authApi.loginRole('customer', email, password);
+        await authApi.loginRole('customer', normalized.value, password);
         showToast(t('تم تسجيل الدخول بنجاح', 'Signed in successfully'), 'success');
       }
       if (cart.items.length > 0) {
@@ -158,70 +166,72 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {mode === 'register' && (
-            <>
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-xs font-bold text-[#6E6A66] mb-1">
-                    {t('الاسم الأول', 'First Name')}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#6E6A66] mb-1">
-                    {t('اسم العائلة', 'Last Name')}
-                  </label>
-                  <input
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
-                  />
-                </div>
-              </div>
-
+            <div className="grid grid-cols-2 gap-2.5">
               <div>
                 <label className="block text-xs font-bold text-[#6E6A66] mb-1">
-                  {t('رقم الموبايل', 'Phone Number')}
+                  {t('الاسم الأول', 'First Name')}
                 </label>
-                <div className="relative">
-                  <Phone className="w-4 h-4 text-[#6E6A66] absolute start-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="010xxxxxxxx"
-                    dir="ltr"
-                    className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
-                  />
-                </div>
+                <input
+                  type="text"
+                  required
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
+                />
               </div>
-            </>
+              <div>
+                <label className="block text-xs font-bold text-[#6E6A66] mb-1">
+                  {t('اسم العائلة', 'Last Name')}
+                </label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
+                />
+              </div>
+            </div>
           )}
 
           <div>
             <label className="block text-xs font-bold text-[#6E6A66] mb-1">
-              {t('البريد الإلكتروني', 'Email Address')}
+              {t('رقم الموبايل', 'Mobile Number')}
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-[#6E6A66] absolute start-3 top-1/2 -translate-y-1/2" />
+              <Phone className="w-4 h-4 text-[#6E6A66] absolute start-3 top-1/2 -translate-y-1/2" />
               <input
-                type="email"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="customer@gowar.demo"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="01012345678"
                 dir="ltr"
                 className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
               />
             </div>
           </div>
+
+          {mode === 'register' && (
+            <div>
+              <label className="block text-xs font-bold text-[#6E6A66] mb-1">
+                {t('البريد الإلكتروني (اختياري)', 'Email Address (Optional)')}
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-[#6E6A66] absolute start-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="customer@example.com"
+                  dir="ltr"
+                  className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
+                />
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="block text-xs font-bold text-[#6E6A66] mb-1">
@@ -230,20 +240,30 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
             <div className="relative">
               <Lock className="w-4 h-4 text-[#6E6A66] absolute start-3 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 required
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
                 dir="ltr"
-                className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
+                className="w-full ps-9 pe-10 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-sm"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? t('إخفاء كلمة المرور', 'Hide password') : t('إظهار كلمة المرور', 'Show password')}
+                className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6E6A66] hover:text-[#1C1917]"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
             {mode === 'register' && (
               <p className="text-[11px] text-[#6E6A66] mt-1">
                 {t(
-                  '8 أحرف على الأقل، وتجنب أن تكون أرقاماً فقط أو شائعة أو مطابقة للبريد الإلكتروني.',
-                  'At least 8 characters; avoid all-numeric, common, or email-identical passwords.'
+                  '8 أحرف على الأقل، وتجنب أن تكون أرقاماً فقط أو شائعة أو مطابقة لرقم الموبايل.',
+                  'At least 8 characters; avoid all-numeric, common, or phone-identical passwords.'
                 )}
               </p>
             )}

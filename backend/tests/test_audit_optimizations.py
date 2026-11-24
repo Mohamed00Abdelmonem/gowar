@@ -32,14 +32,14 @@ def test_rate_limit_429_includes_retry_after_and_no_internals(monkeypatch):
 
     r1 = client.post(
         "/api/v1/auth/password/reset/request/",
-        {"email": "none@example.com"},
+        {"phone_number": "01000000099"},
         format="json",
     )
     assert r1.status_code == 200
 
     r2 = client.post(
         "/api/v1/auth/password/reset/request/",
-        {"email": "none@example.com"},
+        {"phone_number": "01000000099"},
         format="json",
     )
     assert r2.status_code == 429
@@ -103,7 +103,7 @@ def test_throttling_ignores_spoofed_xff_when_num_proxies_is_2(settings, monkeypa
     # Simulate Host Nginx -> Container Nginx chain where attacker spoofs leftmost XFF IP
     r1 = client.post(
         "/api/v1/auth/password/reset/request/",
-        {"email": "a@example.com"},
+        {"phone_number": "01000000091"},
         format="json",
         HTTP_X_FORWARDED_FOR="1.1.1.1, 198.51.100.42, 172.19.0.1",
     )
@@ -111,7 +111,7 @@ def test_throttling_ignores_spoofed_xff_when_num_proxies_is_2(settings, monkeypa
 
     r2 = client.post(
         "/api/v1/auth/password/reset/request/",
-        {"email": "b@example.com"},
+        {"phone_number": "01000000092"},
         format="json",
         HTTP_X_FORWARDED_FOR="2.2.2.2, 198.51.100.42, 172.19.0.1",
     )
@@ -120,7 +120,7 @@ def test_throttling_ignores_spoofed_xff_when_num_proxies_is_2(settings, monkeypa
     # Spoofing a third leftmost IP must still hit the 198.51.100.42 bucket (429)
     r3 = client.post(
         "/api/v1/auth/password/reset/request/",
-        {"email": "c@example.com"},
+        {"phone_number": "01000000093"},
         format="json",
         HTTP_X_FORWARDED_FOR="3.3.3.3, 198.51.100.42, 172.19.0.1",
     )

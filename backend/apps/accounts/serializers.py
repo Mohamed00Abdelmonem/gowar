@@ -1,17 +1,21 @@
-from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import IntegrityError
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.locations.models import CustomerProfile
 from .models import User, UserRole
+from .phone import normalize_phone_number
 
 
 def build_token_payload(user: User) -> dict:
     refresh = RefreshToken.for_user(user)
     refresh["role"] = user.role
-    refresh["email"] = user.email
+    if user.email:
+        refresh["email"] = user.email
+    if user.phone_number:
+        refresh["phone_number"] = user.phone_number
 
     merchant_profile = getattr(user, "merchant_profile", None)
     stores_data = []
@@ -40,6 +44,7 @@ def build_token_payload(user: User) -> dict:
             "full_name": user.full_name,
             "role": user.role,
             "is_verified": user.is_verified,
+            "needs_phone_completion": not bool(user.phone_number),
             "search_radius_km": customer_profile.search_radius_km if customer_profile else None,
             "merchant_approval_status": (
                 merchant_profile.approval_status if merchant_profile else None
@@ -76,16 +81,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class CustomerRegisterSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    phone_number = serializers.CharField(max_length=24)
     password = serializers.CharField(write_only=True, min_length=8)
-    phone_number = serializers.CharField(max_length=24, required=False, allow_blank=True)
+    email = serializers.EmailField(required=False, allow_blank=True, allow_null=True)
     first_name = serializers.CharField(max_length=100)
     last_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
 
-    def validate_email(self, value: str) -> str:
+    def validate_phone_number(self, value: str) -> str:
+        try:
+            normalized = normalize_phone_number(value)
+        except ValueError as exc:
+            raise serializers.ValidationError(str(exc)) from exc
+        if User.objects.filter(phone_number=normalized).exists():
+            raise serializers.ValidationError("يوجد حساب مسجل بالفعل برقم الموبايل هذا.")
+        return normalized
+
+    def validate_email(self, value: str | None) -> str | None:
+        if not value or not value.strip():
+            return None
         email = value.strip().lower()
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError("An account with this email already exists.")
+            raise serializers.ValidationError("يوجد حساب مسجل بالفعل بهذا البريد الإلكتروني.")
         return email
 
     def validate_password(self, value: str) -> str:
@@ -96,40 +112,44 @@ class CustomerRegisterSerializer(serializers.Serializer):
         return value
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            email=validated_data["email"],
-            password=validated_data["password"],
-            phone_number=validated_data.get("phone_number", ""),
-            first_name=validated_data["first_name"],
-            last_name=validated_data.get("last_name", ""),
-            role=UserRole.CUSTOMER,
-        )
+        try:
+            user = User.objects.create_user(
+                email=validated_data.get("email"),
+                password=validated_data["password"],
+                phone_number=validated_data["phone_number"],
+                first_name=validated_data["first_name"],
+                last_name=validated_data.get("last_name", ""),
+                role=UserRole.CUSTOMER,
+                is_verified=False,
+            )
+        except IntegrityError as exc:
+            raise serializers.ValidationError(
+                {"phone_number": ["يوجد حساب مسجل بالفعل برقم الموبايل هذا."]}
+            ) from exc
         CustomerProfile.objects.get_or_create(user=user)
         return user
 
 
 class RoleLoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    phone_number = serializers.CharField(max_length=24)
     password = serializers.CharField(write_only=True)
 
     expected_role: str | None = None
 
     def validate(self, attrs):
-        email = attrs["email"].strip().lower()
+        try:
+            normalized_phone = normalize_phone_number(attrs["phone_number"])
+        except ValueError as exc:
+            raise serializers.ValidationError({"phone_number": [str(exc)]}) from exc
+
         password = attrs["password"]
-        user = authenticate(
-            request=self.context.get("request"),
-            username=email,
-            password=password,
-        )
-        if not user:
-            raise serializers.ValidationError("Invalid email or password.")
+        user = User.objects.filter(phone_number=normalized_phone).first()
+        if not user or not user.check_password(password):
+            raise serializers.ValidationError("رقم الموبايل أو كلمة المرور غير صحيحة.")
         if not user.is_active:
-            raise serializers.ValidationError("This account has been suspended or disabled.")
+            raise serializers.ValidationError("تم إيقاف أو تعطيل هذا الحساب.")
         if self.expected_role and user.role != self.expected_role:
-            raise serializers.ValidationError(
-                f"This endpoint requires a {self.expected_role} account."
-            )
+            raise serializers.ValidationError("رقم الموبايل أو كلمة المرور غير صحيحة.")
         if user.role == UserRole.MERCHANT:
             profile = getattr(user, "merchant_profile", None)
             if not profile:
@@ -185,7 +205,27 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    phone_number = serializers.CharField(max_length=24)
+
+    def validate_phone_number(self, value: str) -> str:
+        try:
+            return normalize_phone_number(value)
+        except ValueError as exc:
+            raise serializers.ValidationError(str(exc)) from exc
+
+
+class CompletePhoneSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(max_length=24)
+
+    def validate_phone_number(self, value: str) -> str:
+        try:
+            normalized = normalize_phone_number(value)
+        except ValueError as exc:
+            raise serializers.ValidationError(str(exc)) from exc
+        user = self.context["request"].user
+        if User.objects.filter(phone_number=normalized).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError("رقم الموبايل مستخدم بالفعل لحساب آخر.")
+        return normalized
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):

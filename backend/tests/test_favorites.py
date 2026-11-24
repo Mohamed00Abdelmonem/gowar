@@ -66,7 +66,7 @@ def test_favorite_stores_persistence_isolation_and_deduplication(
     api_client.force_authenticate(user=None)
     login_res = api_client.post(
         "/api/v1/auth/customer/login/",
-        {"email": customer_user.email, "password": "CustPassword123!"},
+        {"phone_number": customer_user.phone_number, "password": "CustPassword123!"},
         format="json",
     )
     assert login_res.status_code == 200

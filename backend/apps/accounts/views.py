@@ -1,7 +1,7 @@
 import secrets
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.utils.text import slugify
 from rest_framework import permissions, serializers as drf_serializers, status
@@ -14,9 +14,11 @@ from apps.locations.models import Area
 from apps.merchants.models import MerchantProfile
 from apps.stores.models import Store
 from .models import PasswordResetToken, User, UserRole
+from .phone import normalize_phone_number
 from .serializers import (
     AdminLoginSerializer,
     ChangePasswordSerializer,
+    CompletePhoneSerializer,
     CustomerLoginSerializer,
     CustomerRegisterSerializer,
     DeliveryLoginSerializer,
@@ -41,9 +43,9 @@ class CustomerRegisterView(APIView):
 
 
 class MerchantRegisterSerializer(drf_serializers.Serializer):
-    email = drf_serializers.EmailField()
-    password = drf_serializers.CharField(write_only=True, min_length=8)
     phone_number = drf_serializers.CharField(max_length=24)
+    password = drf_serializers.CharField(write_only=True, min_length=8)
+    email = drf_serializers.EmailField(required=False, allow_blank=True, allow_null=True)
     first_name = drf_serializers.CharField(max_length=100)
     last_name = drf_serializers.CharField(max_length=100, required=False, allow_blank=True)
     business_name = drf_serializers.CharField(max_length=160)
@@ -61,10 +63,21 @@ class MerchantRegisterSerializer(drf_serializers.Serializer):
         max_digits=5, decimal_places=2, default="3.00"
     )
 
-    def validate_email(self, value: str) -> str:
+    def validate_phone_number(self, value: str) -> str:
+        try:
+            normalized = normalize_phone_number(value)
+        except ValueError as exc:
+            raise drf_serializers.ValidationError(str(exc)) from exc
+        if User.objects.filter(phone_number=normalized).exists():
+            raise drf_serializers.ValidationError("يوجد حساب مسجل بالفعل برقم الموبايل هذا.")
+        return normalized
+
+    def validate_email(self, value: str | None) -> str | None:
+        if not value or not value.strip():
+            return None
         email = value.strip().lower()
         if User.objects.filter(email=email).exists():
-            raise drf_serializers.ValidationError("An account with this email already exists.")
+            raise drf_serializers.ValidationError("يوجد حساب مسجل بالفعل بهذا البريد الإلكتروني.")
         return email
 
     def validate_password(self, value: str) -> str:
@@ -87,14 +100,20 @@ class MerchantRegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        user = User.objects.create_user(
-            email=data["email"],
-            password=data["password"],
-            phone_number=data["phone_number"],
-            first_name=data["first_name"],
-            last_name=data.get("last_name", ""),
-            role=UserRole.MERCHANT,
-        )
+        try:
+            user = User.objects.create_user(
+                email=data.get("email"),
+                password=data["password"],
+                phone_number=data["phone_number"],
+                first_name=data["first_name"],
+                last_name=data.get("last_name", ""),
+                role=UserRole.MERCHANT,
+            )
+        except IntegrityError:
+            return Response(
+                {"phone_number": ["يوجد حساب مسجل بالفعل برقم الموبايل هذا."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         profile = MerchantProfile.objects.create(
             user=user,
             business_name=data["business_name"],
@@ -228,20 +247,31 @@ class PasswordResetRequestView(APIView):
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data["email"].strip().lower()
-        user = User.objects.filter(email=email, is_active=True).first()
+        normalized_phone = serializer.validated_data["phone_number"]
+        user = User.objects.filter(phone_number=normalized_phone, is_active=True).first()
         if user:
             PasswordResetToken.objects.create(
                 user=user,
                 token=secrets.token_urlsafe(32),
                 expires_at=PasswordResetToken.default_expiry(),
             )
-        # Do not leak email existence
+        # Do not leak phone existence; SMS OTP provider is not yet integrated
         return Response(
             {
-                "detail": "If that email is registered, a password reset link has been issued."
+                "detail": "إذا كان رقم الموبايل مسجلاً لدينا، سيتم إرسال تعليمات استعادة كلمة المرور عبر مزود الرسائل عند تفعيله."
             }
         )
+
+
+class CompletePhoneView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = CompletePhoneSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        request.user.phone_number = serializer.validated_data["phone_number"]
+        request.user.save(update_fields=["phone_number"])
+        return Response(UserProfileSerializer(request.user).data)
 
 
 class PasswordResetConfirmView(APIView):

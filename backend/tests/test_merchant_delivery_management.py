@@ -107,7 +107,7 @@ def test_merchant_delivery_personnel_crud_and_tenant_isolation(
     api_client.force_authenticate(user=None)
     login_res = api_client.post(
         "/api/v1/auth/delivery/login/",
-        {"email": "driver1@m1.demo", "password": "NewDriverPass123!"},
+        {"phone_number": "01011112222", "password": "NewDriverPass123!"},
         format="json",
     )
     assert login_res.status_code == 200
@@ -214,7 +214,7 @@ def test_driver_deactivation_blocks_active_orders_and_preserves_history(
     api_client.force_authenticate(user=None)
     login_res = api_client.post(
         "/api/v1/auth/delivery/login/",
-        {"email": "d1@m1.demo", "password": "StrongPass123!"},
+        {"phone_number": "01022223333", "password": "StrongPass123!"},
         format="json",
     )
     assert login_res.status_code == 400
