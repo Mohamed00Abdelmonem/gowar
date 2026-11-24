@@ -272,7 +272,27 @@ export const CustomerHomePage: React.FC = () => {
         )}
       </section>
 
-      {/* 5. Popular Stores */}
+      {/* 5. Frequently Purchased Products */}
+      <section className="space-y-3.5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg sm:text-xl font-extrabold text-[#1C1917]">
+              {t('طلبات البيت اليومية', 'Frequently Purchased Items')}
+            </h2>
+            <p className="text-xs text-[#6E6A66]">
+              {t('أضف بضغطة واحدة — كل منتج معروض بسعر المحل الخاص بيه', 'Tap + to add — each item shows its store price')}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          {frequentProducts.map((product) => (
+            <ProductCard key={product.id} product={product} showStoreBadge />
+          ))}
+        </div>
+      </section>
+
+      {/* 6. Popular Stores */}
       <section className="space-y-3.5">
         <div className="flex items-center justify-between">
           <h2 className="text-lg sm:text-xl font-extrabold text-[#1C1917]">
@@ -289,26 +309,6 @@ export const CustomerHomePage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {popularStores.map((store) => (
             <StoreCard key={store.id} merchant={store} />
-          ))}
-        </div>
-      </section>
-
-      {/* 6. Frequently Purchased Products */}
-      <section className="space-y-3.5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg sm:text-xl font-extrabold text-[#1C1917]">
-              {t('طلبات البيت اليومية', 'Frequently Purchased Items')}
-            </h2>
-            <p className="text-xs text-[#6E6A66]">
-              {t('أضف بضغطة واحدة — كل منتج معروض بسعر المحل الخاص بيه', 'Tap + to add — each item shows its store price')}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          {frequentProducts.map((product) => (
-            <ProductCard key={product.id} product={product} showStoreBadge />
           ))}
         </div>
       </section>
