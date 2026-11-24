@@ -231,8 +231,8 @@ def test_legacy_user_complete_phone_and_password_reset_request(api_client):
         format="json",
     )
     assert res.status_code == status.HTTP_200_OK
-    assert res.data["user"]["phone_number"] == "+201234567890"
-    assert res.data["user"]["needs_phone_completion"] is False
+    assert res.data["phone_number"] == "+201234567890"
+    assert res.data["needs_phone_completion"] is False
 
     # Now legacy user can log in with the completed phone number & original password
     login_res = api_client.post(
