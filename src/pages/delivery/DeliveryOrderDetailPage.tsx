@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import L from 'leaflet';
 import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
+  Clock,
   ExternalLink,
   Loader2,
   MapPin,
@@ -13,6 +14,7 @@ import {
   Phone,
   Store,
   Truck,
+  XCircle,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { addStreetTileLayer } from '../../utils/leafletTiles';
@@ -23,6 +25,7 @@ import { formatDateTime, formatEGP } from '../../utils/i18n';
 
 export const DeliveryOrderDetailPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
+  const navigate = useNavigate();
   const { language, t, showToast } = useApp();
 
   const [order, setOrder] = useState<BackendOrderPayload | null>(null);
@@ -30,6 +33,8 @@ export const DeliveryOrderDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -55,6 +60,15 @@ export const DeliveryOrderDetailPage: React.FC = () => {
   useEffect(() => {
     void loadOrder();
   }, [loadOrder]);
+
+  useEffect(() => {
+    if (!orderId) return;
+    const id = window.setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      void deliveryApi.fetchOrder(orderId).then(setOrder).catch(() => {});
+    }, 8000);
+    return () => window.clearInterval(id);
+  }, [orderId]);
 
   const lat = order?.delivery_address_snapshot?.latitude;
   const lng = order?.delivery_address_snapshot?.longitude;
@@ -89,6 +103,65 @@ export const DeliveryOrderDetailPage: React.FC = () => {
       mapInstanceRef.current = null;
     };
   }, [googleMapsUrl, numericLat, numericLng]);
+
+  const handleAcceptTrip = async () => {
+    if (!order || busyAction) return;
+    setBusyAction(true);
+    try {
+      const updated = await deliveryApi.acceptTrip(order.id);
+      setOrder(updated);
+      showToast(t('تم قبول رحلة التوصيل بنجاح', 'Delivery trip accepted'), 'success');
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : t('تعذر قبول الرحلة', 'Failed to accept trip'),
+        'error'
+      );
+    } finally {
+      setBusyAction(false);
+    }
+  };
+
+  const handleCancelTrip = async () => {
+    if (!order || busyAction) return;
+    setBusyAction(true);
+    try {
+      await deliveryApi.cancelTrip(order.id, cancelReason.trim());
+      setCancelModalOpen(false);
+      setCancelReason('');
+      showToast(
+        t('تم إلغاء الرحلة وإشعار التاجر لإعادة الإسناد', 'Trip cancelled and merchant notified'),
+        'info'
+      );
+      navigate('/delivery', { replace: true });
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : t('تعذر إلغاء الرحلة', 'Failed to cancel trip'),
+        'error'
+      );
+    } finally {
+      setBusyAction(false);
+    }
+  };
+
+  const handleConfirmArrival = async () => {
+    if (!order || busyAction) return;
+    setBusyAction(true);
+    try {
+      const updated = await deliveryApi.confirmArrival(order.id);
+      setOrder(updated);
+      showToast(
+        t('تم تأكيد وصولك للعميل وإرسال إشعار للعميل والتاجر', 'Arrival confirmed'),
+        'success'
+      );
+    } catch (err) {
+      showToast(
+        err instanceof Error ? err.message : t('تعذر تأكيد الوصول', 'Failed to confirm arrival'),
+        'error'
+      );
+    } finally {
+      setBusyAction(false);
+    }
+  };
 
   const handleMarkOutForDelivery = async () => {
     if (!order || busyAction) return;
@@ -335,20 +408,89 @@ export const DeliveryOrderDetailPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Delivery Trip Timeline Badges */}
+      {(order.assigned_at ||
+        order.delivery_trip_accepted_at ||
+        order.delivery_trip_arrived_at ||
+        order.delivered_at) && (
+        <div className="bg-white rounded-2xl border border-[#EAE6E1] p-3.5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#6E6A66]">
+          {order.assigned_at && (
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#1B8E53]" />
+              <span>{t('الإسناد:', 'Assigned:')}</span>
+              <strong className="text-[#1C1917]">{formatDateTime(order.assigned_at, language)}</strong>
+            </span>
+          )}
+          {order.delivery_trip_accepted_at && (
+            <span className="inline-flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{t('القبول:', 'Accepted:')}</span>
+              <strong className="text-[#1C1917]">
+                {formatDateTime(order.delivery_trip_accepted_at, language)}
+              </strong>
+            </span>
+          )}
+          {order.delivery_trip_arrived_at && (
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-amber-600" />
+              <span>{t('الوصول:', 'Arrived:')}</span>
+              <strong className="text-amber-800">
+                {formatDateTime(order.delivery_trip_arrived_at, language)}
+              </strong>
+            </span>
+          )}
+          {order.delivered_at && (
+            <span className="inline-flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+              <span>{t('التسليم:', 'Delivered:')}</span>
+              <strong className="text-emerald-700">
+                {formatDateTime(order.delivered_at, language)}
+              </strong>
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Status Action Bar */}
-      {(order.order_status === 'ready_for_delivery' || order.order_status === 'out_for_delivery') && (
-        <div className="bg-white rounded-2xl border border-[#EAE6E1] p-4 flex flex-col sm:flex-row gap-3">
-          {order.order_status === 'ready_for_delivery' && (
+      {order.order_status !== 'delivered' && order.order_status !== 'cancelled' && (
+        <div className="bg-white rounded-2xl border border-[#EAE6E1] p-4 flex flex-col sm:flex-row flex-wrap gap-3">
+          {order.delivery_trip_status === 'assigned' && (
             <button
               type="button"
               disabled={busyAction}
-              onClick={handleMarkOutForDelivery}
+              onClick={handleAcceptTrip}
               className="flex-1 py-4 px-5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-sm font-extrabold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
             >
-              {busyAction ? <Loader2 className="w-5 h-5 animate-spin" /> : <Truck className="w-5 h-5" />}
-              <span>{t('تأكيد استلام الطلب (في الطريق)', 'Mark Out for Delivery')}</span>
+              {busyAction ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
+              <span>{t('قبول الرحلة', 'Accept Trip')}</span>
             </button>
           )}
+
+          {order.order_status === 'ready_for_delivery' &&
+            order.delivery_trip_status === 'accepted' && (
+              <button
+                type="button"
+                disabled={busyAction}
+                onClick={handleMarkOutForDelivery}
+                className="flex-1 py-4 px-5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-sm font-extrabold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+              >
+                {busyAction ? <Loader2 className="w-5 h-5 animate-spin" /> : <Truck className="w-5 h-5" />}
+                <span>{t('تأكيد استلام الطلب (في الطريق)', 'Mark Out for Delivery')}</span>
+              </button>
+            )}
+
+          {order.order_status === 'out_for_delivery' &&
+            order.delivery_trip_status !== 'arrived' && (
+              <button
+                type="button"
+                disabled={busyAction}
+                onClick={handleConfirmArrival}
+                className="flex-1 py-4 px-5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-extrabold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+              >
+                {busyAction ? <Loader2 className="w-5 h-5 animate-spin" /> : <MapPin className="w-5 h-5" />}
+                <span>{t('وصلت للعميل', 'Arrived at Customer')}</span>
+              </button>
+            )}
 
           {order.order_status === 'out_for_delivery' && (
             <button
@@ -358,11 +500,68 @@ export const DeliveryOrderDetailPage: React.FC = () => {
               className="flex-1 py-4 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
             >
               <CheckCircle2 className="w-5 h-5" />
-              <span>{t('تأكيد تسليم الطلب للعميل', 'Mark as Delivered')}</span>
+              <span>{t('تم تسليم الطلب', 'Mark as Delivered')}</span>
             </button>
           )}
+
+          <button
+            type="button"
+            disabled={busyAction}
+            onClick={() => setCancelModalOpen(true)}
+            className="py-4 px-5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-sm font-extrabold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+          >
+            <XCircle className="w-5 h-5" />
+            <span>{t('إلغاء الرحلة', 'Cancel Trip')}</span>
+          </button>
         </div>
       )}
+
+      {/* Cancel Trip Confirmation Modal */}
+      <Modal
+        open={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+        title={t('تأكيد إلغاء الرحلة', 'Confirm Trip Cancellation')}
+        maxWidthClass="max-w-md"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[#1C1917] leading-relaxed">
+            {t(
+              `هل تريد إلغاء رحلة توصيل الطلب #${order.order_number}؟ سيعود الطلب للتاجر لإعادة إسناده لمندوب آخر ولن يتم إلغاء طلب العميل.`,
+              `Cancel trip for Order #${order.order_number}? The merchant will be notified to reassign another driver.`
+            )}
+          </p>
+          <div>
+            <label className="block text-xs font-bold text-[#6E6A66] mb-1">
+              {t('سبب الإلغاء (اختياري)', 'Cancellation Reason (Optional)')}
+            </label>
+            <input
+              type="text"
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder={t('مثال: عطل مفاجئ أو تعذر التوصيل حالياً', 'e.g. Vehicle issue or unavailable')}
+              className="w-full px-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-xs sm:text-sm"
+            />
+          </div>
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              disabled={busyAction}
+              onClick={handleCancelTrip}
+              className="flex-1 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-extrabold inline-flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {busyAction && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>{t('تأكيد إلغاء الرحلة', 'Confirm Cancel Trip')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCancelModalOpen(false)}
+              className="px-4 py-3 rounded-xl border border-[#EAE6E1] text-xs sm:text-sm font-bold text-[#6E6A66]"
+            >
+              {t('تراجع', 'Back')}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Explicit Confirmation Modal for Delivered */}
       <Modal

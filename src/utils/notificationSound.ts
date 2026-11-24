@@ -46,7 +46,7 @@ export function setNotificationSoundEnabled(enabled: boolean): void {
 }
 
 export function playNotificationSound(
-  audience: 'merchant' | 'customer' | 'admin' = 'customer',
+  audience: 'merchant' | 'customer' | 'delivery' | 'admin' = 'customer',
   force = false
 ): void {
   if (!force && !isNotificationSoundEnabled()) return;

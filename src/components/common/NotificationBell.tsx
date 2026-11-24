@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, BellRing, Volume2, VolumeX } from 'lucide-react';
+import { Bell, BellRing, Check, CheckCheck, Volume2, VolumeX } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatDateTime } from '../../utils/i18n';
 import { getAccessToken, IS_BACKEND_API_ENABLED } from '../../services/apiClient';
@@ -18,12 +18,12 @@ import {
 } from '../../utils/notificationSound';
 
 interface NotificationBellProps {
-  audience: 'customer' | 'merchant';
+  audience: 'customer' | 'merchant' | 'delivery';
   merchantId?: string;
 }
 
 export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, merchantId }) => {
-  const { language, t, notifications, markNotificationsRead, showToast } = useApp();
+  const { language, t, notifications, markNotificationsRead, markNotificationRead, showToast } = useApp();
   const [open, setOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(() => isNotificationSoundEnabled());
   const [pushEnabled, setPushEnabled] = useState(false);
@@ -116,13 +116,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, me
     <div className="relative">
       <button
         type="button"
-        onClick={() => {
-          const nextOpen = !open;
-          setOpen(nextOpen);
-          if (nextOpen && unreadCount > 0) {
-            markNotificationsRead(audience, merchantId);
-          }
-        }}
+        onClick={() => setOpen((v) => !v)}
         className={`relative flex items-center justify-center border border-[#EAE6E1] text-[#1C1917] hover:bg-[#FAF9F7] transition-colors ${
           audience === 'customer' ? 'w-10 h-10 rounded-xl' : 'w-9 h-9 rounded-xl'
         }`}
@@ -148,7 +142,9 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, me
               <span className="text-xs font-extrabold text-[#1C1917]">
                 {audience === 'merchant'
                   ? t('إشعارات المحل', 'Store Alerts')
-                  : t('إشعارات طلباتي', 'Order Alerts')}
+                  : audience === 'delivery'
+                    ? t('إشعارات التوصيل', 'Delivery Alerts')
+                    : t('إشعارات طلباتي', 'Order Alerts')}
               </span>
               <div className="flex items-center gap-1.5">
                 {isAuthenticated && (
@@ -226,37 +222,75 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ audience, me
               </div>
             ) : (
               <div className="space-y-2 max-h-72 overflow-y-auto">
+                {unreadCount > 0 && (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => markNotificationsRead(audience, merchantId)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#E6F5EC] hover:bg-[#D5EFE0] text-[#1B8E53] text-[11px] font-bold transition-colors"
+                    >
+                      <CheckCheck className="w-3.5 h-3.5" />
+                      <span>{t('تحديد الكل كمقروء', 'Mark all as read')}</span>
+                    </button>
+                  </div>
+                )}
                 {scopedNotifs.length === 0 ? (
                   <p className="text-xs text-[#6E6A66] py-6 text-center">
                     {t('لا توجد إشعارات بعد', 'No notifications yet')}
                   </p>
                 ) : (
-                  scopedNotifs.slice(0, 12).map((n) => (
-                    <Link
+                  scopedNotifs.slice(0, 20).map((n) => (
+                    <div
                       key={n.id}
-                      to={n.link || (audience === 'merchant' ? '/merchant/orders' : '/orders')}
-                      onClick={() => setOpen(false)}
-                      className={`block p-2.5 rounded-xl transition-colors border ${
+                      className={`p-2.5 rounded-xl transition-colors border ${
                         n.read
-                          ? 'bg-[#FAF9F7] border-transparent hover:bg-[#E6F5EC]'
+                          ? 'bg-[#FAF9F7] border-transparent hover:bg-[#E6F5EC]/60'
                           : 'bg-[#E6F5EC]/70 border-[#C2E7D2] hover:bg-[#E6F5EC]'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs font-extrabold text-[#1C1917]">
-                          {language === 'ar' ? n.titleAr : n.titleEn}
+                      <Link
+                        to={
+                          n.link ||
+                          (audience === 'merchant'
+                            ? '/merchant/orders'
+                            : audience === 'delivery'
+                              ? '/delivery'
+                              : '/orders')
+                        }
+                        onClick={() => {
+                          if (!n.read) markNotificationRead(n.id);
+                          setOpen(false);
+                        }}
+                        className="block"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-xs font-extrabold text-[#1C1917]">
+                            {language === 'ar' ? n.titleAr : n.titleEn}
+                          </p>
+                          {!n.read && (
+                            <span className="w-2 h-2 rounded-full bg-[#1B8E53] shrink-0 mt-1" />
+                          )}
+                        </div>
+                        <p className="text-[11px] text-[#6E6A66] mt-0.5">
+                          {language === 'ar' ? n.bodyAr : n.bodyEn}
                         </p>
+                      </Link>
+                      <div className="flex items-center justify-between gap-2 mt-1.5">
+                        <span className="text-[10px] text-[#6E6A66]/80">
+                          {formatDateTime(n.createdAt, language)}
+                        </span>
                         {!n.read && (
-                          <span className="w-2 h-2 rounded-full bg-[#1B8E53] shrink-0 mt-1" />
+                          <button
+                            type="button"
+                            onClick={() => markNotificationRead(n.id)}
+                            className="inline-flex items-center gap-1 text-[10px] font-bold text-[#1B8E53] hover:underline"
+                          >
+                            <Check className="w-3 h-3" />
+                            <span>{t('تحديد كمقروء', 'Mark as read')}</span>
+                          </button>
                         )}
                       </div>
-                      <p className="text-[11px] text-[#6E6A66] mt-0.5">
-                        {language === 'ar' ? n.bodyAr : n.bodyEn}
-                      </p>
-                      <span className="block text-[10px] text-[#6E6A66]/80 mt-1">
-                        {formatDateTime(n.createdAt, language)}
-                      </span>
-                    </Link>
+                    </div>
                   ))
                 )}
               </div>

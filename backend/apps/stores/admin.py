@@ -3,7 +3,7 @@ from django.contrib.gis.admin import GISModelAdmin
 
 from apps.merchants.models import ApprovalStatus
 from apps.merchants.services import update_merchant_approval
-from .models import Store
+from .models import FavoriteStore, Store
 
 
 @admin.register(Store)
@@ -41,3 +41,10 @@ class StoreAdmin(GISModelAdmin):
     @admin.action(description="Mark selected stores Closed")
     def close_stores(self, request, queryset):
         queryset.update(is_open=False)
+
+
+@admin.register(FavoriteStore)
+class FavoriteStoreAdmin(admin.ModelAdmin):
+    list_display = ["customer", "store", "created_at"]
+    search_fields = ["customer__email", "store__name", "store__name_en"]
+    raw_id_fields = ["customer", "store"]

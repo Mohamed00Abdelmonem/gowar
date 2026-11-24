@@ -4,14 +4,14 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.common.permissions import IsApprovedMerchant, IsMerchant
+from apps.common.permissions import IsApprovedMerchant, IsCustomer, IsMerchant
 from apps.locations.validators import (
     DEFAULT_RADIUS_KM,
     validate_coordinates,
     validate_search_radius_km,
 )
 from apps.merchants.models import ApprovalStatus
-from .models import Store
+from .models import FavoriteStore, Store
 from .serializers import MerchantStoreSettingsSerializer, StorePublicSerializer
 from .services import calculate_dynamic_delivery_quote, get_nearby_stores_queryset
 
@@ -178,3 +178,51 @@ class MerchantStoreSettingsView(APIView):
 
 class MerchantDeliverySettingsView(MerchantStoreSettingsView):
     permission_classes = [IsApprovedMerchant | IsMerchant]
+
+
+class CustomerFavoriteStoreListView(APIView):
+    permission_classes = [IsCustomer]
+
+    def get(self, request):
+        favorites = (
+            FavoriteStore.objects.select_related("store", "store__area")
+            .filter(
+                customer=request.user,
+                store__is_active=True,
+                store__approval_status=ApprovalStatus.APPROVED,
+            )
+            .order_by("-created_at")
+        )
+        stores = [fav.store for fav in favorites]
+        return Response(
+            {
+                "store_ids": [str(s.id) for s in stores],
+                "stores": StorePublicSerializer(stores, many=True).data,
+            }
+        )
+
+
+class CustomerFavoriteStoreDetailView(APIView):
+    permission_classes = [IsCustomer]
+
+    def post(self, request, pk):
+        store = Store.objects.filter(
+            pk=pk,
+            is_active=True,
+            approval_status=ApprovalStatus.APPROVED,
+        ).first()
+        if not store:
+            return Response({"detail": "Store not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        _, created = FavoriteStore.objects.get_or_create(
+            customer=request.user,
+            store=store,
+        )
+        return Response(
+            {"store_id": str(store.id), "is_favorite": True},
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
+    def delete(self, request, pk):
+        FavoriteStore.objects.filter(customer=request.user, store_id=pk).delete()
+        return Response({"store_id": str(pk), "is_favorite": False})

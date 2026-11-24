@@ -18,6 +18,16 @@ class OrderStatusChoices(models.TextChoices):
     CANCELLED = "cancelled", "Cancelled"
 
 
+class DeliveryTripStatusChoices(models.TextChoices):
+    UNASSIGNED = "unassigned", "Unassigned"
+    ASSIGNED = "assigned", "Assigned"
+    ACCEPTED = "accepted", "Accepted"
+    IN_TRANSIT = "in_transit", "In Transit"
+    ARRIVED = "arrived", "Arrived"
+    COMPLETED = "completed", "Completed"
+    CANCELLED = "cancelled", "Cancelled"
+
+
 class Order(UUIDTimeStampedModel):
     order_number = models.CharField(max_length=30, unique=True, db_index=True)
     idempotency_key = models.CharField(max_length=120, unique=True, null=True, blank=True)
@@ -74,6 +84,16 @@ class Order(UUIDTimeStampedModel):
         related_name="assigned_deliveries",
     )
     assigned_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    delivery_trip_status = models.CharField(
+        max_length=24,
+        choices=DeliveryTripStatusChoices.choices,
+        default=DeliveryTripStatusChoices.UNASSIGNED,
+        db_index=True,
+    )
+    delivery_trip_accepted_at = models.DateTimeField(null=True, blank=True)
+    delivery_trip_arrived_at = models.DateTimeField(null=True, blank=True)
+    delivery_trip_cancelled_at = models.DateTimeField(null=True, blank=True)
+    delivery_cancel_reason = models.CharField(max_length=255, blank=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
     delivered_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

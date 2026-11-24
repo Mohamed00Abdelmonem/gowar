@@ -10,8 +10,12 @@ export interface BeforeInstallPromptEvent extends Event {
 export const PWA_DISMISSED_AT_KEY = 'gowar_pwa_dismissed_at_v1';
 export const PWA_INSTALLED_KEY = 'gowar_pwa_installed_v1';
 export const PWA_SESSION_SHOWN_KEY = 'gowar_pwa_session_shown_v1';
+export const PWA_PORTAL_KEY = 'gowar_pwa_portal_v1';
+export const PWA_OPEN_EVENT = 'gowar:open-pwa-install';
 export const PWA_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
 export const PWA_SHOW_DELAY_MS = 2500;
+
+export type PwaPortal = 'customer' | 'merchant' | 'delivery';
 
 export interface StorageLike {
   getItem(key: string): string | null;
@@ -63,12 +67,81 @@ export function isIosSafari(
 
 export function isExcludedPwaRoute(pathname: string): boolean {
   const normalized = pathname.trim().toLowerCase();
-  return (
-    normalized === '/admin' ||
-    normalized.startsWith('/admin/') ||
-    normalized === '/merchant' ||
-    normalized.startsWith('/merchant/')
-  );
+  return normalized === '/admin' || normalized.startsWith('/admin/');
+}
+
+export function getPwaPortalForPath(pathname: string): PwaPortal {
+  const normalized = pathname.trim().toLowerCase();
+  if (normalized === '/merchant' || normalized.startsWith('/merchant/')) {
+    return 'merchant';
+  }
+  if (normalized === '/delivery' || normalized.startsWith('/delivery/')) {
+    return 'delivery';
+  }
+  return 'customer';
+}
+
+export function getManifestHrefForPortal(portal: PwaPortal): string {
+  if (portal === 'merchant') return '/merchant-manifest.webmanifest';
+  if (portal === 'delivery') return '/delivery-manifest.webmanifest';
+  return '/manifest.webmanifest';
+}
+
+export function recordInstalledPortal(
+  portal: PwaPortal,
+  storage: StorageLike | null = getSafeStorage('local')
+): void {
+  if (!storage) return;
+  try {
+    storage.setItem(PWA_PORTAL_KEY, portal);
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
+export function getInstalledPortal(
+  storage: StorageLike | null = getSafeStorage('local')
+): PwaPortal | null {
+  if (!storage) return null;
+  try {
+    const val = storage.getItem(PWA_PORTAL_KEY);
+    if (val === 'merchant' || val === 'delivery' || val === 'customer') {
+      return val;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export interface StandaloneStartInput {
+  pathname: string;
+  standalone: boolean;
+  authRole: 'customer' | 'merchant' | 'delivery' | 'admin' | null;
+  installedPortal: PwaPortal | null;
+}
+
+export function resolveStandaloneStartPath(input: StandaloneStartInput): string | null {
+  if (!input.standalone) return null;
+  if (input.pathname !== '/') return null;
+
+  if (input.authRole === 'merchant') return '/merchant';
+  if (input.authRole === 'delivery') return '/delivery';
+  if (input.authRole === 'admin') return '/admin';
+
+  if (!input.authRole && input.installedPortal === 'merchant') {
+    return '/merchant/login';
+  }
+  if (!input.authRole && input.installedPortal === 'delivery') {
+    return '/delivery/login';
+  }
+
+  return null;
+}
+
+export function requestPwaInstallModal(): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(PWA_OPEN_EVENT));
 }
 
 export function isInstallDismissedRecently(

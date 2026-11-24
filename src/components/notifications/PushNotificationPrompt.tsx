@@ -39,7 +39,8 @@ export const PushNotificationPrompt: React.FC = () => {
     const meaningfulContext =
       isStandaloneMode() ||
       pathname.startsWith('/orders') ||
-      pathname.startsWith('/merchant');
+      pathname.startsWith('/merchant') ||
+      pathname.startsWith('/delivery');
 
     if (!meaningfulContext) return;
 

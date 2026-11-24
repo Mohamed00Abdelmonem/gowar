@@ -13,7 +13,13 @@ from apps.merchants.models import ApprovalStatus
 from apps.notifications.services import create_and_dispatch_notification
 from apps.payments.services import get_payment_provider
 from apps.stores.services import calculate_dynamic_delivery_quote
-from .models import Order, OrderItem, OrderStatusChoices, OrderStatusHistory
+from .models import (
+    DeliveryTripStatusChoices,
+    Order,
+    OrderItem,
+    OrderStatusChoices,
+    OrderStatusHistory,
+)
 from .transitions import validate_order_transition
 
 
@@ -280,13 +286,26 @@ def transition_order_status(
 
     update_fields = ["order_status", "reject_reason", "updated_at"]
 
-    if target_status == OrderStatusChoices.DELIVERED:
+    if target_status == OrderStatusChoices.OUT_FOR_DELIVERY and order.assigned_delivery_person_id:
+        order.delivery_trip_status = DeliveryTripStatusChoices.IN_TRANSIT
+        update_fields.append("delivery_trip_status")
+        if order.delivery_trip_accepted_at is None:
+            order.delivery_trip_accepted_at = timezone.now()
+            update_fields.append("delivery_trip_accepted_at")
+
+    elif target_status == OrderStatusChoices.DELIVERED:
+        if actor.role == "delivery" and order.delivery_trip_status in (
+            DeliveryTripStatusChoices.UNASSIGNED,
+            DeliveryTripStatusChoices.CANCELLED,
+        ):
+            raise ValidationError("Cannot complete an unassigned or cancelled delivery trip.")
         provider = get_payment_provider(order.payment_method)
         provider.mark_collected(order)
         order.payment_status = "paid"
         order.delivered_at = timezone.now()
         order.delivered_by = actor
-        update_fields.extend(["payment_status", "delivered_at", "delivered_by"])
+        order.delivery_trip_status = DeliveryTripStatusChoices.COMPLETED
+        update_fields.extend(["payment_status", "delivered_at", "delivered_by", "delivery_trip_status"])
         CommissionRecord.objects.filter(order=order).update(status=CommissionStatus.EARNED)
 
     elif target_status == OrderStatusChoices.CANCELLED:
@@ -341,16 +360,50 @@ def transition_order_status(
         link=f"/orders/{order.id}",
         event_key=f"order-status-{order.id}-{target_status}",
     )
-    if target_status == OrderStatusChoices.CANCELLED and actor.role == "customer":
+    if target_status == OrderStatusChoices.READY_FOR_DELIVERY and order.assigned_delivery_person_id:
+        create_and_dispatch_notification(
+            recipient=order.assigned_delivery_person,
+            store=order.store,
+            title=f"الطلب جاهز للاستلام #{order.order_number}",
+            body=f"أصبح الطلب #{order.order_number} من {order.store.name} جاهزاً للاستلام والتوصيل",
+            title_en=f"Order Ready for Pickup #{order.order_number}",
+            body_en=f"Order #{order.order_number} from {order.store.name_en or order.store.name} is ready for pickup.",
+            link=f"/delivery/orders/{order.id}",
+            event_key=f"order-ready-delivery-{order.id}-{order.assigned_delivery_person_id}",
+        )
+    if target_status == OrderStatusChoices.CANCELLED:
+        if actor.role == "customer":
+            create_and_dispatch_notification(
+                recipient=order.store.merchant.user,
+                store=order.store,
+                title=f"تم إلغاء الطلب #{order.order_number}",
+                body=f"قام العميل بإلغاء الطلب #{order.order_number}",
+                title_en=f"Order Cancelled #{order.order_number}",
+                body_en=f"Order #{order.order_number} was cancelled by the customer.",
+                link=f"/merchant/orders/{order.id}",
+                event_key=f"order-cancelled-merchant-{order.id}",
+            )
+        if order.assigned_delivery_person_id and actor.role != "delivery":
+            create_and_dispatch_notification(
+                recipient=order.assigned_delivery_person,
+                store=order.store,
+                title=f"تم إلغاء الطلب #{order.order_number}",
+                body=f"تم إلغاء الطلب #{order.order_number} المسند إليك",
+                title_en=f"Assigned Order Cancelled #{order.order_number}",
+                body_en=f"Order #{order.order_number} assigned to you was cancelled.",
+                link=f"/delivery/orders/{order.id}",
+                event_key=f"order-cancelled-delivery-{order.id}-{order.assigned_delivery_person_id}",
+            )
+    elif target_status == OrderStatusChoices.DELIVERED:
         create_and_dispatch_notification(
             recipient=order.store.merchant.user,
             store=order.store,
-            title=f"تم إلغاء الطلب #{order.order_number}",
-            body=f"قام العميل بإلغاء الطلب #{order.order_number}",
-            title_en=f"Order Cancelled #{order.order_number}",
-            body_en=f"Order #{order.order_number} was cancelled by the customer.",
+            title=f"تم تسليم الطلب #{order.order_number}",
+            body=f"تم تسليم الطلب #{order.order_number} للعميل بنجاح",
+            title_en=f"Order Delivered #{order.order_number}",
+            body_en=f"Order #{order.order_number} has been delivered to the customer.",
             link=f"/merchant/orders/{order.id}",
-            event_key=f"order-cancelled-merchant-{order.id}",
+            event_key=f"order-delivered-merchant-{order.id}",
         )
     return order
 
@@ -376,18 +429,45 @@ def assign_order_to_delivery(*, order_id, delivery_user, actor) -> Order:
     if getattr(delivery_user, "role", None) != "delivery" or not delivery_user.is_active:
         raise ValidationError("Selected user is not an active delivery person.")
 
+    previous_driver = order.assigned_delivery_person
+    was_reassigned = (
+        order.delivery_trip_status == DeliveryTripStatusChoices.CANCELLED
+        or previous_driver is not None
+    )
+    now = timezone.now()
     order.assigned_delivery_person = delivery_user
-    order.assigned_at = timezone.now()
-    order.save(update_fields=["assigned_delivery_person", "assigned_at", "updated_at"])
+    order.assigned_at = now
+    order.delivery_trip_status = DeliveryTripStatusChoices.ASSIGNED
+    order.delivery_trip_accepted_at = None
+    order.delivery_trip_arrived_at = None
+    order.delivery_trip_cancelled_at = None
+    order.delivery_cancel_reason = ""
+    order.save(
+        update_fields=[
+            "assigned_delivery_person",
+            "assigned_at",
+            "delivery_trip_status",
+            "delivery_trip_accepted_at",
+            "delivery_trip_arrived_at",
+            "delivery_trip_cancelled_at",
+            "delivery_cancel_reason",
+            "updated_at",
+        ]
+    )
 
     OrderStatusHistory.objects.create(
         order=order,
         status=order.order_status,
         actor=actor,
         actor_name=actor.full_name,
-        note=f"Assigned to delivery personnel: {delivery_user.full_name}",
+        note=(
+            f"Reassigned to delivery personnel: {delivery_user.full_name}"
+            if was_reassigned
+            else f"Assigned to delivery personnel: {delivery_user.full_name}"
+        ),
     )
 
+    assign_key = now.strftime("%Y%m%d%H%M%S%f")
     create_and_dispatch_notification(
         recipient=delivery_user,
         store=order.store,
@@ -396,6 +476,244 @@ def assign_order_to_delivery(*, order_id, delivery_user, actor) -> Order:
         title_en=f"New Assigned Delivery #{order.order_number}",
         body_en=f"Order #{order.order_number} from {order.store.name_en or order.store.name} has been assigned to you.",
         link=f"/delivery/orders/{order.id}",
-        event_key=f"order-assigned-delivery-{order.id}-{delivery_user.id}",
+        event_key=f"order-assigned-delivery-{order.id}-{delivery_user.id}-{assign_key}",
+    )
+    create_and_dispatch_notification(
+        recipient=order.customer,
+        store=order.store,
+        title=f"تم تعيين مندوب لطلبك #{order.order_number}",
+        body=f"تم تعيين المندوب {delivery_user.full_name} لتوصيل طلبك #{order.order_number}",
+        title_en=f"Driver Assigned #{order.order_number}",
+        body_en=f"{delivery_user.full_name} has been assigned to deliver your order #{order.order_number}.",
+        link=f"/orders/{order.id}",
+        event_key=f"order-assigned-customer-{order.id}-{delivery_user.id}-{assign_key}",
+    )
+    if was_reassigned:
+        create_and_dispatch_notification(
+            recipient=order.store.merchant.user,
+            store=order.store,
+            title=f"تم تعيين مندوب جديد #{order.order_number}",
+            body=f"تم إعادة إسناد الطلب #{order.order_number} إلى المندوب {delivery_user.full_name}",
+            title_en=f"Driver Reassigned #{order.order_number}",
+            body_en=f"Order #{order.order_number} has been reassigned to {delivery_user.full_name}.",
+            link=f"/merchant/orders/{order.id}",
+            event_key=f"order-reassigned-merchant-{order.id}-{delivery_user.id}-{assign_key}",
+        )
+        if previous_driver and previous_driver.id != delivery_user.id:
+            create_and_dispatch_notification(
+                recipient=previous_driver,
+                store=order.store,
+                title=f"تم إعادة إسناد الطلب #{order.order_number}",
+                body=f"تم نقل توصيل الطلب #{order.order_number} إلى مندوب آخر",
+                title_en=f"Order Reassigned #{order.order_number}",
+                body_en=f"Order #{order.order_number} has been reassigned to another driver.",
+                link="/delivery",
+                event_key=f"order-reassigned-prev-driver-{order.id}-{previous_driver.id}-{assign_key}",
+            )
+    return order
+
+
+@transaction.atomic
+def accept_delivery_trip(*, order_id, actor) -> Order:
+    order = (
+        Order.objects.select_for_update(of=("self",))
+        .select_related("store", "store__merchant", "customer")
+        .get(pk=order_id)
+    )
+
+    if getattr(actor, "role", None) != "delivery":
+        raise PermissionDenied("Only delivery personnel can accept delivery trips.")
+
+    if order.assigned_delivery_person_id != actor.id:
+        raise PermissionDenied("This delivery trip is not assigned to you.")
+
+    if order.order_status in (OrderStatusChoices.DELIVERED, OrderStatusChoices.CANCELLED):
+        raise ValidationError("Cannot accept a completed or cancelled order.")
+
+    # Idempotent retry for already-accepted trip by the same driver
+    if order.delivery_trip_status == DeliveryTripStatusChoices.ACCEPTED:
+        return order
+
+    if order.delivery_trip_status != DeliveryTripStatusChoices.ASSIGNED:
+        raise ValidationError(
+            f"Cannot accept trip from current trip status '{order.delivery_trip_status}'."
+        )
+
+    now = timezone.now()
+    order.delivery_trip_status = DeliveryTripStatusChoices.ACCEPTED
+    order.delivery_trip_accepted_at = now
+    order.save(update_fields=["delivery_trip_status", "delivery_trip_accepted_at", "updated_at"])
+
+    OrderStatusHistory.objects.create(
+        order=order,
+        status=order.order_status,
+        actor=actor,
+        actor_name=actor.full_name,
+        note=f"Delivery trip accepted by {actor.full_name}",
+    )
+
+    assign_key = order.assigned_at.strftime("%Y%m%d%H%M%S%f") if order.assigned_at else now.strftime("%Y%m%d%H%M%S%f")
+    create_and_dispatch_notification(
+        recipient=order.store.merchant.user,
+        store=order.store,
+        title=f"المندوب قبل الرحلة #{order.order_number}",
+        body=f"قبل المندوب {actor.full_name} رحلة توصيل الطلب #{order.order_number}",
+        title_en=f"Trip Accepted #{order.order_number}",
+        body_en=f"Driver {actor.full_name} accepted the delivery trip for order #{order.order_number}.",
+        link=f"/merchant/orders/{order.id}",
+        event_key=f"trip-accepted-merchant-{order.id}-{actor.id}-{assign_key}",
+    )
+    create_and_dispatch_notification(
+        recipient=order.customer,
+        store=order.store,
+        title=f"المندوب قبل رحلة طلبك #{order.order_number}",
+        body=f"المندوب {actor.full_name} قبل توصيل طلبك #{order.order_number} وسيبدأ التوجه إليك قريباً",
+        title_en=f"Driver Accepted Trip #{order.order_number}",
+        body_en=f"Driver {actor.full_name} accepted your delivery for order #{order.order_number}.",
+        link=f"/orders/{order.id}",
+        event_key=f"trip-accepted-customer-{order.id}-{actor.id}-{assign_key}",
+    )
+    return order
+
+
+@transaction.atomic
+def cancel_delivery_trip(*, order_id, actor, reason: str = "") -> Order:
+    order = (
+        Order.objects.select_for_update(of=("self",))
+        .select_related("store", "store__merchant", "customer")
+        .get(pk=order_id)
+    )
+
+    if getattr(actor, "role", None) != "delivery":
+        raise PermissionDenied("Only delivery personnel can cancel delivery trips.")
+
+    if order.assigned_delivery_person_id != actor.id:
+        raise PermissionDenied("You can only cancel delivery trips currently assigned to you.")
+
+    if (
+        order.order_status in (OrderStatusChoices.DELIVERED, OrderStatusChoices.CANCELLED)
+        or order.delivery_trip_status == DeliveryTripStatusChoices.COMPLETED
+    ):
+        raise ValidationError("Cannot cancel a completed or cancelled order.")
+
+    now = timezone.now()
+    clean_reason = reason.strip()[:255]
+    order.assigned_delivery_person = None
+    order.delivery_trip_status = DeliveryTripStatusChoices.CANCELLED
+    order.delivery_trip_accepted_at = None
+    order.delivery_trip_arrived_at = None
+    order.delivery_trip_cancelled_at = now
+    order.delivery_cancel_reason = clean_reason
+
+    update_fields = [
+        "assigned_delivery_person",
+        "delivery_trip_status",
+        "delivery_trip_accepted_at",
+        "delivery_trip_arrived_at",
+        "delivery_trip_cancelled_at",
+        "delivery_cancel_reason",
+        "updated_at",
+    ]
+    # Keep customer order active; if already out_for_delivery, return to ready_for_delivery for reassignment
+    if order.order_status == OrderStatusChoices.OUT_FOR_DELIVERY:
+        order.order_status = OrderStatusChoices.READY_FOR_DELIVERY
+        update_fields.append("order_status")
+
+    order.save(update_fields=update_fields)
+
+    OrderStatusHistory.objects.create(
+        order=order,
+        status=order.order_status,
+        actor=actor,
+        actor_name=actor.full_name,
+        note=(
+            f"Delivery trip cancelled by {actor.full_name}: {clean_reason}"
+            if clean_reason
+            else f"Delivery trip cancelled by {actor.full_name}"
+        ),
+    )
+
+    cancel_key = now.strftime("%Y%m%d%H%M%S%f")
+    create_and_dispatch_notification(
+        recipient=order.store.merchant.user,
+        store=order.store,
+        title=f"ألغى المندوب الرحلة #{order.order_number}",
+        body=(
+            f"ألغى المندوب {actor.full_name} توصيل الطلب #{order.order_number}"
+            f"{f' ({clean_reason})' if clean_reason else ''}. يمكنك إسناد الطلب لمندوب آخر."
+        ),
+        title_en=f"Delivery Trip Cancelled #{order.order_number}",
+        body_en=(
+            f"Driver {actor.full_name} cancelled the trip for order #{order.order_number}"
+            f"{f' ({clean_reason})' if clean_reason else ''}. Please reassign another driver."
+        ),
+        link=f"/merchant/orders/{order.id}",
+        event_key=f"trip-cancelled-merchant-{order.id}-{actor.id}-{cancel_key}",
+    )
+    return order
+
+
+@transaction.atomic
+def arrive_delivery_trip(*, order_id, actor) -> Order:
+    order = (
+        Order.objects.select_for_update(of=("self",))
+        .select_related("store", "store__merchant", "customer")
+        .get(pk=order_id)
+    )
+
+    if getattr(actor, "role", None) != "delivery":
+        raise PermissionDenied("Only delivery personnel can confirm arrival.")
+
+    if order.assigned_delivery_person_id != actor.id:
+        raise PermissionDenied("This delivery trip is not assigned to you.")
+
+    if order.order_status != OrderStatusChoices.OUT_FOR_DELIVERY:
+        raise ValidationError("Order must be out for delivery before confirming arrival.")
+
+    # Idempotent retry
+    if order.delivery_trip_status == DeliveryTripStatusChoices.ARRIVED:
+        return order
+
+    if order.delivery_trip_status not in (
+        DeliveryTripStatusChoices.ACCEPTED,
+        DeliveryTripStatusChoices.IN_TRANSIT,
+    ):
+        raise ValidationError(
+            f"Cannot confirm arrival from current trip status '{order.delivery_trip_status}'."
+        )
+
+    now = timezone.now()
+    order.delivery_trip_status = DeliveryTripStatusChoices.ARRIVED
+    order.delivery_trip_arrived_at = now
+    order.save(update_fields=["delivery_trip_status", "delivery_trip_arrived_at", "updated_at"])
+
+    OrderStatusHistory.objects.create(
+        order=order,
+        status=order.order_status,
+        actor=actor,
+        actor_name=actor.full_name,
+        note=f"Delivery person {actor.full_name} arrived at customer location",
+    )
+
+    arrive_key = order.assigned_at.strftime("%Y%m%d%H%M%S%f") if order.assigned_at else now.strftime("%Y%m%d%H%M%S%f")
+    create_and_dispatch_notification(
+        recipient=order.customer,
+        store=order.store,
+        title=f"المندوب وصل إليك #{order.order_number}",
+        body=f"وصل المندوب {actor.full_name} إلى موقع التوصيل الخاص بطلبك #{order.order_number}",
+        title_en=f"Driver Arrived #{order.order_number}",
+        body_en=f"Driver {actor.full_name} has arrived at your delivery location for order #{order.order_number}.",
+        link=f"/orders/{order.id}",
+        event_key=f"trip-arrived-customer-{order.id}-{actor.id}-{arrive_key}",
+    )
+    create_and_dispatch_notification(
+        recipient=order.store.merchant.user,
+        store=order.store,
+        title=f"وصل المندوب للعميل #{order.order_number}",
+        body=f"وصل المندوب {actor.full_name} لموقع عميل الطلب #{order.order_number}",
+        title_en=f"Driver Arrived at Customer #{order.order_number}",
+        body_en=f"Driver {actor.full_name} arrived at the customer's location for order #{order.order_number}.",
+        link=f"/merchant/orders/{order.id}",
+        event_key=f"trip-arrived-merchant-{order.id}-{actor.id}-{arrive_key}",
     )
     return order

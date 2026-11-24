@@ -18,6 +18,7 @@ import { SafeImage } from '../../components/common/SafeImage';
 import { IS_BACKEND_API_ENABLED } from '../../services/apiClient';
 import { merchantDeliveryApi, type AssignableDriverOption } from '../../services/gowarApi';
 import { formatDateTime, formatEGP, getOrderStatusMeta } from '../../utils/i18n';
+import { getMerchantTripStatusMeta } from '../../utils/deliveryTripStatus';
 import type { Order, OrderStatus } from '../../types';
 
 const REJECT_REASONS_AR = [
@@ -360,7 +361,46 @@ export const MerchantOrdersPage: React.FC = () => {
 
                 {/* Compact Order Pipeline Progress Bar */}
                 {order.status !== 'cancelled' && (
-                  <div className="pt-3 border-t border-[#EAE6E1]">
+                  <div className="pt-3 border-t border-[#EAE6E1] space-y-2.5">
+                    {(order.assignedDeliveryPersonName ||
+                      (order.deliveryTripStatus && order.deliveryTripStatus !== 'unassigned')) && (
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold border ${
+                            getMerchantTripStatusMeta(order.deliveryTripStatus, language).cls
+                          }`}
+                        >
+                          <Truck className="w-3 h-3" />
+                          <span>
+                            {getMerchantTripStatusMeta(order.deliveryTripStatus, language).label}
+                          </span>
+                          {order.assignedDeliveryPersonName && (
+                            <span>— {order.assignedDeliveryPersonName}</span>
+                          )}
+                        </span>
+                        <div className="flex flex-wrap items-center gap-3 text-[#6E6A66]">
+                          {order.deliveryTripAcceptedAt && (
+                            <span>
+                              {t('قبول:', 'Accepted:')}{' '}
+                              {formatDateTime(order.deliveryTripAcceptedAt, language)}
+                            </span>
+                          )}
+                          {order.deliveryTripArrivedAt && (
+                            <span className="text-amber-700 font-bold">
+                              {t('وصول:', 'Arrived:')}{' '}
+                              {formatDateTime(order.deliveryTripArrivedAt, language)}
+                            </span>
+                          )}
+                          {order.deliveryTripCancelledAt && order.deliveryTripStatus === 'cancelled' && (
+                            <span className="text-rose-700 font-bold">
+                              {t('إلغاء:', 'Cancelled:')}{' '}
+                              {formatDateTime(order.deliveryTripCancelledAt, language)}
+                              {order.deliveryCancelReason ? ` (${order.deliveryCancelReason})` : ''}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-5 gap-1.5">
                       {PIPELINE_STEPS.map((step, idx) => {
                         const currentIdx = PIPELINE_STEPS.findIndex((s) => s.key === order.status);
@@ -407,6 +447,17 @@ export const MerchantOrdersPage: React.FC = () => {
                 <span className="text-[#6E6A66]">{t('العميل:', 'Customer:')}</span>
                 <strong className="text-[#1C1917]">{selectedOrder.customerName}</strong>
               </div>
+              {selectedOrder.deliveryTripStatus && selectedOrder.deliveryTripStatus !== 'unassigned' && (
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-[#6E6A66]">{t('حالة التوصيل:', 'Delivery Trip:')}</span>
+                  <strong className="text-[#1C1917]">
+                    {getMerchantTripStatusMeta(selectedOrder.deliveryTripStatus, language).label}
+                    {selectedOrder.assignedDeliveryPersonName
+                      ? ` (${selectedOrder.assignedDeliveryPersonName})`
+                      : ''}
+                  </strong>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-[#6E6A66]">{t('الموبايل:', 'Phone:')}</span>
                 <strong className="text-[#1C1917]">{selectedOrder.customerPhone}</strong>

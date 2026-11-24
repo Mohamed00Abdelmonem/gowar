@@ -4,6 +4,7 @@ import {
   BarChart3,
   Boxes,
   ClipboardList,
+  Download,
   ExternalLink,
   Globe,
   LayoutDashboard,
@@ -23,6 +24,7 @@ import { useApp } from '../context/AppContext';
 import { BrandLogo } from '../components/common/BrandLogo';
 import { NotificationBell } from '../components/common/NotificationBell';
 import { SafeImage } from '../components/common/SafeImage';
+import { isStandaloneMode, requestPwaInstallModal } from '../services/pwaInstall';
 
 export const MerchantLayout: React.FC = () => {
   const {
@@ -292,6 +294,18 @@ export const MerchantLayout: React.FC = () => {
               >
                 <span>+ {t('منتج جديد', 'Add Product')}</span>
               </Link>
+
+              {!isStandaloneMode() && (
+                <button
+                  type="button"
+                  onClick={requestPwaInstallModal}
+                  className="h-9 px-2.5 rounded-xl border border-[#C2E7D2] bg-[#E6F5EC] hover:bg-[#D5EFE0] flex items-center justify-center gap-1.5 text-xs font-bold text-[#1B8E53]"
+                  title={t('تثبيت التطبيق', 'Install App')}
+                >
+                  <Download className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden md:inline">{t('تثبيت التطبيق', 'Install App')}</span>
+                </button>
+              )}
 
               <button
                 type="button"

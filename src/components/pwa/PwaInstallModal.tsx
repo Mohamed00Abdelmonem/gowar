@@ -3,7 +3,9 @@ import { useLocation } from 'react-router-dom';
 import { CheckCircle2, Download, PlusSquare, Share, Smartphone, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
+  PWA_OPEN_EVENT,
   PWA_SHOW_DELAY_MS,
+  getPwaPortalForPath,
   isAppMarkedInstalled,
   isInstallDismissedRecently,
   isIosSafari,
@@ -11,6 +13,7 @@ import {
   markAppInstalled,
   markShownInSession,
   recordInstallDismissal,
+  recordInstalledPortal,
   shouldShowInstallModal,
   wasShownInSession,
   type BeforeInstallPromptEvent,
@@ -40,6 +43,7 @@ export const PwaInstallModal: React.FC = () => {
 
     const handleAppInstalled = () => {
       markAppInstalled();
+      recordInstalledPortal(getPwaPortalForPath(window.location.pathname));
       setDeferredPrompt(null);
       setInstallState('installed');
       window.setTimeout(() => {
@@ -47,12 +51,20 @@ export const PwaInstallModal: React.FC = () => {
       }, 1600);
     };
 
+    const handleManualOpen = () => {
+      if (isStandaloneMode()) return;
+      setInstallState('prompt');
+      setOpen(true);
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
+    window.addEventListener(PWA_OPEN_EVENT, handleManualOpen);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener(PWA_OPEN_EVENT, handleManualOpen);
     };
   }, []);
 
@@ -114,6 +126,7 @@ export const PwaInstallModal: React.FC = () => {
       // When outcome === 'accepted', wait for confirmed `appinstalled` event.
       // If browser doesn't fire `appinstalled` within 4s, close cleanly without falsely claiming installed.
       if (outcome === 'accepted') {
+        recordInstalledPortal(getPwaPortalForPath(pathname));
         window.setTimeout(() => {
           setOpen((currentlyOpen) => {
             if (currentlyOpen && !isAppMarkedInstalled()) {
@@ -179,7 +192,39 @@ export const PwaInstallModal: React.FC = () => {
   if (!open) return null;
 
   const isRtl = language === 'ar';
+  const portal = getPwaPortalForPath(pathname);
   const showIosInstructions = !deferredPrompt && iosSafariMode;
+  const showManualBrowserInstructions = !deferredPrompt && !iosSafariMode;
+
+  const badgeText =
+    portal === 'merchant'
+      ? t('تطبيق جوار للتاجر', 'Gowar Merchant App')
+      : portal === 'delivery'
+        ? t('تطبيق جوار للتوصيل', 'Gowar Delivery App')
+        : t('تطبيق جوار السريع', 'Gowar Mobile App');
+
+  const titleText =
+    portal === 'merchant'
+      ? t('لوحة التاجر دايماً معاك!', 'Merchant Dashboard Always With You!')
+      : portal === 'delivery'
+        ? t('بوابة التوصيل دايماً في إيدك!', 'Delivery Portal Always in Reach!')
+        : t('جوار دايماً في متناول إيدك!', 'Gowar is Always Within Reach!');
+
+  const descText =
+    portal === 'merchant'
+      ? t(
+          'ثبّت تطبيق التاجر على جهازك لمتابعة الطلبات وتحديث المنتجات والفتح مباشرة على لوحة التحكم.',
+          'Install the Merchant app to manage orders and products and launch directly into your dashboard.'
+        )
+      : portal === 'delivery'
+        ? t(
+            'ثبّت تطبيق المندوب على موبايلك لاستلام الطلبات وتحديث حالة التوصيل بسرعة وفي أي وقت.',
+            'Install the Delivery app on your phone to receive assigned orders and update deliveries fast.'
+          )
+        : t(
+            'ثبّت تطبيق جوار على موبايلك واطلب كل احتياجاتك اليومية من المحلات القريبة بسهولة وفي أي وقت.',
+            'Install Gowar on your phone and easily order everyday essentials from nearby stores, anytime.'
+          );
 
   return (
     <div
@@ -224,24 +269,21 @@ export const PwaInstallModal: React.FC = () => {
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide bg-[#E6F5EC] text-[#1B8E53] border border-[#1B8E53]/15 mb-3">
             <Smartphone className="w-3.5 h-3.5" />
-            {t('تطبيق جوار السريع', 'Gowar Mobile App')}
+            {badgeText}
           </span>
 
           <h2
             id="pwa-install-title"
             className="text-xl sm:text-2xl font-extrabold text-[#1C1917] leading-snug"
           >
-            {t('جوار دايماً في متناول إيدك!', 'Gowar is Always Within Reach!')}
+            {titleText}
           </h2>
 
           <p
             id="pwa-install-desc"
             className="mt-2.5 text-sm text-[#6E6A66] leading-relaxed max-w-sm mx-auto"
           >
-            {t(
-              'ثبّت تطبيق جوار على موبايلك واطلب كل احتياجاتك اليومية من المحلات القريبة بسهولة وفي أي وقت.',
-              'Install Gowar on your phone and easily order everyday essentials from nearby stores, anytime.'
-            )}
+            {descText}
           </p>
         </div>
 
@@ -303,6 +345,31 @@ export const PwaInstallModal: React.FC = () => {
                 className="w-full py-3 px-4 rounded-2xl text-sm font-bold text-[#1C1917] bg-[#FAF9F7] hover:bg-[#F2EFEA] border border-[#EAE6E1] transition-all duration-150 active:scale-[0.98]"
               >
                 {t('ربما لاحقاً', 'Maybe Later')}
+              </button>
+            </div>
+          ) : showManualBrowserInstructions ? (
+            <div className="space-y-3">
+              <div className="rounded-2xl bg-[#FAF9F7] border border-[#EAE6E1] p-4 space-y-2 text-start">
+                <p className="text-xs font-bold text-[#1C1917]">
+                  {t('خطوات التثبيت من المتصفح:', 'How to install from your browser:')}
+                </p>
+                <p className="text-xs text-[#6E6A66] leading-relaxed">
+                  {t(
+                    'افتح قائمة المتصفح (⋮) أو أيقونة التثبيت في شريط العنوان ثم اختر "تثبيت التطبيق" أو "الإضافة إلى الشاشة الرئيسية".',
+                    'Open your browser menu (⋮) or click the install icon in the address bar, then select "Install app" or "Add to Home screen".'
+                  )}
+                </p>
+              </div>
+              <button
+                ref={primaryActionRef}
+                type="button"
+                onClick={() => {
+                  recordInstalledPortal(portal);
+                  handleDismiss();
+                }}
+                className="w-full py-3 px-4 rounded-2xl text-sm font-bold text-[#1C1917] bg-[#FAF9F7] hover:bg-[#F2EFEA] border border-[#EAE6E1] transition-all duration-150 active:scale-[0.98]"
+              >
+                {t('حسناً، فهمت', 'Got it')}
               </button>
             </div>
           ) : (

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -7,6 +7,7 @@ import {
   Banknote,
   CheckCircle2,
   CreditCard,
+  LogIn,
   MapPin,
   Phone,
   ShoppingBag,
@@ -16,7 +17,11 @@ import { useApp } from '../../context/AppContext';
 import { EmptyState } from '../../components/common/EmptyState';
 import { Modal } from '../../components/common/Modal';
 import { LocationPickerModal } from '../../components/location/LocationPickerModal';
-import { IS_BACKEND_API_ENABLED } from '../../services/apiClient';
+import {
+  IS_BACKEND_API_ENABLED,
+  getAccessToken,
+  getStoredApiUser,
+} from '../../services/apiClient';
 import { marketplaceApi } from '../../services/gowarApi';
 import {
   calculateDynamicDeliveryFee,
@@ -42,6 +47,13 @@ export const CheckoutPage: React.FC = () => {
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [authRequiredPrompt, setAuthRequiredPrompt] = useState(false);
+
+  const isCustomerAuthenticated =
+    !IS_BACKEND_API_ENABLED ||
+    Boolean(getAccessToken() && getStoredApiUser()?.role === 'customer');
+  const checkoutReturnPath = `${location.pathname}${location.search}`;
 
   const discount = Number(searchParams.get('discount') || 0);
   const store = merchants.find((m) => m.id === cart.merchantId);
@@ -180,6 +192,15 @@ export const CheckoutPage: React.FC = () => {
 
   const handleConfirmOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isCustomerAuthenticated) {
+      setAuthRequiredPrompt(true);
+      showToast(
+        t('يجب تسجيل الدخول أولاً لإتمام طلبك.', 'You must sign in first to complete your order.'),
+        'error'
+      );
+      return;
+    }
+
     if (!deliveryAvailability.isDeliverable) {
       showToast(
         t(
@@ -589,6 +610,42 @@ export const CheckoutPage: React.FC = () => {
               <span>{t('المطلوب دفعه', 'Total to Pay')}</span>
               <span className="text-xl text-[#1B8E53]">{formatEGP(total, language)}</span>
             </div>
+
+            {(!isCustomerAuthenticated || authRequiredPrompt) && (
+              <div
+                role="alert"
+                className="rounded-2xl bg-amber-50 border border-amber-200 p-3.5 space-y-2.5"
+              >
+                <div className="flex items-start gap-2 text-xs font-bold text-amber-900">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <span>
+                    {t(
+                      'يجب تسجيل الدخول أولاً لإتمام طلبك.',
+                      'You must sign in first to complete your order.'
+                    )}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate('/login', { state: { from: checkoutReturnPath } })
+                    }
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-extrabold transition-colors"
+                  >
+                    <LogIn className="w-3.5 h-3.5" />
+                    <span>{t('سجل الدخول الآن', 'Sign In Now')}</span>
+                  </button>
+                  <Link
+                    to="/register"
+                    state={{ from: checkoutReturnPath }}
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-amber-300 bg-white hover:bg-amber-100/50 text-amber-900 text-xs font-bold transition-colors"
+                  >
+                    <span>{t('إنشاء حساب جديد', 'Create Account')}</span>
+                  </Link>
+                </div>
+              </div>
+            )}
 
             <button
               type="submit"

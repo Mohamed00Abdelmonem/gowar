@@ -12,12 +12,16 @@ from .models import Order, OrderStatusChoices
 from .serializers import (
     AssignDeliveryInputSerializer,
     CreateOrderInputSerializer,
+    DeliveryCancelTripInputSerializer,
     DeliveryTransitionInputSerializer,
     OrderSerializer,
     OrderTransitionInputSerializer,
 )
 from .services import (
+    accept_delivery_trip,
+    arrive_delivery_trip,
     assign_order_to_delivery,
+    cancel_delivery_trip,
     create_order_from_cart,
     transition_order_status,
 )
@@ -337,4 +341,58 @@ class DeliveryOrderTransitionView(APIView):
         except DjangoValidationError as exc:
             return Response({"detail": exc.message}, status=status.HTTP_400_BAD_REQUEST)
 
+        return Response(OrderSerializer(updated).data)
+
+
+class DeliveryAcceptTripView(APIView):
+    permission_classes = [IsDelivery]
+
+    def post(self, request, pk):
+        order = Order.objects.filter(pk=pk).first()
+        if not order:
+            return Response({"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            updated = accept_delivery_trip(order_id=order.id, actor=request.user)
+        except PermissionDenied as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_403_FORBIDDEN)
+        except DjangoValidationError as exc:
+            return Response({"detail": exc.message}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(OrderSerializer(updated).data)
+
+
+class DeliveryCancelTripView(APIView):
+    permission_classes = [IsDelivery]
+
+    def post(self, request, pk):
+        order = Order.objects.filter(pk=pk).first()
+        if not order:
+            return Response({"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = DeliveryCancelTripInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            updated = cancel_delivery_trip(
+                order_id=order.id,
+                actor=request.user,
+                reason=serializer.validated_data.get("reason", ""),
+            )
+        except PermissionDenied as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_403_FORBIDDEN)
+        except DjangoValidationError as exc:
+            return Response({"detail": exc.message}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(OrderSerializer(updated).data)
+
+
+class DeliveryArriveView(APIView):
+    permission_classes = [IsDelivery]
+
+    def post(self, request, pk):
+        order = Order.objects.filter(pk=pk).first()
+        if not order:
+            return Response({"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            updated = arrive_delivery_trip(order_id=order.id, actor=request.user)
+        except PermissionDenied as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_403_FORBIDDEN)
+        except DjangoValidationError as exc:
+            return Response({"detail": exc.message}, status=status.HTTP_400_BAD_REQUEST)
         return Response(OrderSerializer(updated).data)

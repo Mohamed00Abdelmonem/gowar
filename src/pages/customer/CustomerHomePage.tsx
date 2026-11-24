@@ -108,9 +108,6 @@ export const CustomerHomePage: React.FC = () => {
                 {t('تغيير', 'Change')}
               </span>
             </button>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#1C1917]">
-              {t('أهلاً بيك، محتاج إيه من المحلات اللي حواليك؟', 'What do you need from stores around you?')}
-            </h1>
           </div>
 
           <button

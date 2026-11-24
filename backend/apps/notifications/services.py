@@ -144,6 +144,11 @@ def create_and_dispatch_notification(
     link: str = "",
     event_key: str = "",
 ) -> Notification:
+    if event_key:
+        existing = Notification.objects.filter(recipient=recipient, event_key=event_key).first()
+        if existing:
+            return existing
+
     notification = Notification.objects.create(
         recipient=recipient,
         store=store,
@@ -152,6 +157,7 @@ def create_and_dispatch_notification(
         title_en=title_en,
         body_en=body_en,
         link=link,
+        event_key=event_key,
     )
 
     recipient_id = recipient.pk

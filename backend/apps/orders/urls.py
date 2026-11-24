@@ -3,6 +3,9 @@ from .views import (
     CustomerOrderCancelView,
     CustomerOrderDetailView,
     CustomerOrderListCreateView,
+    DeliveryAcceptTripView,
+    DeliveryArriveView,
+    DeliveryCancelTripView,
     DeliveryOrderDetailView,
     DeliveryOrderListView,
     DeliveryOrderTransitionView,
@@ -32,5 +35,8 @@ delivery_urlpatterns = [
     path("summary/", DeliverySummaryView.as_view(), name="delivery-summary"),
     path("orders/", DeliveryOrderListView.as_view(), name="delivery-orders"),
     path("orders/<uuid:pk>/", DeliveryOrderDetailView.as_view(), name="delivery-order-detail"),
+    path("orders/<uuid:pk>/accept-trip/", DeliveryAcceptTripView.as_view(), name="delivery-order-accept-trip"),
+    path("orders/<uuid:pk>/cancel-trip/", DeliveryCancelTripView.as_view(), name="delivery-order-cancel-trip"),
+    path("orders/<uuid:pk>/arrive/", DeliveryArriveView.as_view(), name="delivery-order-arrive"),
     path("orders/<uuid:pk>/transition/", DeliveryOrderTransitionView.as_view(), name="delivery-order-transition"),
 ]

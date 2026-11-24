@@ -1,17 +1,32 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Globe, Loader2, Lock, Mail, Truck } from 'lucide-react';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { AlertCircle, Download, Globe, Loader2, Lock, Mail, Truck } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { BrandLogo } from '../../components/common/BrandLogo';
+import { isStandaloneMode, requestPwaInstallModal } from '../../services/pwaInstall';
 
 export const DeliveryLoginPage: React.FC = () => {
-  const { language, setLanguage, t, loginPortal } = useApp();
+  const { language, setLanguage, t, authSession, loginPortal } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  if (authSession?.role === 'delivery') {
+    return <Navigate to="/delivery" replace />;
+  }
+  if (authSession?.role === 'merchant') {
+    return <Navigate to="/merchant" replace />;
+  }
+  if (authSession?.role === 'admin') {
+    return <Navigate to="/admin" replace />;
+  }
+
+  const rawFrom = (location.state as { from?: string } | null)?.from;
+  const redirectTarget = rawFrom && rawFrom.startsWith('/delivery') ? rawFrom : '/delivery';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,22 +39,36 @@ export const DeliveryLoginPage: React.FC = () => {
       setError(res.error);
       return;
     }
-    navigate('/delivery', { replace: true });
+    navigate(redirectTarget, { replace: true });
   };
 
   return (
     <div className="min-h-screen bg-[#FAF9F7] flex flex-col justify-center px-4 py-10">
       <div className="max-w-md w-full mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <BrandLogo />
-          <button
-            type="button"
-            onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-            className="h-9 px-3 rounded-xl border border-[#EAE6E1] bg-white text-xs font-bold text-[#1C1917] inline-flex items-center gap-1.5"
-          >
-            <Globe className="w-3.5 h-3.5 text-[#1B8E53]" />
-            <span>{language === 'ar' ? 'English' : 'العربية'}</span>
-          </button>
+        <div className="flex items-center justify-between gap-2">
+          <Link to="/">
+            <BrandLogo />
+          </Link>
+          <div className="flex items-center gap-2">
+            {!isStandaloneMode() && (
+              <button
+                type="button"
+                onClick={requestPwaInstallModal}
+                className="h-9 px-3 rounded-xl border border-[#C2E7D2] bg-[#E6F5EC] hover:bg-[#D5EFE0] text-xs font-bold text-[#1B8E53] inline-flex items-center gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>{t('تثبيت التطبيق', 'Install App')}</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+              className="h-9 px-3 rounded-xl border border-[#EAE6E1] bg-white text-xs font-bold text-[#1C1917] inline-flex items-center gap-1.5"
+            >
+              <Globe className="w-3.5 h-3.5 text-[#1B8E53]" />
+              <span>{language === 'ar' ? 'English' : 'العربية'}</span>
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-3xl border border-[#EAE6E1] shadow-sm p-6 sm:p-7 space-y-5">

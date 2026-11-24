@@ -69,6 +69,11 @@ class OrderSerializer(serializers.ModelSerializer):
             "assigned_delivery_person",
             "assigned_delivery_person_name",
             "assigned_at",
+            "delivery_trip_status",
+            "delivery_trip_accepted_at",
+            "delivery_trip_arrived_at",
+            "delivery_trip_cancelled_at",
+            "delivery_cancel_reason",
             "delivered_at",
             "delivered_by",
             "items",
@@ -136,3 +141,7 @@ class DeliveryTransitionInputSerializer(serializers.Serializer):
                 {"confirm_delivery": "Explicit delivery confirmation is required to mark an order as delivered."}
             )
         return attrs
+
+
+class DeliveryCancelTripInputSerializer(serializers.Serializer):
+    reason = serializers.CharField(max_length=255, required=False, allow_blank=True, default="")

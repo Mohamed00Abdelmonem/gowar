@@ -348,7 +348,12 @@ interface AppContextValue {
   // Customer actions
   placeOrder: (input: PlaceOrderInput) => Promise<Order | null> | Order | null;
   cancelCustomerOrder: (orderId: string, reason?: string) => Promise<void>;
-  toggleFavoriteMerchant: (merchantId: string) => void;
+  toggleFavoriteMerchant: (merchantId: string) => Promise<void> | void;
+  favoritesLoading: boolean;
+  favoritesError: string | null;
+  pendingFavoriteStoreId: string | null;
+  dismissFavoritePrompt: () => void;
+  refreshFavorites: () => Promise<void>;
   updateCustomerProfile: (
     updates: Partial<Pick<Customer, 'nameAr' | 'nameEn' | 'phone' | 'email'>>
   ) => Promise<void> | void;
@@ -389,6 +394,7 @@ interface AppContextValue {
   refundAdminOrder: (orderId: string, amount: number, reason: string) => Promise<void>;
   settleAdminCommission: (recordId: string) => Promise<void>;
   markNotificationsRead: (audience?: AppNotification['audience'], merchantId?: string) => void;
+  markNotificationRead: (notificationId: string) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -438,6 +444,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [pendingCartConflict, setPendingCartConflict] = useState<PendingCartConflict | null>(null);
   const [pendingCartProductIds, setPendingCartProductIds] = useState<Record<string, boolean>>({});
+  const [favoritesLoading, setFavoritesLoading] = useState(false);
+  const [favoritesError, setFavoritesError] = useState<string | null>(null);
+  const [pendingFavoriteStoreId, setPendingFavoriteStoreId] = useState<string | null>(null);
   const pendingCartRef = useRef<Set<string>>(new Set());
   const seenNotifIdsRef = useRef<Set<string>>(new Set());
   const notifsHydratedRef = useRef(false);
@@ -541,11 +550,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (effectiveRole === 'customer' && getAccessToken()) {
           try {
-            const [cartRes, addrRes, ordRes, notifRes] = await Promise.all([
+            const [cartRes, addrRes, ordRes, notifRes, favRes] = await Promise.all([
               marketplaceApi.fetchCart(),
               marketplaceApi.fetchAddresses(),
               marketplaceApi.fetchCustomerOrders(),
               marketplaceApi.fetchNotifications().catch(() => null),
+              marketplaceApi.fetchFavoriteStores().catch(() => null),
             ]);
             nextCart = {
               merchantId: cartRes.store,
@@ -560,6 +570,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 mapBackendNotification(n, 'customer')
               );
             }
+            if (favRes?.stores?.length) {
+              const existingIds = new Set(nextMerchants.map((m) => m.id));
+              const extraFavMerchants = favRes.stores
+                .map(mapBackendStoreToMerchant)
+                .filter((m) => !existingIds.has(m.id));
+              if (extraFavMerchants.length > 0) {
+                nextMerchants = [...nextMerchants, ...extraFavMerchants];
+              }
+            }
             nextCustomers = [
               {
                 id: apiUser?.id ?? 'customer',
@@ -569,7 +588,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 email: apiUser?.email ?? '',
                 status: 'active',
                 joinedAt: new Date().toISOString(),
-                favoriteMerchantIds: [],
+                favoriteMerchantIds: favRes?.store_ids ?? [],
                 addresses: addrRes,
               },
             ];
@@ -599,6 +618,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             setInventoryMovements(mMovs.results);
           } catch (err) {
             handleApiError(err, 'تعذر تحميل بيانات التاجر', 'Failed to load merchant data');
+          }
+        } else if (effectiveRole === 'delivery' && getAccessToken()) {
+          try {
+            const dNotifs = await marketplaceApi.fetchNotifications();
+            nextNotifications = dNotifs.results.map((n) =>
+              mapBackendNotification(n, 'delivery')
+            );
+          } catch {
+            // Unauthenticated or expired session
           }
         } else if (effectiveRole === 'admin' && getAccessToken()) {
           try {
@@ -1080,10 +1108,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const logoutPortal = async () => {
     if (IS_BACKEND_API_ENABLED) {
       await authApi.logout();
-      setState((prev) => ({ ...prev, orders: [], cart: { merchantId: null, items: [] } }));
+      setState((prev) => ({
+        ...prev,
+        orders: [],
+        cart: { merchantId: null, items: [] },
+        customers: prev.customers.map((c) => ({ ...c, favoriteMerchantIds: [] })),
+      }));
     } else {
       clearAuthTokens();
     }
+    try {
+      sessionStorage.removeItem('gowar_pending_favorite_v1');
+    } catch {
+      // Ignore storage errors
+    }
+    setPendingFavoriteStoreId(null);
     clearDemoSession();
     setAuthSession(null);
     showToast(
@@ -1625,20 +1664,93 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // ==================== CUSTOMER PROFILE / ADDRESSES / FAVORITES ====================
-  const toggleFavoriteMerchant = (merchantId: string) => {
+  const dismissFavoritePrompt = () => setPendingFavoriteStoreId(null);
+
+  const refreshFavorites = async () => {
+    if (!IS_BACKEND_API_ENABLED) return;
+    const apiUser = getStoredApiUser();
+    if (!getAccessToken() || apiUser?.role !== 'customer') {
+      setState((prev) => ({
+        ...prev,
+        customers: prev.customers.map((c) => ({ ...c, favoriteMerchantIds: [] })),
+      }));
+      setFavoritesError(null);
+      setFavoritesLoading(false);
+      return;
+    }
+
+    setFavoritesLoading(true);
+    setFavoritesError(null);
+    try {
+      const favRes = await marketplaceApi.fetchFavoriteStores();
+      setState((prev) => {
+        const existingIds = new Set(prev.merchants.map((m) => m.id));
+        const extraMerchants = favRes.stores
+          .map(mapBackendStoreToMerchant)
+          .filter((m) => !existingIds.has(m.id));
+        return {
+          ...prev,
+          merchants: extraMerchants.length > 0 ? [...prev.merchants, ...extraMerchants] : prev.merchants,
+          customers: prev.customers.map((c) =>
+            c.id === activeCustomer.id ? { ...c, favoriteMerchantIds: favRes.store_ids } : c
+          ),
+        };
+      });
+    } catch (err) {
+      const msg = err instanceof ApiClientError ? err.message : pickLang(state.language, 'تعذر تحميل المفضلة', 'Failed to load favorites');
+      setFavoritesError(msg);
+    } finally {
+      setFavoritesLoading(false);
+    }
+  };
+
+  const toggleFavoriteMerchant = async (merchantId: string) => {
+    const apiUser = getStoredApiUser();
+    if (IS_BACKEND_API_ENABLED && (!getAccessToken() || apiUser?.role !== 'customer')) {
+      try {
+        sessionStorage.setItem('gowar_pending_favorite_v1', merchantId);
+      } catch {
+        // Ignore storage errors
+      }
+      setPendingFavoriteStoreId(merchantId);
+      showToast(
+        t('يجب تسجيل الدخول أولاً لحفظ المحلات في المفضلة', 'Please sign in first to save favorites'),
+        'info'
+      );
+      return;
+    }
+
+    const previousIds = [...activeCustomer.favoriteMerchantIds];
+    const exists = previousIds.includes(merchantId);
+    const optimisticIds = exists
+      ? previousIds.filter((id) => id !== merchantId)
+      : [...previousIds, merchantId];
+
     setState((prev) => ({
       ...prev,
-      customers: prev.customers.map((c) => {
-        if (c.id !== activeCustomer.id) return c;
-        const exists = c.favoriteMerchantIds.includes(merchantId);
-        return {
-          ...c,
-          favoriteMerchantIds: exists
-            ? c.favoriteMerchantIds.filter((id) => id !== merchantId)
-            : [...c.favoriteMerchantIds, merchantId],
-        };
-      }),
+      customers: prev.customers.map((c) =>
+        c.id === activeCustomer.id ? { ...c, favoriteMerchantIds: optimisticIds } : c
+      ),
     }));
+
+    if (IS_BACKEND_API_ENABLED) {
+      try {
+        if (exists) {
+          await marketplaceApi.removeFavoriteStore(merchantId);
+        } else {
+          await marketplaceApi.addFavoriteStore(merchantId);
+        }
+      } catch (err) {
+        // Roll back optimistic update on API failure
+        setState((prev) => ({
+          ...prev,
+          customers: prev.customers.map((c) =>
+            c.id === activeCustomer.id ? { ...c, favoriteMerchantIds: previousIds } : c
+          ),
+        }));
+        handleApiError(err, 'تعذر تحديث المفضلة', 'Could not update favorites');
+      }
+    }
   };
 
   const updateCustomerProfile = async (
@@ -2455,6 +2567,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   };
 
+  const markNotificationRead = (notificationId: string) => {
+    if (IS_BACKEND_API_ENABLED && getAccessToken()) {
+      void marketplaceApi.markNotificationRead(notificationId).catch(() => { });
+    }
+    setState((prev) => ({
+      ...prev,
+      notifications: prev.notifications.map((n) =>
+        n.id === notificationId ? { ...n, read: true } : n
+      ),
+    }));
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -2503,6 +2627,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         placeOrder,
         cancelCustomerOrder,
         toggleFavoriteMerchant,
+        favoritesLoading,
+        favoritesError,
+        pendingFavoriteStoreId,
+        dismissFavoritePrompt,
+        refreshFavorites,
         updateCustomerProfile,
         addCustomerAddress,
         updateCustomerAddress,
@@ -2529,6 +2658,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         refundAdminOrder,
         settleAdminCommission,
         markNotificationsRead,
+        markNotificationRead,
       }}
     >
       {children}

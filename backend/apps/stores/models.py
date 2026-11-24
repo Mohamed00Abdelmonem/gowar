@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.conf import settings
 from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.geos import Point
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -116,3 +117,31 @@ class Store(UUIDTimeStampedModel):
 
     def __str__(self):
         return f"{self.name} ({self.approval_status})"
+
+
+class FavoriteStore(UUIDTimeStampedModel):
+    customer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="favorite_stores",
+    )
+    store = models.ForeignKey(
+        Store,
+        on_delete=models.CASCADE,
+        related_name="favorited_by",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["customer", "store"],
+                name="uniq_customer_favorite_store",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["customer", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.customer_id} ♥ {self.store_id}"

@@ -2,12 +2,17 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   PWA_COOLDOWN_MS,
+  getInstalledPortal,
+  getManifestHrefForPortal,
+  getPwaPortalForPath,
   isAppMarkedInstalled,
   isExcludedPwaRoute,
   isInstallDismissedRecently,
   isIosSafari,
   markAppInstalled,
   recordInstallDismissal,
+  recordInstalledPortal,
+  resolveStandaloneStartPath,
   shouldShowInstallModal,
   type StorageLike,
 } from './pwaInstall.ts';
@@ -24,12 +29,14 @@ function createMemoryStorage(): StorageLike {
   };
 }
 
-test('isExcludedPwaRoute excludes admin and merchant portals but allows customer routes', () => {
+test('isExcludedPwaRoute excludes admin portal but allows customer, merchant, and delivery routes', () => {
   assert.equal(isExcludedPwaRoute('/admin'), true);
   assert.equal(isExcludedPwaRoute('/admin/orders'), true);
-  assert.equal(isExcludedPwaRoute('/merchant'), true);
-  assert.equal(isExcludedPwaRoute('/merchant/login'), true);
 
+  assert.equal(isExcludedPwaRoute('/merchant'), false);
+  assert.equal(isExcludedPwaRoute('/merchant/login'), false);
+  assert.equal(isExcludedPwaRoute('/delivery'), false);
+  assert.equal(isExcludedPwaRoute('/delivery/login'), false);
   assert.equal(isExcludedPwaRoute('/'), false);
   assert.equal(isExcludedPwaRoute('/stores'), false);
   assert.equal(isExcludedPwaRoute('/stores/abc'), false);
@@ -91,4 +98,71 @@ test('shouldShowInstallModal enforces standalone, installed, cooldown, session, 
 
   markAppInstalled(storage);
   assert.equal(isAppMarkedInstalled(storage), true);
+});
+
+test('portal manifest selection and standalone launch routing preserve merchant and delivery destinations', () => {
+  const storage = createMemoryStorage();
+  assert.equal(getPwaPortalForPath('/merchant/login'), 'merchant');
+  assert.equal(getPwaPortalForPath('/merchant/orders'), 'merchant');
+  assert.equal(getPwaPortalForPath('/delivery/login'), 'delivery');
+  assert.equal(getPwaPortalForPath('/delivery/orders'), 'delivery');
+  assert.equal(getPwaPortalForPath('/checkout'), 'customer');
+
+  assert.equal(getManifestHrefForPortal('merchant'), '/merchant-manifest.webmanifest');
+  assert.equal(getManifestHrefForPortal('delivery'), '/delivery-manifest.webmanifest');
+  assert.equal(getManifestHrefForPortal('customer'), '/manifest.webmanifest');
+
+  recordInstalledPortal('merchant', storage);
+  assert.equal(getInstalledPortal(storage), 'merchant');
+
+  // Authenticated standalone launch at "/" routes directly to role dashboard
+  assert.equal(
+    resolveStandaloneStartPath({
+      pathname: '/',
+      standalone: true,
+      authRole: 'merchant',
+      installedPortal: null,
+    }),
+    '/merchant'
+  );
+  assert.equal(
+    resolveStandaloneStartPath({
+      pathname: '/',
+      standalone: true,
+      authRole: 'delivery',
+      installedPortal: null,
+    }),
+    '/delivery'
+  );
+
+  // Unauthenticated standalone launch at "/" routes to the installed portal login
+  assert.equal(
+    resolveStandaloneStartPath({
+      pathname: '/',
+      standalone: true,
+      authRole: null,
+      installedPortal: 'merchant',
+    }),
+    '/merchant/login'
+  );
+  assert.equal(
+    resolveStandaloneStartPath({
+      pathname: '/',
+      standalone: true,
+      authRole: null,
+      installedPortal: 'delivery',
+    }),
+    '/delivery/login'
+  );
+
+  // Non-standalone browser visits stay on "/"
+  assert.equal(
+    resolveStandaloneStartPath({
+      pathname: '/',
+      standalone: false,
+      authRole: 'merchant',
+      installedPortal: 'merchant',
+    }),
+    null
+  );
 });

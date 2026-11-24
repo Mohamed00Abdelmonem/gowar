@@ -132,6 +132,15 @@ export interface OrderPipelineEvent {
   noteEn?: string;
 }
 
+export type DeliveryTripStatus =
+  | 'unassigned'
+  | 'assigned'
+  | 'accepted'
+  | 'in_transit'
+  | 'arrived'
+  | 'completed'
+  | 'cancelled';
+
 export interface Order {
   id: string;
   orderNumber: string;
@@ -156,6 +165,15 @@ export interface Order {
   notes?: string;
   status: OrderStatus;
   rejectReason?: string;
+  assignedDeliveryPersonId?: string | null;
+  assignedDeliveryPersonName?: string;
+  assignedAt?: string | null;
+  deliveryTripStatus?: DeliveryTripStatus;
+  deliveryTripAcceptedAt?: string | null;
+  deliveryTripArrivedAt?: string | null;
+  deliveryTripCancelledAt?: string | null;
+  deliveryCancelReason?: string;
+  deliveredAt?: string | null;
   statusHistory?: OrderPipelineEvent[];
   createdAt: string;
   updatedAt: string;
@@ -203,7 +221,7 @@ export interface Customer {
 
 export interface AppNotification {
   id: string;
-  audience: 'customer' | 'merchant' | 'admin';
+  audience: 'customer' | 'merchant' | 'delivery' | 'admin';
   merchantId?: string;
   titleAr: string;
   titleEn: string;

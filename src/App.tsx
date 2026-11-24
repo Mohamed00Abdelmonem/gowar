@@ -1,6 +1,13 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
+import {
+  getInstalledPortal,
+  getManifestHrefForPortal,
+  getPwaPortalForPath,
+  isStandaloneMode,
+  resolveStandaloneStartPath,
+} from './services/pwaInstall';
 import { ToastContainer } from './components/common/ToastContainer';
 import { CartConflictModal } from './components/common/CartConflictModal';
 import { PwaInstallModal } from './components/pwa/PwaInstallModal';
@@ -81,6 +88,34 @@ const ScrollToTop: React.FC = () => {
   return null;
 };
 
+const PwaRouteCoordinator: React.FC = () => {
+  const { pathname } = useLocation();
+  const { authSession } = useApp();
+
+  useEffect(() => {
+    const portal = getPwaPortalForPath(pathname);
+    const manifestHref = getManifestHrefForPortal(portal);
+    const link = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+    if (link && link.getAttribute('href') !== manifestHref) {
+      link.setAttribute('href', manifestHref);
+    }
+  }, [pathname]);
+
+  if (!isDeliverySubdomain && pathname === '/' && isStandaloneMode()) {
+    const target = resolveStandaloneStartPath({
+      pathname,
+      standalone: true,
+      authRole: authSession?.role ?? null,
+      installedPortal: getInstalledPortal(),
+    });
+    if (target) {
+      return <Navigate to={target} replace />;
+    }
+  }
+
+  return null;
+};
+
 const isDeliverySubdomain =
   typeof window !== 'undefined' &&
   window.location.hostname.toLowerCase().startsWith('delivery.');
@@ -90,6 +125,7 @@ export function App() {
     <AppProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <PwaRouteCoordinator />
         <Suspense fallback={<RouteFallback />}>
         <Routes>
           {isDeliverySubdomain && (

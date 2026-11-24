@@ -22,6 +22,7 @@ class Notification(UUIDModel):
     title_en = models.CharField(max_length=160, blank=True)
     body_en = models.TextField(blank=True)
     link = models.CharField(max_length=255, blank=True)
+    event_key = models.CharField(max_length=160, blank=True, db_index=True)
     is_read = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 

@@ -15,6 +15,7 @@ import type {
   Customer,
   CustomerAddress,
   DeliveryShiftStatusResponse,
+  DeliveryTripStatus,
   DriverVehicleType,
   Merchant,
   MerchantDeliveryDriver,
@@ -341,6 +342,11 @@ export interface BackendOrderPayload {
   assigned_delivery_person?: string | null;
   assigned_delivery_person_name?: string;
   assigned_at?: string | null;
+  delivery_trip_status?: DeliveryTripStatus;
+  delivery_trip_accepted_at?: string | null;
+  delivery_trip_arrived_at?: string | null;
+  delivery_trip_cancelled_at?: string | null;
+  delivery_cancel_reason?: string;
   delivered_at?: string | null;
   delivered_by?: string | null;
   items: Array<{
@@ -414,6 +420,15 @@ export function mapBackendOrder(o: BackendOrderPayload): Order {
     notes: o.customer_notes || undefined,
     status: mapOrderStatus(o.order_status),
     rejectReason: o.reject_reason || undefined,
+    assignedDeliveryPersonId: o.assigned_delivery_person ?? null,
+    assignedDeliveryPersonName: o.assigned_delivery_person_name || undefined,
+    assignedAt: o.assigned_at ?? null,
+    deliveryTripStatus: o.delivery_trip_status ?? 'unassigned',
+    deliveryTripAcceptedAt: o.delivery_trip_accepted_at ?? null,
+    deliveryTripArrivedAt: o.delivery_trip_arrived_at ?? null,
+    deliveryTripCancelledAt: o.delivery_trip_cancelled_at ?? null,
+    deliveryCancelReason: o.delivery_cancel_reason || undefined,
+    deliveredAt: o.delivered_at ?? null,
     statusHistory: (o.status_history || []).map((ev) => ({
       status: mapOrderStatus(ev.status),
       timestamp: ev.created_at,
@@ -625,6 +640,22 @@ export const marketplaceApi = {
       isDefault: a.is_default,
       coordinates: { lat: Number(a.latitude), lng: Number(a.longitude) },
     }));
+  },
+
+  fetchFavoriteStores() {
+    return apiRequest<{ store_ids: string[]; stores: BackendStorePayload[] }>('/stores/favorites/');
+  },
+
+  addFavoriteStore(storeId: string) {
+    return apiRequest<{ store_id: string; is_favorite: boolean }>(`/stores/favorites/${storeId}/`, {
+      method: 'POST',
+    });
+  },
+
+  removeFavoriteStore(storeId: string) {
+    return apiRequest<{ store_id: string; is_favorite: boolean }>(`/stores/favorites/${storeId}/`, {
+      method: 'DELETE',
+    });
   },
 
   createAddress(payload: {
@@ -930,6 +961,10 @@ export const marketplaceApi = {
     return apiRequest('/notifications/mark-read/', { method: 'POST' });
   },
 
+  markNotificationRead(notificationId: string) {
+    return apiRequest(`/notifications/${notificationId}/mark-read/`, { method: 'POST' });
+  },
+
   fetchPushConfig() {
     return apiRequest<{ enabled: boolean; vapid_public_key: string }>(
       '/notifications/push/config/',
@@ -1044,6 +1079,25 @@ export const deliveryApi = {
 
   fetchOrder(orderId: string) {
     return apiRequest<BackendOrderPayload>(`/delivery/orders/${orderId}/`);
+  },
+
+  acceptTrip(orderId: string) {
+    return apiRequest<BackendOrderPayload>(`/delivery/orders/${orderId}/accept-trip/`, {
+      method: 'POST',
+    });
+  },
+
+  cancelTrip(orderId: string, reason = '') {
+    return apiRequest<BackendOrderPayload>(`/delivery/orders/${orderId}/cancel-trip/`, {
+      method: 'POST',
+      body: { reason },
+    });
+  },
+
+  confirmArrival(orderId: string) {
+    return apiRequest<BackendOrderPayload>(`/delivery/orders/${orderId}/arrive/`, {
+      method: 'POST',
+    });
   },
 
   transitionOrder(

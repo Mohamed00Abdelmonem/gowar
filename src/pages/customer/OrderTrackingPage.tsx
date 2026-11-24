@@ -19,10 +19,14 @@ import { useApp } from '../../context/AppContext';
 import { EmptyState } from '../../components/common/EmptyState';
 import { SafeImage } from '../../components/common/SafeImage';
 import { formatDateTime, formatEGP, getOrderStatusMeta } from '../../utils/i18n';
+import {
+  CUSTOMER_PROGRESS_STEPS,
+  resolveCustomerProgressStage,
+} from '../../utils/deliveryTripStatus';
 import { IS_BACKEND_API_ENABLED } from '../../services/apiClient';
 import type { OrderStatus } from '../../types';
 
-const STATUS_STEPS: { key: OrderStatus; labelAr: string; labelEn: string }[] = [
+const DEMO_STATUS_STEPS: { key: OrderStatus; labelAr: string; labelEn: string }[] = [
   { key: 'pending', labelAr: 'وصل المحل', labelEn: 'Pending' },
   { key: 'accepted', labelAr: 'المحل قبله', labelEn: 'Accepted' },
   { key: 'preparing', labelAr: 'بيتجهز دلوقتي', labelEn: 'Preparing' },
@@ -83,7 +87,12 @@ export const OrderTrackingPage: React.FC = () => {
   }
 
   const statusMeta = getOrderStatusMeta(order.status, language);
-  const currentIndex = STATUS_STEPS.findIndex((s) => s.key === order.status);
+  const activeStage = resolveCustomerProgressStage(
+    order.status,
+    order.deliveryTripStatus,
+    Boolean(order.assignedDeliveryPersonId || order.assignedDeliveryPersonName)
+  );
+  const currentIndex = activeStage.stepIndex;
 
   return (
     <div className="max-w-5xl mx-auto px-3 sm:px-6 py-5 space-y-5">
@@ -180,13 +189,13 @@ export const OrderTrackingPage: React.FC = () => {
               </span>
             </div>
 
-            <div className="flex flex-col gap-3 sm:grid sm:grid-cols-5 sm:gap-2">
-              {STATUS_STEPS.map((step, idx) => {
+            <div className="flex flex-col gap-3 sm:grid sm:grid-cols-6 sm:gap-2">
+              {CUSTOMER_PROGRESS_STEPS.map((step, idx) => {
                 const done = idx <= currentIndex;
                 const active = idx === currentIndex;
                 return (
                   <div
-                    key={step.key}
+                    key={step.stage}
                     className="flex sm:flex-col items-center sm:text-center gap-3 sm:gap-2"
                   >
                     <div
@@ -196,9 +205,9 @@ export const OrderTrackingPage: React.FC = () => {
                           : 'bg-[#FAF9F7] border-[#EAE6E1] text-[#6E6A66]'
                       } ${active ? 'ring-4 ring-[#E6F5EC]' : ''}`}
                     >
-                      {idx === 4 ? (
+                      {idx === 5 ? (
                         <PackageCheck className="w-4 h-4" />
-                      ) : idx === 3 ? (
+                      ) : idx >= 1 && idx <= 4 ? (
                         <Truck className="w-4 h-4" />
                       ) : (
                         <CheckCircle2 className="w-4 h-4" />
@@ -215,6 +224,44 @@ export const OrderTrackingPage: React.FC = () => {
                 );
               })}
             </div>
+
+            {(order.assignedDeliveryPersonName ||
+              order.deliveryTripAcceptedAt ||
+              order.deliveryTripArrivedAt ||
+              order.deliveredAt) && (
+              <div className="rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] p-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#6E6A66]">
+                {order.assignedDeliveryPersonName && (
+                  <span>
+                    {t('المندوب:', 'Driver:')}{' '}
+                    <strong className="text-[#1C1917]">{order.assignedDeliveryPersonName}</strong>
+                  </span>
+                )}
+                {order.deliveryTripAcceptedAt && (
+                  <span>
+                    {t('قبل الرحلة:', 'Accepted:')}{' '}
+                    <strong className="text-[#1C1917]">
+                      {formatDateTime(order.deliveryTripAcceptedAt, language)}
+                    </strong>
+                  </span>
+                )}
+                {order.deliveryTripArrivedAt && (
+                  <span>
+                    {t('وصل إليك:', 'Arrived:')}{' '}
+                    <strong className="text-[#1B8E53]">
+                      {formatDateTime(order.deliveryTripArrivedAt, language)}
+                    </strong>
+                  </span>
+                )}
+                {order.deliveredAt && (
+                  <span>
+                    {t('تم التسليم:', 'Delivered:')}{' '}
+                    <strong className="text-[#1B8E53]">
+                      {formatDateTime(order.deliveredAt, language)}
+                    </strong>
+                  </span>
+                )}
+              </div>
+            )}
           </>
         )}
 
@@ -246,7 +293,7 @@ export const OrderTrackingPage: React.FC = () => {
                 </span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {STATUS_STEPS.map((s) => (
+                {DEMO_STATUS_STEPS.map((s) => (
                   <button
                     key={s.key}
                     type="button"

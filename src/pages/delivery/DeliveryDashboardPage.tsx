@@ -16,8 +16,10 @@ import {
   Square,
   Store,
   Truck,
+  XCircle,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { Modal } from '../../components/common/Modal';
 import {
   deliveryApi,
   type BackendOrderPayload,
@@ -56,6 +58,9 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
   // Shift & Explicit Location Sharing state
   const [shiftStatus, setShiftStatus] = useState<DeliveryShiftStatusResponse | null>(null);
   const [shiftBusy, setShiftBusy] = useState(false);
+  const [busyOrderId, setBusyOrderId] = useState<string | null>(null);
+  const [cancelTargetOrder, setCancelTargetOrder] = useState<BackendOrderPayload | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
   const [sharingActive, setSharingActive] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const watchIdRef = useRef<number | null>(null);
@@ -171,6 +176,21 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      void deliveryApi
+        .fetchOrders({
+          order_status: statusFilter === 'all' ? undefined : statusFilter,
+          date: dateFilter === 'all' ? undefined : dateFilter,
+        })
+        .then((res) => setOrders(res.results))
+        .catch(() => {});
+      void deliveryApi.fetchSummary().then(setSummary).catch(() => {});
+    }, 8000);
+    return () => window.clearInterval(id);
+  }, [statusFilter, dateFilter]);
 
   const statusBadge = (status: string) => {
     switch (status) {
@@ -498,28 +518,167 @@ export const DeliveryDashboardPage: React.FC<DeliveryDashboardPageProps> = ({
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#EAE6E1] flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-xs font-extrabold text-[#1C1917]">
-                      {formatEGP(Number(order.total_amount), language)}
+                <div className="pt-3 border-t border-[#EAE6E1] space-y-2.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-extrabold text-[#1C1917]">
+                        {formatEGP(Number(order.total_amount), language)}
+                      </div>
+                      <div className="text-[11px] text-[#6E6A66]">
+                        {t('التوصيل:', 'Delivery:')} {formatEGP(Number(order.delivery_fee), language)}
+                      </div>
                     </div>
-                    <div className="text-[11px] text-[#6E6A66]">
-                      {t('التوصيل:', 'Delivery:')} {formatEGP(Number(order.delivery_fee), language)}
-                    </div>
+
+                    <Link
+                      to={`/delivery/orders/${order.id}`}
+                      className="px-4 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-extrabold transition-colors"
+                    >
+                      {t('تفاصيل الطلب', 'Open Order Details')}
+                    </Link>
                   </div>
 
-                  <Link
-                    to={`/delivery/orders/${order.id}`}
-                    className="px-4 py-2.5 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-extrabold transition-colors"
-                  >
-                    {t('تفاصيل الطلب', 'Open Order Details')}
-                  </Link>
+                  {order.order_status !== 'delivered' && order.order_status !== 'cancelled' && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      {order.delivery_trip_status === 'assigned' && (
+                        <button
+                          type="button"
+                          disabled={busyOrderId === order.id}
+                          onClick={async () => {
+                            setBusyOrderId(order.id);
+                            try {
+                              await deliveryApi.acceptTrip(order.id);
+                              showToast(t('تم قبول الرحلة بنجاح', 'Trip accepted'), 'success');
+                              await loadData();
+                            } catch (err) {
+                              showToast(
+                                err instanceof Error ? err.message : t('تعذر قبول الرحلة', 'Failed to accept trip'),
+                                'error'
+                              );
+                            } finally {
+                              setBusyOrderId(null);
+                            }
+                          }}
+                          className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>{t('قبول الرحلة', 'Accept Trip')}</span>
+                        </button>
+                      )}
+
+                      {order.order_status === 'out_for_delivery' &&
+                        order.delivery_trip_status !== 'arrived' && (
+                          <button
+                            type="button"
+                            disabled={busyOrderId === order.id}
+                            onClick={async () => {
+                              setBusyOrderId(order.id);
+                              try {
+                                await deliveryApi.confirmArrival(order.id);
+                                showToast(t('تم تأكيد وصولك للعميل', 'Arrival confirmed'), 'success');
+                                await loadData();
+                              } catch (err) {
+                                showToast(
+                                  err instanceof Error ? err.message : t('تعذر تأكيد الوصول', 'Failed to confirm arrival'),
+                                  'error'
+                                );
+                              } finally {
+                                setBusyOrderId(null);
+                              }
+                            }}
+                            className="flex-1 py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
+                          >
+                            <MapPin className="w-3.5 h-3.5" />
+                            <span>{t('وصلت للعميل', 'Arrived at Customer')}</span>
+                          </button>
+                        )}
+
+                      <button
+                        type="button"
+                        disabled={busyOrderId === order.id}
+                        onClick={() => {
+                          setCancelReason('');
+                          setCancelTargetOrder(order);
+                        }}
+                        className="py-2 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-extrabold inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        <span>{t('إلغاء الرحلة', 'Cancel Trip')}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
+      <Modal
+        open={Boolean(cancelTargetOrder)}
+        onClose={() => setCancelTargetOrder(null)}
+        title={t('تأكيد إلغاء الرحلة', 'Confirm Trip Cancellation')}
+        maxWidthClass="max-w-md"
+      >
+        {cancelTargetOrder && (
+          <div className="space-y-4">
+            <p className="text-sm text-[#1C1917] leading-relaxed">
+              {t(
+                `هل تريد إلغاء رحلة توصيل الطلب #${cancelTargetOrder.order_number}؟ سيعود الطلب للتاجر لإعادة إسناده لمندوب آخر.`,
+                `Cancel trip for Order #${cancelTargetOrder.order_number}? The merchant will be notified to reassign another driver.`
+              )}
+            </p>
+            <div>
+              <label className="block text-xs font-bold text-[#6E6A66] mb-1">
+                {t('سبب الإلغاء (اختياري)', 'Cancellation Reason (Optional)')}
+              </label>
+              <input
+                type="text"
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder={t('مثال: عطل مفاجئ أو تعذر التوصيل حالياً', 'e.g. Vehicle issue or unavailable')}
+                className="w-full px-3 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] text-xs sm:text-sm"
+              />
+            </div>
+            <div className="flex gap-2.5">
+              <button
+                type="button"
+                disabled={busyOrderId === cancelTargetOrder.id}
+                onClick={async () => {
+                  setBusyOrderId(cancelTargetOrder.id);
+                  try {
+                    await deliveryApi.cancelTrip(cancelTargetOrder.id, cancelReason.trim());
+                    setCancelTargetOrder(null);
+                    setCancelReason('');
+                    showToast(
+                      t('تم إلغاء الرحلة وإشعار التاجر', 'Trip cancelled and merchant notified'),
+                      'info'
+                    );
+                    await loadData();
+                  } catch (err) {
+                    showToast(
+                      err instanceof Error ? err.message : t('تعذر إلغاء الرحلة', 'Failed to cancel trip'),
+                      'error'
+                    );
+                  } finally {
+                    setBusyOrderId(null);
+                  }
+                }}
+                className="flex-1 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-extrabold inline-flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {busyOrderId === cancelTargetOrder.id && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>{t('تأكيد إلغاء الرحلة', 'Confirm Cancel Trip')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCancelTargetOrder(null)}
+                className="px-4 py-3 rounded-xl border border-[#EAE6E1] text-xs sm:text-sm font-bold text-[#6E6A66]"
+              >
+                {t('تراجع', 'Back')}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

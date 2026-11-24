@@ -3,24 +3,34 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   ChevronDown,
   ClipboardList,
+  Heart,
   Home,
+  LogIn,
   MapPin,
   Search,
   ShoppingCart,
   Store,
+  Truck,
   User,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { BrandLogo } from '../components/common/BrandLogo';
+import { Modal } from '../components/common/Modal';
 import { NotificationBell } from '../components/common/NotificationBell';
 import { LocationOnboardingModal } from '../components/location/LocationOnboardingModal';
 import { LocationPickerModal } from '../components/location/LocationPickerModal';
+import {
+  IS_BACKEND_API_ENABLED,
+  getAccessToken,
+  getStoredApiUser,
+} from '../services/apiClient';
 import { formatEGP } from '../utils/i18n';
 
 export const CustomerLayout: React.FC = () => {
   const {
     language,
     t,
+    authSession,
     areas,
     setSelectedAreaId,
     activeCustomer,
@@ -28,12 +38,20 @@ export const CustomerLayout: React.FC = () => {
     cart,
     merchants,
     products,
+    pendingFavoriteStoreId,
+    dismissFavoritePrompt,
   } = useApp();
+
+  const isCustomerSignedIn =
+    !IS_BACKEND_API_ENABLED ||
+    Boolean(getAccessToken() && getStoredApiUser()?.role === 'customer');
+  const favoritesCount = isCustomerSignedIn ? activeCustomer.favoriteMerchantIds.length : 0;
 
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const isFavoritesActive = location.pathname.startsWith('/favorites');
 
   const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
   const cartMerchant = merchants.find((m) => m.id === cart.merchantId);
@@ -106,9 +124,33 @@ export const CustomerLayout: React.FC = () => {
               />
             </form>
 
-            {/* Right Actions: Notifications, Profile & Cart */}
+            {/* Right Actions: Notifications, Favorites, Profile & Cart */}
             <div className="flex items-center gap-2 shrink-0">
               <NotificationBell audience="customer" />
+
+              <Link
+                to="/favorites"
+                className={`relative inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl border text-xs font-bold transition-colors min-h-[40px] ${
+                  isFavoritesActive
+                    ? 'bg-[#E6F5EC] border-[#1B8E53] text-[#1B8E53]'
+                    : 'border-[#EAE6E1] text-[#1C1917] hover:bg-[#FAF9F7]'
+                }`}
+                aria-label={t('المحلات المفضلة', 'Favorite Stores')}
+                title={t('المحلات المفضلة', 'Favorite Stores')}
+              >
+                <Heart
+                  className={`w-4 h-4 ${
+                    isFavoritesActive || favoritesCount > 0
+                      ? 'text-rose-500 fill-rose-500'
+                      : 'text-[#6E6A66]'
+                  }`}
+                />
+                {favoritesCount > 0 && (
+                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Link>
 
               <Link
                 to="/profile"
@@ -170,7 +212,7 @@ export const CustomerLayout: React.FC = () => {
 
       {/* Clean Minimal Footer */}
       <footer className="bg-white border-t border-[#EAE6E1] mt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2.5">
             <BrandLogo />
             <p className="text-xs sm:text-sm text-[#6E6A66] max-w-sm leading-relaxed">
@@ -200,6 +242,27 @@ export const CustomerLayout: React.FC = () => {
                     {language === 'ar' ? a.nameAr : a.nameEn}
                   </button>
                 ))}
+            </div>
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-[#1C1917] mb-2.5">
+              {t('بوابات الشركاء', 'Partner Portals')}
+            </h4>
+            <div className="flex flex-col sm:flex-row md:flex-col gap-2">
+              <Link
+                to={authSession?.role === 'merchant' ? '/merchant' : '/merchant/login'}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] hover:border-[#1B8E53] hover:bg-[#E6F5EC]/60 text-xs font-bold text-[#1C1917] transition-colors"
+              >
+                <Store className="w-4 h-4 text-[#1B8E53] shrink-0" />
+                <span>{t('لوحة تحكم التاجر', 'Merchant Dashboard')}</span>
+              </Link>
+              <Link
+                to={authSession?.role === 'delivery' ? '/delivery' : '/delivery/login'}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FAF9F7] border border-[#EAE6E1] hover:border-[#1B8E53] hover:bg-[#E6F5EC]/60 text-xs font-bold text-[#1C1917] transition-colors"
+              >
+                <Truck className="w-4 h-4 text-[#1B8E53] shrink-0" />
+                <span>{t('لوحة تحكم المندوب', 'Delivery Dashboard')}</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -281,6 +344,49 @@ export const CustomerLayout: React.FC = () => {
         open={locationModalOpen}
         onClose={() => setLocationModalOpen(false)}
       />
+
+      {/* Login Prompt for Unauthenticated Favorite Action */}
+      <Modal
+        open={Boolean(pendingFavoriteStoreId)}
+        onClose={dismissFavoritePrompt}
+        title={t('حفظ المحل في المفضلة', 'Save Store to Favorites')}
+        maxWidthClass="max-w-sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[#1C1917] leading-relaxed">
+            {t(
+              'يجب تسجيل الدخول أولاً لحفظ المحلات في المفضلة والوصول إليها في أي وقت.',
+              'Please sign in first to save stores to your favorites and access them anytime.'
+            )}
+          </p>
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                const storeId = pendingFavoriteStoreId;
+                dismissFavoritePrompt();
+                navigate('/login', {
+                  state: {
+                    from: `${location.pathname}${location.search}`,
+                    pendingFavoriteStoreId: storeId,
+                  },
+                });
+              }}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs sm:text-sm font-extrabold inline-flex items-center justify-center gap-1.5"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>{t('سجل الدخول الآن', 'Sign In Now')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={dismissFavoritePrompt}
+              className="px-4 py-2.5 rounded-xl border border-[#EAE6E1] text-xs sm:text-sm font-bold text-[#6E6A66]"
+            >
+              {t('إلغاء', 'Cancel')}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

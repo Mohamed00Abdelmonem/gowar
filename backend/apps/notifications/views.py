@@ -39,6 +39,19 @@ class MarkNotificationsReadView(APIView):
         return Response({"detail": "Notifications marked as read."})
 
 
+class MarkSingleNotificationReadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        notification = Notification.objects.filter(pk=pk, recipient=request.user).first()
+        if not notification:
+            return Response({"detail": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)
+        if not notification.is_read:
+            notification.is_read = True
+            notification.save(update_fields=["is_read"])
+        return Response(NotificationSerializer(notification).data)
+
+
 class PushConfigView(APIView):
     permission_classes = [permissions.AllowAny]
 

@@ -4,6 +4,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
+  Download,
   Globe,
   KeyRound,
   Lock,
@@ -19,6 +20,7 @@ import { DEMO_ACCOUNTS } from '../../services/authService';
 import { IS_BACKEND_API_ENABLED } from '../../services/apiClient';
 import { BrandLogo } from '../../components/common/BrandLogo';
 import { StoreMapPicker } from '../../components/location/StoreMapPicker';
+import { isStandaloneMode, requestPwaInstallModal } from '../../services/pwaInstall';
 import type { StoreType } from '../../types';
 
 export const MerchantLoginPage: React.FC = () => {
@@ -64,13 +66,16 @@ export const MerchantLoginPage: React.FC = () => {
   if (authSession?.role === 'merchant') {
     return <Navigate to="/merchant" replace />;
   }
+  if (authSession?.role === 'delivery') {
+    return <Navigate to="/delivery" replace />;
+  }
   if (authSession?.role === 'admin') {
     return <Navigate to="/admin" replace />;
   }
 
   const merchantDemos = DEMO_ACCOUNTS.filter((a) => a.role === 'merchant');
-  const redirectTarget =
-    (location.state as { from?: string } | null)?.from || '/merchant';
+  const rawFrom = (location.state as { from?: string } | null)?.from;
+  const redirectTarget = rawFrom && rawFrom.startsWith('/merchant') ? rawFrom : '/merchant';
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,18 +145,30 @@ export const MerchantLoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FAF9F7] flex flex-col justify-center items-center p-4 sm:p-6">
       <div className={`w-full ${mode === 'register' ? 'max-w-lg' : 'max-w-md'} space-y-5 transition-all`}>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <Link to="/">
             <BrandLogo />
           </Link>
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE6E1] text-xs font-bold text-[#1C1917]"
-          >
-            <Globe className="w-3.5 h-3.5 text-[#1B8E53]" />
-            <span>{language === 'ar' ? 'EN' : 'عربي'}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {!isStandaloneMode() && (
+              <button
+                type="button"
+                onClick={requestPwaInstallModal}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E6F5EC] hover:bg-[#D5EFE0] border border-[#C2E7D2] text-xs font-bold text-[#1B8E53]"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>{t('تثبيت التطبيق', 'Install App')}</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#EAE6E1] text-xs font-bold text-[#1C1917]"
+            >
+              <Globe className="w-3.5 h-3.5 text-[#1B8E53]" />
+              <span>{language === 'ar' ? 'EN' : 'عربي'}</span>
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-3xl border border-[#EAE6E1] p-6 sm:p-7 shadow-sm space-y-5">

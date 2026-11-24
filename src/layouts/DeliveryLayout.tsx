@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   CheckCircle2,
   ClipboardList,
+  Download,
   Globe,
   LayoutDashboard,
   LogOut,
@@ -11,6 +12,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { BrandLogo } from '../components/common/BrandLogo';
+import { NotificationBell } from '../components/common/NotificationBell';
+import { isStandaloneMode, requestPwaInstallModal } from '../services/pwaInstall';
 
 export const DeliveryLayout: React.FC = () => {
   const { language, setLanguage, t, authSession, logoutPortal } = useApp();
@@ -79,6 +82,18 @@ export const DeliveryLayout: React.FC = () => {
           </nav>
 
           <div className="flex items-center gap-2 shrink-0">
+            <NotificationBell audience="delivery" />
+            {!isStandaloneMode() && (
+              <button
+                type="button"
+                onClick={requestPwaInstallModal}
+                className="h-9 px-2.5 rounded-xl border border-[#C2E7D2] bg-[#E6F5EC] hover:bg-[#D5EFE0] text-xs font-bold text-[#1B8E53] inline-flex items-center gap-1"
+                title={t('تثبيت التطبيق', 'Install App')}
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{t('تثبيت', 'Install')}</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}

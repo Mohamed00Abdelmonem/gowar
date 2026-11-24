@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { AlertCircle, Lock, Mail, Phone, User, UserPlus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ApiClientError, IS_BACKEND_API_ENABLED } from '../../services/apiClient';
-import { authApi } from '../../services/gowarApi';
+import { authApi, marketplaceApi } from '../../services/gowarApi';
 
 interface CustomerAuthPageProps {
   initialMode?: 'login' | 'register';
@@ -12,8 +12,14 @@ interface CustomerAuthPageProps {
 export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
   initialMode = 'login',
 }) => {
-  const { t, showToast, refreshFromBackend } = useApp();
+  const { t, cart, showToast, refreshFromBackend } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const rawFrom =
+    (location.state as { from?: string } | null)?.from || searchParams.get('next') || '/';
+  const returnTo = rawFrom.startsWith('/') && !rawFrom.startsWith('//') ? rawFrom : '/';
 
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [email, setEmail] = useState('');
@@ -55,8 +61,37 @@ export const CustomerAuthPage: React.FC<CustomerAuthPageProps> = ({
         await authApi.loginRole('customer', email, password);
         showToast(t('تم تسجيل الدخول بنجاح', 'Signed in successfully'), 'success');
       }
+      if (cart.items.length > 0) {
+        try {
+          for (let i = 0; i < cart.items.length; i += 1) {
+            const item = cart.items[i];
+            await marketplaceApi.addCartItem(item.productId, item.quantity, i === 0);
+          }
+        } catch {
+          // Best-effort sync; backend state will be refreshed below
+        }
+      }
+
+      const pendingFavId =
+        (location.state as { pendingFavoriteStoreId?: string } | null)?.pendingFavoriteStoreId ||
+        (() => {
+          try {
+            return sessionStorage.getItem('gowar_pending_favorite_v1');
+          } catch {
+            return null;
+          }
+        })();
+      if (pendingFavId) {
+        try {
+          await marketplaceApi.addFavoriteStore(pendingFavId);
+          sessionStorage.removeItem('gowar_pending_favorite_v1');
+        } catch {
+          // Best-effort favorite continuation
+        }
+      }
+
       await refreshFromBackend();
-      navigate('/', { replace: true });
+      navigate(returnTo, { replace: true });
     } catch (err) {
       if (err instanceof ApiClientError) {
         setError(err.message);

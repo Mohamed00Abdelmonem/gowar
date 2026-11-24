@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardList, Heart, LayoutDashboard, LogIn, LogOut, MapPin, Save, User } from 'lucide-react';
+import { ClipboardList, Heart, LayoutDashboard, LogIn, LogOut, MapPin, Save, Truck, User } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import {
   IS_BACKEND_API_ENABLED,
@@ -55,6 +55,15 @@ export const ProfilePage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {effectiveRole === 'delivery' && (
+            <Link
+              to="/delivery"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B8E53] hover:bg-[#147242] text-white text-xs font-bold transition-colors shadow-2xs"
+            >
+              <Truck className="w-3.5 h-3.5" />
+              <span>{t('لوحة تحكم المندوب', 'Delivery Dashboard')}</span>
+            </Link>
+          )}
           {isMerchantUser && isApprovedMerchant && (
             <Link
               to="/merchant"
