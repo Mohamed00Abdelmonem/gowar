@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("notifications", "0001_initial"),
+        ("notifications", "0003_rename_notificatio_user_id_b26f8d_idx_notificatio_user_id_1159a5_idx"),
     ]
 
     operations = [
