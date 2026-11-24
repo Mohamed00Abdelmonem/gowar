@@ -182,7 +182,9 @@ def test_product_image_upload_validation_and_product_creation(
     assert lib_item is not None
     assert CatalogLibraryCategory.objects.filter(slug="dairy-milk").exists()
 
-    lib_res = api_client.get("/api/v1/merchant/catalog-library/items/?q=juhayna-milk-1l")
+    lib_res = api_client.get(f"/api/v1/merchant/catalog-library/items/?q={lib_item.name_en}")
+    assert lib_res.status_code == 200
+    assert len(lib_res.data["results"]) >= 1
     lib_thumb = lib_res.data["results"][0]["thumbnail_url"]
 
     create_lib = api_client.post(

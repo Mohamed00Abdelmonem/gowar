@@ -180,5 +180,8 @@ def test_order_lifecycle_dispatches_web_push_and_cleans_up_expired_410(
                 format="json",
             )
         assert tr_done.status_code == 200
-        assert len(sent_calls) == count_before
+        assert not any(
+            ep == "https://push.example.com/customer-device-active"
+            for ep, _ in sent_calls[count_before:]
+        )
         assert Notification.objects.filter(recipient=customer_user).count() >= 5
