@@ -46,18 +46,13 @@ def test_delivery_notifications_persistence_isolation_mark_read_and_deduplicatio
     api_client.force_authenticate(user=customer_user)
     api_client.post(
         "/api/v1/cart/items/",
-        {"product_id": str(p1.id), "quantity": 1},
+        {"product_id": str(p1.id), "quantity": 2},
         format="json",
     )
     order_res = api_client.post(
         "/api/v1/orders/",
         {
-            "delivery_address": {
-                "label": "Home",
-                "formatted_address": "5 Nasr City",
-                "latitude": 30.0566,
-                "longitude": 31.3376,
-            },
+            "address_id": str(customer_user.addresses.first().id),
             "payment_method": "cod",
         },
         format="json",
@@ -151,7 +146,7 @@ def test_delivery_notifications_persistence_isolation_mark_read_and_deduplicatio
 
 @pytest.mark.django_db
 def test_delivery_push_subscription_and_expired_cleanup(
-    api_client, two_delivery_drivers, monkeypatch, settings
+    api_client, two_delivery_drivers, monkeypatch, settings, django_capture_on_commit_callbacks
 ):
     d1 = two_delivery_drivers["d1"]
     settings.VAPID_PUBLIC_KEY = "test-pub-key"
@@ -178,11 +173,12 @@ def test_delivery_push_subscription_and_expired_cleanup(
         raise WebPushException("Gone", response=FakeGoneResponse())
 
     monkeypatch.setattr("apps.notifications.services.webpush", fake_webpush)
-    create_and_dispatch_notification(
-        recipient=d1,
-        title="طلب توصيل",
-        body="تم إسناد طلب جديد",
-        link="/delivery/orders/test-id",
-        event_key="push-gone-test",
-    )
+    with django_capture_on_commit_callbacks(execute=True):
+        create_and_dispatch_notification(
+            recipient=d1,
+            title="طلب توصيل",
+            body="تم إسناد طلب جديد",
+            link="/delivery/orders/test-id",
+            event_key="push-gone-test",
+        )
     assert PushSubscription.objects.filter(user=d1).count() == 0

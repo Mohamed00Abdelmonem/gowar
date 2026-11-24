@@ -132,11 +132,12 @@ def test_external_image_search_unconfigured_and_timeout(api_client, merchants_an
 
 @pytest.mark.django_db
 def test_product_image_upload_validation_and_product_creation(
-    api_client, merchants_and_stores, categories, tmp_path, settings
+    api_client, merchants_and_stores, sample_catalog, tmp_path, settings
 ):
     settings.MEDIA_ROOT = tmp_path
     s1 = merchants_and_stores["s1"]
     m1_user = s1.merchant.user
+    dairy_cat_id = str(sample_catalog["p1"].category_id)
     api_client.force_authenticate(user=m1_user)
 
     # Invalid file rejected
@@ -163,7 +164,7 @@ def test_product_image_upload_validation_and_product_creation(
     create_uploaded = api_client.post(
         "/api/v1/merchant/products/",
         {
-            "category": str(categories["dairy"].id),
+            "category": dairy_cat_id,
             "name": "حليب طازج مرفوع",
             "name_en": "Uploaded Fresh Milk",
             "image_url": uploaded_url,
@@ -187,7 +188,7 @@ def test_product_image_upload_validation_and_product_creation(
     create_lib = api_client.post(
         "/api/v1/merchant/products/",
         {
-            "category": str(categories["dairy"].id),
+            "category": dairy_cat_id,
             "name": "حليب جهينة ١ لتر",
             "name_en": "Juhayna Milk 1L",
             "image_url": lib_thumb,

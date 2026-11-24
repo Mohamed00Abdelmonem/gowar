@@ -206,18 +206,13 @@ def test_delivery_trip_accept_cancel_reassign_arrive_and_complete(
     api_client.force_authenticate(user=customer_user)
     api_client.post(
         "/api/v1/cart/items/",
-        {"product_id": str(p1.id), "quantity": 1},
+        {"product_id": str(p1.id), "quantity": 2},
         format="json",
     )
     order_res = api_client.post(
         "/api/v1/orders/",
         {
-            "delivery_address": {
-                "label": "Home",
-                "formatted_address": "10 Makram Ebeid",
-                "latitude": 30.0566,
-                "longitude": 31.3376,
-            },
+            "address_id": str(customer_user.addresses.first().id),
             "payment_method": "cod",
         },
         format="json",

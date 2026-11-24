@@ -190,7 +190,7 @@ class MerchantCatalogLibraryItemListView(generics.ListAPIView):
         category = (self.request.query_params.get("category") or "").strip()
         if category and category != "all":
             qs = qs.filter(
-                Q(library_category__slug=category) | Q(library_category_id__iexact=category)
+                Q(library_category__slug=category) | Q(library_category__id__iexact=category)
             )
         q = (self.request.query_params.get("q") or "").strip()
         if q:

@@ -76,13 +76,16 @@ def test_push_subscription_crud_multi_device_and_deduplication(api_client, custo
 def test_order_lifecycle_dispatches_web_push_and_cleans_up_expired_410(
     api_client,
     customer_user,
-    customer_address,
-    merchant_user,
-    approved_store,
-    product,
+    merchants_and_stores,
+    sample_catalog,
     settings,
     django_capture_on_commit_callbacks,
 ):
+    customer_address = customer_user.addresses.first()
+    approved_store = merchants_and_stores["s1"]
+    merchant_user = approved_store.merchant.user
+    product = sample_catalog["p1"]
+
     settings.VAPID_PUBLIC_KEY = "BTestPublicKey123"
     settings.VAPID_PRIVATE_KEY = "TestPrivateKey123"
     settings.VAPID_CLAIMS_EMAIL = "mailto:admin@gowar.local"
