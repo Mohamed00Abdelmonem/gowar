@@ -292,28 +292,7 @@ export const CustomerHomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. Popular Stores */}
-      <section className="space-y-3.5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg sm:text-xl font-extrabold text-[#1C1917]">
-            {t('محلات مشهورة في منطقتك', 'Popular Neighborhood Stores')}
-          </h2>
-          <Link
-            to="/stores"
-            className="text-xs font-bold text-[#1B8E53] hover:underline inline-flex items-center gap-1"
-          >
-            <span>{t('كل المحلات', 'All stores')}</span>
-            <ArrowIcon className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {popularStores.map((store) => (
-            <StoreCard key={store.id} merchant={store} />
-          ))}
-        </div>
-      </section>
-
-      {/* 7. Offers & Compact Weekly Deal Banner */}
+      {/* 6. Offers & Compact Weekly Deal Banner */}
       {offerProducts.length > 0 && (
         <section className="space-y-4">
           <div className="relative rounded-2xl overflow-hidden bg-[#0F3822] text-white p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -348,6 +327,27 @@ export const CustomerHomePage: React.FC = () => {
           </div>
         </section>
       )}
+
+      {/* 7. Popular Stores */}
+      <section className="space-y-3.5">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg sm:text-xl font-extrabold text-[#1C1917]">
+            {t('محلات مشهورة في منطقتك', 'Popular Neighborhood Stores')}
+          </h2>
+          <Link
+            to="/stores"
+            className="text-xs font-bold text-[#1B8E53] hover:underline inline-flex items-center gap-1"
+          >
+            <span>{t('كل المحلات', 'All stores')}</span>
+            <ArrowIcon className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {popularStores.map((store) => (
+            <StoreCard key={store.id} merchant={store} />
+          ))}
+        </div>
+      </section>
 
       <LocationPickerModal
         open={locationPickerOpen}
